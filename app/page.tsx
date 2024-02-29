@@ -1,7 +1,8 @@
 "use client";
 
+import MainPageItem from "@/components/main_page_item";
+import Image from "next/image";
 import { useRef, useState } from "react";
-
 
 var data: any = {
   categories: [
@@ -69,7 +70,7 @@ var data: any = {
     {
       title: "Dessert Rose",
       image:
-        "https://images.mygoodtimes.in/wp-content/uploads/2018/12/08210525/Bakers-Copy.jpg",
+        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
       prepTimeValue: "30 - 35",
       prepTimeUnit: "min",
       rating: 4.5,
@@ -80,7 +81,18 @@ var data: any = {
     {
       title: "Barbecue Nation",
       image:
-        "https://chowhound1.cbsistatic.com/thumbnail/370/0/chowhound1.cbsistatic.com/assets/2012/08/30453_RecipeImage_620x413_grilled_chicken_nectarine.jpg",
+        "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
+      prepTimeValue: "40 - 60",
+      prepTimeUnit: "min",
+      rating: 4.6,
+      cat1: "Barbecue",
+      cat2: "Chicken",
+      range: "$$$",
+    },
+    {
+      title: "Twinkle Star",
+      image:
+        "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGZvb2R8ZW58MHx8MHx8fDA%3D",
       prepTimeValue: "40 - 60",
       prepTimeUnit: "min",
       rating: 4.6,
@@ -117,12 +129,12 @@ var data: any = {
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState(1);
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
-  
+
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
       categoriesContainerRef.current.scrollLeft += scrollValue;
     }
-  }
+  };
 
   return (
     <>
@@ -181,38 +193,50 @@ export default function Home() {
           </div>
           <h3 className="text-3xl font-semibold mt-8">Categories</h3>
           <div className="flex flex-row gap-8 mt-8 items-center w-full">
-            <button onClick={() => onCategoriesScrollButtonClick(-50)} className="h-10 w-10 flex-grow-0 rounded-lg hover:shadow-xl flex justify-center items-center bg-gray-100 p-3 ">
+            <button
+              onClick={() => onCategoriesScrollButtonClick(-50)}
+              className="h-10 w-10 flex-grow-0 rounded-lg hover:shadow-xl flex justify-center items-center bg-gray-100 p-3 "
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20px"
                 height="20px"
                 viewBox="0 0 24 24"
               >
-                <path fill="black" d="m14 18l-6-6l6-6l1.4 1.4l-4.6 4.6l4.6 4.6z"/>
+                <path
+                  fill="black"
+                  d="m14 18l-6-6l6-6l1.4 1.4l-4.6 4.6l4.6 4.6z"
+                />
               </svg>
             </button>
-            <div className="flex flex-row flex-1 overflow-x-auto scrollbar small-scrollbar gap-2 pb-1" ref={categoriesContainerRef}>
-            {data.categories.map((cat: any, idx: number) => (
-              <div
-                key={idx}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`rounded-md p-2 grid grid-cols-3 grid-rows-2 gap-2 shadow-xl cursor-pointer transition-colors duration-500 ease-in-out h-16 min-w-40 ${
-                  cat.id === activeCategory ? "bg-primary" : ""
-                }`}
-              >
-                <div className="rounded-full flex items-center justify-center bg-white row-span-2">
-                  <img className="h-8 w-8" src={cat.icon} alt="" />
+            <div
+              className="flex flex-row flex-1 overflow-x-auto scrollbar small-scrollbar gap-2 pb-1"
+              ref={categoriesContainerRef}
+            >
+              {data.categories.map((cat: any, idx: number) => (
+                <div
+                  key={idx}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`rounded-md p-2 grid grid-cols-3 grid-rows-2 gap-2 shadow-xl cursor-pointer transition-colors duration-500 ease-in-out h-16 min-w-40 ${
+                    cat.id === activeCategory ? "bg-primary" : ""
+                  }`}
+                >
+                  <div className="rounded-full flex items-center justify-center bg-white row-span-2">
+                    <img className="h-8 w-8" src={cat.icon} alt="" />
+                  </div>
+                  <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+                    {cat.text}
+                  </p>
+                  <p className="text-xs text-slate-400 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+                    {cat.quantity} dishes
+                  </p>
                 </div>
-                <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
-                  {cat.text}
-                </p>
-                <p className="text-xs text-slate-400 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
-                  {cat.quantity} dishes
-                </p>
-              </div>
-            ))}
+              ))}
             </div>
-            <button onClick={() => onCategoriesScrollButtonClick(50)} className="h-10 w-10 flex-grow-0 rounded-lg hover:shadow-xl flex justify-center items-center bg-gray-100 p-3">
+            <button
+              onClick={() => onCategoriesScrollButtonClick(50)}
+              className="h-10 w-10 flex-grow-0 rounded-lg hover:shadow-xl flex justify-center items-center bg-gray-100 p-3"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20px"
@@ -224,45 +248,9 @@ export default function Home() {
             </button>
           </div>
           <div className="mt-12 grid grid-cols-3 gap-10">
-            {data.foodItems.map((food: any, index: number) => (
-              <div className="flex flex-row" key={index}>
-                <div
-                  className="shadow-lg relative h-40 custom-rounded"
-                  style={{
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    backgroundImage: `url(${food.image})`,
-                    backgroundAttachment: "fixed",
-                  }}
-                >
-                  <div className="absolute bottom-0 left-0 w-1/3 bg-gray-200 rounded-tr-lg p-2 text-center text-xs">
-                    <span className="font-bold">{food.prepTimeValue}</span>{" "}
-                    {food.prepTimeUnit}
-                  </div>
-                </div>
-                <p className="mt-4 font-medium">{food.title}</p>
-                <div className="mt-2 flex items-center">
-                  <span className="text-xs">
-                    <i className="fa fa-star"></i> {food.rating}
-                  </span>
-                  <span className="text-gray-600 font-hairline text-xs mx-4">
-                    {food.cat1}
-                  </span>
-                  <span className="text-gray-600 font-hairline text-xs mx-4">
-                    {food.cat2}
-                  </span>
-                  <span className="text-gray-600 font-hairline text-xs mx-4">
-                    {food.range}
-                  </span>
-                </div>
-              </div>
-            ))}
+            {data.foodItems.map((food: any, index: number) => <MainPageItem food={food} key={index} />)}
           </div>
         </div>
-      </div>
-      <div className="flex h-10">
-        <div className="flex-grow px-16 main border-r border-gray-200"></div>
-        <div className="sidebar bg-gray-100"></div>
       </div>
     </>
   );

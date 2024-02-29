@@ -1,13 +1,13 @@
 'use client'
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Lato } from "next/font/google";
 import "@/styles/globals.css";
 import Sidebar from "@/components/sidebar";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
+const lato = Lato({ weight: ["100", "300", "400", "700", "900"], subsets: ["latin"], variable: '--font-lato', });
 
 // export const metadata: Metadata = {
 //   title: "Fooddddddd",
@@ -23,7 +23,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={twMerge(inter.className, "transition-[0.5] scrollbar", isSidebarOpen ? "ml-[calc(92px+6rem)]" : "ml-[92px]")}>
+      <body className={twMerge(lato.variable, "font-sans transition-[0.5] scrollbar", isSidebarOpen ? "ml-[calc(92px+6rem)]" : "ml-[92px]")}>
         <Sidebar intitalState={isSidebarOpen} onSidebarToggle={() => setIsSidebarOpen(prevState => !prevState)}/>
         {children}
       </body>

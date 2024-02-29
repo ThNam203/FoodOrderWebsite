@@ -31,16 +31,8 @@
   }
 }
 
-body * {
-  font-family: 'Poppins', sans-serif;
-}
-
 .sidebar {
   flex: 1;
-}
-
-.custom-rounded {
-  border-radius: 25px;
 }
 
 .custom-tr-rounded {
