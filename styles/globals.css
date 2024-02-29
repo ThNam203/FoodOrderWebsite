@@ -16,18 +16,40 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+body * {
+  font-family: 'Poppins', sans-serif;
+}
+
+[v-cloak] {
+  display: none;
+}
+
+.main {
+  flex: 3;
+}
+
+.sidebar {
+  flex: 1;
+}
+
+.custom-rounded {
+  border-radius: 25px;
+}
+
+.custom-tr-rounded {
+  border-radius:  0 25px 0 0;
+}
+
+.timer {
+  background: rgba(217, 194, 105, .2);
+}
+
+.text-xxs {
+  font-size: .7rem;
 }
