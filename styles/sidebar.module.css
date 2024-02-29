@@ -68,11 +68,6 @@
   width: calc(92px + 6rem);
 }
 
-/*Add padding body*/
-.body-pd {
-  padding: 2rem 0 0 16rem;
-}
-
 /*Active links menu*/
 .active {
   background-color: #0C5DF4;

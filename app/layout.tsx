@@ -23,7 +23,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={twMerge(inter.className, "transition-[0.5] pr-16", isSidebarOpen ? "pl-[16rem]" : "pl-[6.75rem]")}>
+      <body className={twMerge(inter.className, "transition-[0.5] scrollbar", isSidebarOpen ? "ml-[calc(92px+6rem)]" : "ml-[92px]")}>
         <Sidebar intitalState={isSidebarOpen} onSidebarToggle={() => setIsSidebarOpen(prevState => !prevState)}/>
         {children}
       </body>
