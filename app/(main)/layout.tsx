@@ -23,7 +23,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={twMerge(lato.variable, "font-sans transition-[0.5] scrollbar", isSidebarOpen ? "ml-[calc(92px+6rem)]" : "ml-[92px]")}>
+      <body className={twMerge(lato.variable, "bg-white font-sans transition-[0.5] scrollbar", isSidebarOpen ? "ml-[calc(92px+6rem)]" : "ml-[92px]")}>
         <Sidebar intitalState={isSidebarOpen} onSidebarToggle={() => setIsSidebarOpen(prevState => !prevState)}/>
         {children}
       </body>
