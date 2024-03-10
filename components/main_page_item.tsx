@@ -1,8 +1,9 @@
 import Image from "next/image";
+import { twMerge } from "tailwind-merge";
 
-export default function MainPageItem({ food }: { food: any }) {
+export default function MainPageItem({ food, className }: { food: any, className?: string }) {
   return (
-    <div className="rounded overflow-hidden shadow-lg bg-[#12192C] bg-opacity-75 p-0">
+    <div className={twMerge("rounded overflow-hidden shadow-lg bg-[#12192C] bg-opacity-75 p-0", className)}>
       <div
         className="relative shadow-lg h-40"
         style={{

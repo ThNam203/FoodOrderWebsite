@@ -35,7 +35,9 @@ export default function IntroPage() {
             <p className="text-xl text-center tracking-widest font-semibold">
               HOURS
             </p>
-            <p className="text-center font-medium my-2">Brunch: Thursday - Monday, 9am to 2:30pm </p>
+            <p className="text-center font-medium my-2">
+              Brunch: Thursday - Monday, 9am to 2:30pm{" "}
+            </p>
             <p className="text-center">Dinner: Thursday - Sunday, 5pm to 9pm</p>
           </div>
           <div>
@@ -43,13 +45,55 @@ export default function IntroPage() {
               CONTACT
             </p>
             <p className="text-center font-medium my-2">(626) 281-1035</p>
-            <p className="text-center">hello@yangskitchenla.com</p>
+            <p className="text-center">hello@sen1orkitchenhcm.com</p>
           </div>
         </div>
       </section>
       <section className="text-black w-full my-16">
-        {/* <CurrentLocationMap /> */}
-        <h3 className="text-3xl text-center">© 2024 SE109&apos;S KITCHEN</h3>
+        <CurrentLocationMap />
+      </section>
+      <section className="bg-primary py-8 px-12 flex justify-evenly">
+        <div>
+          <h2 className="text-xl font-bold">About Us Devs</h2>
+          <ul>
+            <li className="my-4">
+              <a className="underline hover:cursor-pointer hover:font-bold font-medium text-base">
+                Nam, Huỳnh Thành
+              </a>
+            </li>
+            <li className="my-4">
+              <a className="underline hover:cursor-pointer hover:font-bold font-medium text-base">Đạt, Phạm Tiến </a>
+            </li>
+            <li className="my-4">
+              <a className="underline hover:cursor-pointer hover:font-bold font-medium text-base">
+                Khôi, Nguyễn Nguyên
+              </a>
+            </li>
+            <li className="my-4">
+              <a className="underline hover:cursor-pointer hover:font-bold font-medium text-base">
+                Sơn, Trương Văn Hoàng
+              </a>
+            </li>
+          </ul>
+          <p>UIT, Thu Duc, Thanh Pho HCM</p>
+        </div>
+        <div>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">FAQS</p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">CAREERS</p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">STORES</p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">PRIVACY POLICY</p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">TERMS OF USE</p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">SHIPPING POLICY</p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">REFUND POLICY</p>
+        </div>
+        <div>
+          <ul>
+          <li><a className="hover:cursor-pointer hover:font-bold hover:underline">FACEBOOK</a></li>
+          <li><a className="hover:cursor-pointer hover:font-bold hover:underline">GITHUB</a></li>
+          <li><a className="hover:cursor-pointer hover:font-bold hover:underline">LINKEDIN</a></li>
+          </ul>
+          <h3 className="text-center">© 2024 FFOOD&apos;S KITCHEN</h3>
+        </div>
       </section>
     </>
   );
