@@ -1,11 +1,11 @@
 "use client";
 
 import MainPageItem from "@/components/main_page_item";
-import Image from "next/image";
 import { useRef, useState } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from 'embla-carousel-autoplay'
+import emblaStyle from "@/styles/embla_carousel.module.css"
+import { twMerge } from "tailwind-merge";
 
 var data: any = {
   categories: [
@@ -195,22 +195,22 @@ export default function Home() {
             />
           </div>
           <section>
-            <h3 className="text-4xl font-semibold mt-8">Best sellers</h3>
+            <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
 
             <FoodListComponent foods={data.foodItems} />
           </section>
           <section>
-            <h3 className="text-4xl font-semibold mt-8">On sale</h3>
+            <h3 className="text-4xl font-semibold my-8">On sale</h3>
 
             <FoodListComponent foods={data.foodItems} />
           </section>
           <section>
-            <h3 className="text-4xl font-semibold mt-8">Best rated</h3>
+            <h3 className="text-4xl font-semibold my-8">Best rated</h3>
             <FoodListComponent foods={data.foodItems} />
           </section>
-          <section>
-            <h3 className="text-4xl font-semibold mt-8">Categories</h3>
-            <div className="flex flex-row gap-8 mt-8 items-center w-full">
+          <section className="mb-8">
+            <h3 className="text-4xl font-semibold my-8">Categories</h3>
+            <div className="flex flex-row gap-8 my-8 items-center w-full">
               <button
                 onClick={() => onCategoriesScrollButtonClick(-50)}
                 className="h-10 w-10 flex-grow-0 rounded-lg hover:shadow-xl flex justify-center items-center bg-gray-100 p-3 "
@@ -277,23 +277,15 @@ export default function Home() {
 }
 
 const FoodListComponent = ({ foods }: { foods: any }) => {
-  const settings = {
-    dots: true,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    arrows: false,
-    autoplay: true,
-    autoplaySpeed: 1000,
-  };
+  const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
+
   return (
-    <div className="mt-12 overflow-hidden">
-      <Slider {...settings}>
+    <div className={emblaStyle.embla} ref={emblaRef}>
+      <div className="flex gap-[calc((100%-99%)/3)]">
         {foods.map((food: any, index: number) => (
-          <MainPageItem className="mx-2" food={food} key={index} />
+          <MainPageItem className="flex-[0_0_33%] min-w-0" food={food} key={index} />
         ))}
-      </Slider>
+      </div>
     </div>
   );
 };
