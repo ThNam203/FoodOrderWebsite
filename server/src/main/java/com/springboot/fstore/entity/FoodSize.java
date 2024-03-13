@@ -16,6 +16,10 @@ public class FoodSize extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+    private Double price;
+    private Double weight;
+    private String note;
+    private int quantity;
 
     @ManyToOne
     @JoinColumn(name = "food_id")

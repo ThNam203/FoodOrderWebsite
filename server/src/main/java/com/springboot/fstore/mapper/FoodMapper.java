@@ -11,12 +11,10 @@ public class FoodMapper {
                 .name(food.getName())
                 .description(food.getDescription())
                 .image(food.getImage())
-                .price(food.getPrice())
-                .quantity(food.getQuantity())
                 .category(food.getCategory())
                 .isDeleted(food.getIsDeleted())
                 .createdAt(food.getCreatedAt())
-//                .foodSizes(food.getFoodSizes().stream().map(FoodSize::getName).toList())
+                .foodSizes(food.getFoodSizes().stream().map(FoodSizeMapper::toFoodSizeDTO).toList())
                 .build();
     }
     public static Food toFood(FoodDTO foodDTO) {
@@ -24,8 +22,6 @@ public class FoodMapper {
                 .name(foodDTO.getName())
                 .description(foodDTO.getDescription())
                 .image(foodDTO.getImage())
-                .price(foodDTO.getPrice())
-                .quantity(foodDTO.getQuantity())
                 .category(foodDTO.getCategory())
                 .isDeleted(foodDTO.getIsDeleted() != null && foodDTO.getIsDeleted())
                 .build();

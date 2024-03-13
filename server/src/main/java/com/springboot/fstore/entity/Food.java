@@ -23,8 +23,6 @@ public class Food extends BaseEntity {
     private String name;
     private String description;
     private String image;
-    private Double price;
-    private int quantity;
     private String category;
     private Boolean isDeleted;
 

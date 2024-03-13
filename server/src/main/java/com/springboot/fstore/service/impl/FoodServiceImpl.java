@@ -1,9 +1,11 @@
 package com.springboot.fstore.service.impl;
 
 import com.springboot.fstore.entity.Food;
+import com.springboot.fstore.entity.FoodSize;
 import com.springboot.fstore.exception.CustomException;
 import com.springboot.fstore.exception.ResourceNotFoundException;
 import com.springboot.fstore.mapper.FoodMapper;
+import com.springboot.fstore.mapper.FoodSizeMapper;
 import com.springboot.fstore.payload.FoodDTO;
 import com.springboot.fstore.repository.FoodRepository;
 import com.springboot.fstore.service.FoodService;
@@ -20,6 +22,17 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public FoodDTO createFood(FoodDTO foodDTO) {
         Food food = FoodMapper.toFood(foodDTO);
+        if (foodDTO.getFoodSizes() != null) {
+            food.setFoodSizes(foodDTO.getFoodSizes()
+                    .stream()
+                    .map(foodSizeDTO -> {
+                        FoodSize foodSize = FoodSizeMapper.toFoodSize(foodSizeDTO);
+                        foodSize.setFood(food);
+                        return foodSize;
+                    })
+                    .toList());
+        }
+
         Food newFood = foodRepository.save(food);
 
         return FoodMapper.toFoodDTO(newFood);
@@ -31,9 +44,19 @@ public class FoodServiceImpl implements FoodService {
         food.setName(foodDTO.getName());
         food.setDescription(foodDTO.getDescription());
         food.setImage(foodDTO.getImage());
-        food.setPrice(foodDTO.getPrice());
-        food.setQuantity(foodDTO.getQuantity());
         food.setCategory(foodDTO.getCategory());
+
+        if (foodDTO.getFoodSizes() != null) {
+            food.getFoodSizes().clear();
+            food.getFoodSizes().addAll(foodDTO.getFoodSizes()
+                    .stream()
+                    .map(foodSizeDTO -> {
+                        FoodSize foodSize = FoodSizeMapper.toFoodSize(foodSizeDTO);
+                        foodSize.setFood(food);
+                        return foodSize;
+                    })
+                    .toList());
+        }
         return FoodMapper.toFoodDTO(foodRepository.save(food));
     }
 

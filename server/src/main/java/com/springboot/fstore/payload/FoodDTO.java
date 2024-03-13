@@ -20,10 +20,8 @@ public class FoodDTO {
     private String name;
     private String description;
     private String image;
-    private Double price;
-    private int quantity;
     private String category;
     private Boolean isDeleted;
     private LocalDateTime createdAt;
-//    private List<String> foodSizes;
+    private List<FoodSizeDTO> foodSizes;
 }
