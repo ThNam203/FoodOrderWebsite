@@ -1,5 +1,6 @@
 package com.springboot.fstore.service.impl;
 
+import com.springboot.fstore.entity.Category;
 import com.springboot.fstore.entity.Food;
 import com.springboot.fstore.entity.FoodSize;
 import com.springboot.fstore.exception.CustomException;
@@ -7,11 +8,13 @@ import com.springboot.fstore.exception.ResourceNotFoundException;
 import com.springboot.fstore.mapper.FoodMapper;
 import com.springboot.fstore.mapper.FoodSizeMapper;
 import com.springboot.fstore.payload.FoodDTO;
+import com.springboot.fstore.repository.CategoryRepository;
 import com.springboot.fstore.repository.FoodRepository;
 import com.springboot.fstore.service.FoodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,9 +22,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FoodServiceImpl implements FoodService {
     private final FoodRepository foodRepository;
+    private final CategoryRepository categoryRepository;
     @Override
-    public FoodDTO createFood(FoodDTO foodDTO) {
+    public FoodDTO createFood(MultipartFile[] files, FoodDTO foodDTO) {
         Food food = FoodMapper.toFood(foodDTO);
+        food.setImage("https://cdnphoto.dantri.com.vn/lod4Tx8WqZ2WBLsoEmwjyuA6ZU4=/thumb_w/960/2021/03/27/thuytrang-2731-1616857929781.jpg");
+
+        if (foodDTO.getCategory() != null) {
+            Category category = categoryRepository.findById(foodDTO.getCategory().getId()).orElseThrow(() -> new CustomException("Category not found", HttpStatus.NOT_FOUND));
+            food.setCategory(category);
+        }
+
         if (foodDTO.getFoodSizes() != null) {
             food.setFoodSizes(foodDTO.getFoodSizes()
                     .stream()
@@ -39,12 +50,20 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public FoodDTO updateFood(FoodDTO foodDTO, int foodId) {
+    public FoodDTO updateFood(int foodId, MultipartFile[] files, FoodDTO foodDTO) {
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
         food.setName(foodDTO.getName());
         food.setDescription(foodDTO.getDescription());
         food.setImage(foodDTO.getImage());
-        food.setCategory(foodDTO.getCategory());
+
+        if (foodDTO.getCategory() == null)
+            food.setCategory(null);
+        else {
+            if (food.getCategory() == null || foodDTO.getCategory().getId() != food.getCategory().getId()) {
+                Category category = categoryRepository.findById(foodDTO.getCategory().getId()).orElseThrow(() -> new CustomException("Category not found", HttpStatus.NOT_FOUND));
+                food.setCategory(category);
+            }
+        }
 
         if (foodDTO.getFoodSizes() != null) {
             food.getFoodSizes().clear();

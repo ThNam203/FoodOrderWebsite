@@ -23,11 +23,13 @@ public class Food extends BaseEntity {
     private String name;
     private String description;
     private String image;
-    private String category;
     private Boolean isDeleted;
-
 
     @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FoodSize> foodSizes;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
 }

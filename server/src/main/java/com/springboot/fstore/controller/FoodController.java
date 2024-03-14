@@ -5,6 +5,7 @@ import com.springboot.fstore.service.FoodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,13 +26,16 @@ public class FoodController {
     }
 
     @PostMapping
-    public ResponseEntity<FoodDTO> createFood(@RequestBody FoodDTO foodDTO) {
-        return ResponseEntity.status(201).body(foodService.createFood(foodDTO));
+    public ResponseEntity<FoodDTO> createFood(@RequestPart(value = "files", required = false) MultipartFile[] files,
+                                              @RequestPart("data") FoodDTO foodDTO) {
+        return ResponseEntity.status(201).body(foodService.createFood(files, foodDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FoodDTO> updateFood(@RequestBody FoodDTO foodDTO, @PathVariable int id) {
-        return ResponseEntity.ok(foodService.updateFood(foodDTO, id));
+    public ResponseEntity<FoodDTO> updateFood(@PathVariable int id,
+                                              @RequestPart(value = "files", required = false) MultipartFile[] files,
+                                              @RequestPart("data") FoodDTO foodDTO) {
+        return ResponseEntity.ok(foodService.updateFood(id, files, foodDTO));
     }
 
     @DeleteMapping("/{id}")
