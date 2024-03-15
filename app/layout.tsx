@@ -1,5 +1,4 @@
-"use client";
-
+import { Toast } from "@/components/toast";
 import "@/styles/globals.css";
 import { Lato } from "next/font/google";
 
@@ -21,7 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={lato.variable}>{children}</body>
+      <body className={lato.variable}>
+        {children}
+        {/* <Toast /> */}
+      </body>
     </html>
   );
 }

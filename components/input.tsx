@@ -17,11 +17,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     return (
-      <div className="w-full relative flex flex-col">
+      <div className="relative flex flex-col">
         <label
           htmlFor={id}
           className={cn(
-            "font-bold cursor-pointer mb-2 text-secondaryWord text-sm",
+            "font-semibold cursor-pointer mb-2",
             label ? "" : "hidden"
           )}
         >
@@ -34,7 +34,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           name={name}
           placeholder={placeholder}
           className={cn(
-            "w-full border-0 outline outline-2 outline-secondaryWord rounded py-2 px-3 focus:outline-primary font-normal",
+            "border-0 outline outline-1 outline-black rounded py-1 px-3 focus:outline-4 focus:outline-primary font-normal",
             errorMessages ? "outline-red-500" : "",
             className
           )}

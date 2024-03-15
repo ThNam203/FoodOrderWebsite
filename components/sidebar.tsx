@@ -1,8 +1,7 @@
 "use client";
 
 import style from "@/styles/sidebar.module.css";
-import { useState } from "react";
-import { twMerge } from "tailwind-merge";
+import { useEffect, useState } from "react";
 import {
   BrowseIcon,
   CartIcon,
@@ -10,9 +9,12 @@ import {
   FavouriteIcon,
   HistoryIcon,
   IntroIcon,
+  LoginIcon,
   LogoutIcon,
   SettingIcon,
 } from "./icons";
+import { getCookie } from "cookies-next";
+import { cn } from "@/utils/cn";
 
 export default function Sidebar({
   onSidebarToggle,
@@ -22,13 +24,19 @@ export default function Sidebar({
   onSidebarToggle: () => void;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(intitalState);
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    setIsLogin(
+      getCookie("token") !== undefined && getCookie("token") !== ""
+        ? true
+        : false
+    );
+  }, []);
 
   return (
     <div
-      className={twMerge(
-        style["l-navbar"],
-        isSidebarOpen ? style.expander : ""
-      )}
+      className={cn(style["l-navbar"], isSidebarOpen ? style.expander : "")}
       id="navbar"
     >
       <nav className={style.nav}>
@@ -56,14 +64,11 @@ export default function Sidebar({
             </a>
           </div>
           <div className={style["nav__list"]}>
-            <a
-              href="#"
-              className={twMerge(style["nav__link"], style["active"])}
-            >
+            <a href="#" className={cn(style["nav__link"], style["active"])}>
               <DashBoardIcon />
               <span className={style["nav__name"]}>Dashboard</span>
             </a>
-            <a href="/" className={twMerge(style["nav__link"])}>
+            <a href="/" className={cn(style["nav__link"])}>
               <IntroIcon />
               <span className={style["nav__name"]}>Intro</span>
             </a>
@@ -72,16 +77,16 @@ export default function Sidebar({
               <span className={style["nav__name"]}>Browse</span>
             </a>
 
-            <a href="#" className={twMerge(style["nav__link"])}>
+            <a href="#" className={cn(style["nav__link"])}>
               <CartIcon />
               <span className={style["nav__name"]}>Your Cart</span>
             </a>
 
-            <a href="#" className={twMerge(style["nav__link"])}>
+            <a href="#" className={cn(style["nav__link"])}>
               <FavouriteIcon />
               <span className={style["nav__name"]}>Favorites</span>
             </a>
-            <a href="#" className={twMerge(style["nav__link"])}>
+            <a href="#" className={cn(style["nav__link"])}>
               <HistoryIcon />
               <span className={style["nav__name"]}>History</span>
             </a>
@@ -91,18 +96,33 @@ export default function Sidebar({
         <div className={style["nav__list"]}>
           <a
             href="/user-setting"
-            className={twMerge(style["nav__link"], "hover:bg-red-400")}
+            className={cn(style["nav__link"], "hover:bg-red-400")}
           >
             <SettingIcon />
             <span className={style["nav__name"]}>User Setting</span>
           </a>
-          <a
-            href="#"
-            className={twMerge(style["nav__link"], "hover:bg-red-400")}
-          >
-            <LogoutIcon />
-            <span className={style["nav__name"]}>Log Out</span>
-          </a>
+          <span className={isLogin ? "hidden" : ""}>
+            <a
+              href="/login"
+              className={cn(style["nav__link"], "hover:bg-red-400")}
+            >
+              <LoginIcon />
+              <span className={style["nav__name"]}>Log In</span>
+            </a>
+          </span>
+          <span className={isLogin ? "" : "hidden"}>
+            <a
+              href="#"
+              className={cn(
+                style["nav__link"],
+                "hover:bg-red-400",
+                isLogin ? "" : "hidden"
+              )}
+            >
+              <LogoutIcon />
+              <span className={style["nav__name"]}>Log Out</span>
+            </a>
+          </span>
         </div>
       </nav>
     </div>
