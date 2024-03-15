@@ -24,7 +24,7 @@ export default function RootLayout({
           intitalState={isSidebarOpen}
           onSidebarToggle={() => setIsSidebarOpen((prevState) => !prevState)}
         />
-        Children
+        {children}
       </body>
     </html>
   );

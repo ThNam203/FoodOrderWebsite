@@ -18,7 +18,7 @@
 }
 
 @layer utilities {
-  /* .text-balance {
+  .text-balance {
     text-wrap: balance;
   }
 
@@ -28,7 +28,31 @@
 
   .bg-primary {
     background-color: #12192C;
-  } */
+  }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 .sidebar {
@@ -62,6 +86,16 @@
   border: 0px solid #555555;
 }
 
-.small-scrollbar::-webkit-scrollbar {
-  height: 4px !important;
+.small-scrollbar::-webkit-scrollbar
+{
+	width: 4px !important;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
