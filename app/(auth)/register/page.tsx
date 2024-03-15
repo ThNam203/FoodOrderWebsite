@@ -46,8 +46,7 @@ export default function RegisterPage() {
     setIsSigningUp(true);
     await AuthService.Register(data)
       .then((res) => {
-        const token = res.data.token;
-        setCookie("token", token);
+        console.log(res);
         showSuccessToast("Sign Up Success");
         router.push("/");
       })

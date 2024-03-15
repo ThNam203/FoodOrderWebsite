@@ -6,6 +6,7 @@ import "@/styles/globals.css";
 import Sidebar from "@/components/sidebar";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
+import { Toast } from "@/components/toast";
 
 const lato = Lato({
   weight: ["100", "300", "400", "700", "900"],
@@ -39,6 +40,7 @@ export default function RootLayout({
           onSidebarToggle={() => setIsSidebarOpen((prevState) => !prevState)}
         />
         {children}
+        <Toast />
       </body>
     </html>
   );

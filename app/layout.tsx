@@ -20,10 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={lato.variable}>
-        {children}
-        {/* <Toast /> */}
-      </body>
+      <body className={lato.variable}>{children}</body>
     </html>
   );
 }

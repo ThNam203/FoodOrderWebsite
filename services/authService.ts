@@ -6,7 +6,7 @@ const Register = (data: RegisterFormData) => {
   return AxiosService.post(
     "/api/auth/register",
     {
-      username: data.username,
+      name: data.username,
       password: data.password,
       email: data.email,
     },

@@ -13,7 +13,7 @@ import {
   LogoutIcon,
   SettingIcon,
 } from "./icons";
-import { getCookie } from "cookies-next";
+import { getCookie, getCookies } from "cookies-next";
 import { cn } from "@/utils/cn";
 
 export default function Sidebar({
@@ -27,8 +27,10 @@ export default function Sidebar({
   const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
+    console.log(getCookies());
     setIsLogin(
-      getCookie("token") !== undefined && getCookie("token") !== ""
+      getCookie("access-token") !== undefined &&
+        getCookie("access-token") !== ""
         ? true
         : false
     );

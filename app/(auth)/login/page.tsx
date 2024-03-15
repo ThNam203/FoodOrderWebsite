@@ -1,20 +1,19 @@
 "use client";
 
 import { TextButton } from "@/components/buttons";
+import { LoadingIcon } from "@/components/icons";
 import { Input } from "@/components/input";
+import { Separate } from "@/components/separate";
+import { showErrorToast, showSuccessToast } from "@/components/toast";
+import Background from "@/public/images/bg-login-page.jpg";
+import AuthService from "@/services/authService";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { setCookie } from "cookies-next";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Background from "@/public/images/bg-login-page.jpg";
-import { Separate } from "@/components/separate";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ZodType, z } from "zod";
-import { useDispatch } from "react-redux";
-import { setCookie } from "cookies-next";
-import { zodResolver } from "@hookform/resolvers/zod";
-import AuthService from "@/services/authService";
-import { showErrorToast, showSuccessToast } from "@/components/toast";
-import { LoadingIcon } from "@/components/icons";
 export type LoginFormData = {
   email: string;
   password: string;
@@ -41,8 +40,7 @@ export default function LoginPage() {
     setIsLoggingIn(true);
     await AuthService.Login(data)
       .then((res) => {
-        const token = res.data.token;
-        setCookie("token", token);
+        console.log(res);
         showSuccessToast("Login Successfully");
         router.push("/");
       })
