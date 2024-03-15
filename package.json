@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
+    "@nextui-org/react": "^2.2.10",
     "@tanstack/match-sorter-utils": "^8.11.8",
     "@tanstack/react-table": "^8.13.2",
+    "clsx": "^2.1.0",
     "embla-carousel-autoplay": "^8.0.0",
     "embla-carousel-react": "^8.0.0",
     "google-map-react": "^2.2.1",

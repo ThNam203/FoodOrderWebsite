@@ -1,10 +1,7 @@
 "use client";
 
-import { IconButton, TextButton } from "@/components/buttons";
+import { TextButton } from "@/components/buttons";
 import { Input } from "@/components/input";
-import { Separate } from "@/components/separate";
-import { ArrowLeftFromLine } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {

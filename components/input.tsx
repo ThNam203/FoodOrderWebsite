@@ -2,8 +2,8 @@
 import { cn } from "@/utils/cn";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
 import { ClassValue } from "clsx";
-import { Search } from "lucide-react";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { SearchIcon } from "./icons";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -79,7 +79,7 @@ const SearchInput = ({
             htmlFor={id}
             className="absolute start-2 cursor-pointer font-normal"
           >
-            <Search />
+            <SearchIcon />
           </label>
           <input
             id={id}
