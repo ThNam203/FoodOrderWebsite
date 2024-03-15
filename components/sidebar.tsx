@@ -50,7 +50,17 @@ export default function Sidebar({
               href="#"
               className={twMerge(style["nav__link"], style["active"])}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24"><path fill="white" d="M13.5 9V4H20v5zM4 12V4h6.5v8zm9.5 8v-8H20v8zM4 20v-5h6.5v5zm1-9h4.5V5H5zm9.5 8H19v-6h-4.5zm0-11H19V5h-4.5zM5 19h4.5v-3H5zm4.5-3"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20px"
+                height="20px"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="white"
+                  d="M13.5 9V4H20v5zM4 12V4h6.5v8zm9.5 8v-8H20v8zM4 20v-5h6.5v5zm1-9h4.5V5H5zm9.5 8H19v-6h-4.5zm0-11H19V5h-4.5zM5 19h4.5v-3H5zm4.5-3"
+                />
+              </svg>
               <span className={style["nav__name"]}>Dashboard</span>
             </a>
             <a href="#" className={style["nav__link"]}>
@@ -105,26 +115,58 @@ export default function Sidebar({
               <span className={style["nav__name"]}>Favorites</span>
             </a>
             <a href="#" className={twMerge(style["nav__link"])}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24"><path fill="white" d="M11.962 20q-3.047 0-5.311-1.99Q4.387 16.022 4.03 13h1.011q.408 2.58 2.351 4.29Q9.337 19 11.962 19q2.925 0 4.962-2.037T18.962 12q0-2.925-2.038-4.963T11.962 5q-1.552 0-2.918.656q-1.365.656-2.41 1.806h2.481v1H4.962V4.308h1v2.388q1.16-1.273 2.718-1.984Q10.238 4 11.962 4q1.663 0 3.118.626q1.455.626 2.542 1.713t1.714 2.543q.626 1.455.626 3.118q0 1.663-.626 3.118q-.626 1.455-1.714 2.543q-1.087 1.087-2.542 1.713q-1.455.626-3.118.626m3.203-4.146l-3.646-3.646V7h1v4.792l3.354 3.354z"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20px"
+                height="20px"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="white"
+                  d="M11.962 20q-3.047 0-5.311-1.99Q4.387 16.022 4.03 13h1.011q.408 2.58 2.351 4.29Q9.337 19 11.962 19q2.925 0 4.962-2.037T18.962 12q0-2.925-2.038-4.963T11.962 5q-1.552 0-2.918.656q-1.365.656-2.41 1.806h2.481v1H4.962V4.308h1v2.388q1.16-1.273 2.718-1.984Q10.238 4 11.962 4q1.663 0 3.118.626q1.455.626 2.542 1.713t1.714 2.543q.626 1.455.626 3.118q0 1.663-.626 3.118q-.626 1.455-1.714 2.543q-1.087 1.087-2.542 1.713q-1.455.626-3.118.626m3.203-4.146l-3.646-3.646V7h1v4.792l3.354 3.354z"
+                />
+              </svg>
               <span className={style["nav__name"]}>History</span>
             </a>
           </div>
         </div>
 
-        <a href="#" className={twMerge(style["nav__link"], "hover:bg-red-400")}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20px"
-            height="20px"
-            viewBox="0 0 24 24"
+        <div className={style["nav__list"]}>
+          <a
+            href="/user-setting"
+            className={twMerge(style["nav__link"], "hover:bg-red-400")}
           >
-            <path
-              fill="white"
-              d="M5.615 20q-.69 0-1.152-.462Q4 19.075 4 18.385V5.615q0-.69.463-1.152Q4.925 4 5.615 4h6.404v1H5.615q-.23 0-.423.192Q5 5.385 5 5.615v12.77q0 .23.192.423q.193.192.423.192h6.404v1zm10.847-4.462l-.702-.719l2.319-2.319H9.192v-1h8.887l-2.32-2.32l.703-.718L20 12z"
-            />
-          </svg>
-          <span className={style["nav__name"]}>Log Out</span>
-        </a>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M19.9 12.66a1 1 0 0 1 0-1.32l1.28-1.44a1 1 0 0 0 .12-1.17l-2-3.46a1 1 0 0 0-1.07-.48l-1.88.38a1 1 0 0 1-1.15-.66l-.61-1.83a1 1 0 0 0-.95-.68h-4a1 1 0 0 0-1 .68l-.56 1.83a1 1 0 0 1-1.15.66L5 4.79a1 1 0 0 0-1 .48L2 8.73a1 1 0 0 0 .1 1.17l1.27 1.44a1 1 0 0 1 0 1.32L2.1 14.1a1 1 0 0 0-.1 1.17l2 3.46a1 1 0 0 0 1.07.48l1.88-.38a1 1 0 0 1 1.15.66l.61 1.83a1 1 0 0 0 1 .68h4a1 1 0 0 0 .95-.68l.61-1.83a1 1 0 0 1 1.15-.66l1.88.38a1 1 0 0 0 1.07-.48l2-3.46a1 1 0 0 0-.12-1.17ZM18.41 14l.8.9l-1.28 2.22l-1.18-.24a3 3 0 0 0-3.45 2L12.92 20h-2.56L10 18.86a3 3 0 0 0-3.45-2l-1.18.24l-1.3-2.21l.8-.9a3 3 0 0 0 0-4l-.8-.9l1.28-2.2l1.18.24a3 3 0 0 0 3.45-2L10.36 4h2.56l.38 1.14a3 3 0 0 0 3.45 2l1.18-.24l1.28 2.22l-.8.9a3 3 0 0 0 0 3.98m-6.77-6a4 4 0 1 0 4 4a4 4 0 0 0-4-4m0 6a2 2 0 1 1 2-2a2 2 0 0 1-2 2"
+              />
+            </svg>
+            <span className={style["nav__name"]}>User Setting</span>
+          </a>
+          <a
+            href="#"
+            className={twMerge(style["nav__link"], "hover:bg-red-400")}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20px"
+              height="20px"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="white"
+                d="M5.615 20q-.69 0-1.152-.462Q4 19.075 4 18.385V5.615q0-.69.463-1.152Q4.925 4 5.615 4h6.404v1H5.615q-.23 0-.423.192Q5 5.385 5 5.615v12.77q0 .23.192.423q.193.192.423.192h6.404v1zm10.847-4.462l-.702-.719l2.319-2.319H9.192v-1h8.887l-2.32-2.32l.703-.718L20 12z"
+              />
+            </svg>
+            <span className={style["nav__name"]}>Log Out</span>
+          </a>
+        </div>
       </nav>
     </div>
   );

@@ -1,0 +1,18 @@
+{
+  "vscode-color-picker.languages": [
+    "php",
+    "html",
+    "css",
+    "rust",
+    "python",
+    "json",
+    "jsonc",
+    "yaml",
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "vue-html"
+  ]
+}
