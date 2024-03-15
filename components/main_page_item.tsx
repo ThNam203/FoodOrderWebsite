@@ -1,8 +1,20 @@
 import Image from "next/image";
+import { twMerge } from "tailwind-merge";
 
-export default function MainPageItem({ food }: { food: any }) {
+export default function MainPageItem({
+  food,
+  className,
+}: {
+  food: any;
+  className?: string;
+}) {
   return (
-    <div className="rounded overflow-hidden shadow-lg bg-[#12192C] bg-opacity-75 p-0">
+    <div
+      className={twMerge(
+        "rounded overflow-hidden shadow-lg bg-[#12192C] bg-opacity-75 p-0",
+        className,
+      )}
+    >
       <div
         className="relative shadow-lg h-40"
         style={{
@@ -39,5 +51,7 @@ export default function MainPageItem({ food }: { food: any }) {
 }
 
 const Tag = ({ name }: { name: string }) => (
-  <span className="hover:cursor-pointer hover:bg-slate-500 hover:text-slate-200 rounded-md font-semibold bg-slate-200 px-2 py-1 text-gray-700 font-hairline text-xs ml-1">{name}</span>
+  <span className="hover:cursor-pointer hover:bg-slate-500 hover:text-slate-200 rounded-md font-semibold bg-slate-200 px-2 py-1 text-gray-700 font-hairline text-xs ml-1">
+    {name}
+  </span>
 );

@@ -23,9 +23,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   return (
     <html lang="en">
-      <body className={lato.variable}>{children}</body>
+      <body
+        className={twMerge(
+          lato.variable,
+          "min-h-screen bg-white font-sans transition-[0.5] scrollbar",
+          isSidebarOpen ? "ml-[calc(92px+6rem)]" : "ml-[92px]"
+        )}
+      >
+        <Sidebar
+          intitalState={isSidebarOpen}
+          onSidebarToggle={() => setIsSidebarOpen((prevState) => !prevState)}
+        />
+        {children}
+      </body>
     </html>
   );
 }
