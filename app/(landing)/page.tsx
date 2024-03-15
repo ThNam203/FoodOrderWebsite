@@ -1,3 +1,5 @@
+"use client";
+
 import MainPageCarousel from "@/components/main_page_carousel";
 import CurrentLocationMap from "@/components/map";
 
@@ -62,7 +64,9 @@ export default function IntroPage() {
               </a>
             </li>
             <li className="my-4">
-              <a className="underline hover:cursor-pointer hover:font-bold font-medium text-base">Đạt, Phạm Tiến </a>
+              <a className="underline hover:cursor-pointer hover:font-bold font-medium text-base">
+                Đạt, Phạm Tiến{" "}
+              </a>
             </li>
             <li className="my-4">
               <a className="underline hover:cursor-pointer hover:font-bold font-medium text-base">
@@ -78,19 +82,45 @@ export default function IntroPage() {
           <p>UIT, Thu Duc, Thanh Pho HCM</p>
         </div>
         <div>
-          <p className="hover:cursor-pointer hover:font-bold hover:underline">FAQS</p>
-          <p className="hover:cursor-pointer hover:font-bold hover:underline">CAREERS</p>
-          <p className="hover:cursor-pointer hover:font-bold hover:underline">STORES</p>
-          <p className="hover:cursor-pointer hover:font-bold hover:underline">PRIVACY POLICY</p>
-          <p className="hover:cursor-pointer hover:font-bold hover:underline">TERMS OF USE</p>
-          <p className="hover:cursor-pointer hover:font-bold hover:underline">SHIPPING POLICY</p>
-          <p className="hover:cursor-pointer hover:font-bold hover:underline">REFUND POLICY</p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">
+            FAQS
+          </p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">
+            CAREERS
+          </p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">
+            STORES
+          </p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">
+            PRIVACY POLICY
+          </p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">
+            TERMS OF USE
+          </p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">
+            SHIPPING POLICY
+          </p>
+          <p className="hover:cursor-pointer hover:font-bold hover:underline">
+            REFUND POLICY
+          </p>
         </div>
         <div>
           <ul>
-          <li><a className="hover:cursor-pointer hover:font-bold hover:underline">FACEBOOK</a></li>
-          <li><a className="hover:cursor-pointer hover:font-bold hover:underline">GITHUB</a></li>
-          <li><a className="hover:cursor-pointer hover:font-bold hover:underline">LINKEDIN</a></li>
+            <li>
+              <a className="hover:cursor-pointer hover:font-bold hover:underline">
+                FACEBOOK
+              </a>
+            </li>
+            <li>
+              <a className="hover:cursor-pointer hover:font-bold hover:underline">
+                GITHUB
+              </a>
+            </li>
+            <li>
+              <a className="hover:cursor-pointer hover:font-bold hover:underline">
+                LINKEDIN
+              </a>
+            </li>
           </ul>
           <h3 className="text-center">© 2024 FFOOD&apos;S KITCHEN</h3>
         </div>
