@@ -12,7 +12,7 @@ export default function MainPageItem({
     <div
       className={twMerge(
         "rounded overflow-hidden shadow-lg bg-[#12192C] bg-opacity-75 p-0",
-        className,
+        className
       )}
     >
       <div
@@ -23,12 +23,7 @@ export default function MainPageItem({
           backgroundRepeat: "no-repeat",
           backgroundImage: `url(${food.image})`,
         }}
-      >
-        <div className="absolute left-1 top-1 bg-red-500 rounded-md p-2 text-center text-xs w-max">
-          <span className="font-bold">{food.prepTimeValue}</span>{" "}
-          {food.prepTimeUnit}
-        </div>
-      </div>
+      ></div>
       <div className="flex flex-col m-2 gap-2">
         <p className="text-base">{food.title}</p>
         <p className="text-xl">$9.99</p>
