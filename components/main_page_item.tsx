@@ -4,9 +4,11 @@ import { twMerge } from "tailwind-merge";
 export default function MainPageItem({
   food,
   className,
+  onClick,
 }: {
   food: any;
   className?: string;
+  onClick?: () => void;
 }) {
   return (
     <div
@@ -16,13 +18,14 @@ export default function MainPageItem({
       )}
     >
       <div
-        className="relative shadow-lg h-40"
+        className="relative shadow-lg h-40 cursor-pointer"
         style={{
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundImage: `url(${food.image})`,
         }}
+        onClick={onClick}
       ></div>
       <div className="flex flex-col m-2 gap-2">
         <p className="text-base">{food.title}</p>

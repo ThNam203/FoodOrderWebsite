@@ -8,20 +8,32 @@ import { SearchIcon } from "./icons";
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  labelColor?: string;
   errorMessages?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
-    { className, type, name, id, placeholder, label, errorMessages, ...props },
+    {
+      className,
+      type,
+      name,
+      id,
+      placeholder,
+      label,
+      labelColor,
+      errorMessages,
+      ...props
+    },
     ref
   ) => {
     return (
-      <div className="relative flex flex-col">
+      <div className="relative w-full flex flex-col">
         <label
           htmlFor={id}
           className={cn(
             "font-semibold cursor-pointer mb-2",
+            labelColor ? labelColor : "text-primaryWord",
             label ? "" : "hidden"
           )}
         >
@@ -34,7 +46,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           name={name}
           placeholder={placeholder}
           className={cn(
-            "border-0 outline outline-1 outline-black rounded py-1 px-3 focus:outline-4 focus:outline-primary font-normal",
+            "border-0 outline outline-1 outline-borderColor rounded py-1 px-3 focus:outline-primary disabled:outline-disableColor font-normal text-primaryWord",
             errorMessages ? "outline-red-500" : "",
             className
           )}

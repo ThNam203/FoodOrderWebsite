@@ -6,6 +6,14 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import emblaStyle from "@/styles/embla_carousel.module.css";
 import { twMerge } from "tailwind-merge";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@nextui-org/react";
+import { cn } from "@/utils/cn";
 
 var data: any = {
   categories: [
@@ -132,6 +140,7 @@ var data: any = {
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState(1);
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setOpen] = useState(false);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
@@ -278,17 +287,71 @@ export default function Home() {
 
 const FoodListComponent = ({ foods }: { foods: any }) => {
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
+  const [isOpen, setOpen] = useState(false);
+  const [selectedFood, setSelectedFood] = useState<any>(null);
+  const handleFoodClick = (food: any) => {
+    setSelectedFood(food);
+    setOpen(!isOpen);
+  };
 
   return (
-    <div className={emblaStyle.embla} ref={emblaRef}>
+    <div className={cn(emblaStyle.embla)} ref={emblaRef}>
       <div className="flex gap-[calc((100%-99%)/3)]">
         {foods.map((food: any, index: number) => (
           <MainPageItem
             className="flex-[0_0_33%] min-w-0"
             food={food}
             key={index}
+            onClick={() => handleFoodClick(food)}
           />
         ))}
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={() => setOpen(!isOpen)}
+          className="text-primaryWord rounded-lg overflow-hidden"
+          hideCloseButton
+          size="xl"
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <div className="w-full h-40 overflow-hidden">
+                  <div
+                    className="object-center hover:scale-125 h-40 ease-linear transition-all duration-300"
+                    style={{
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundImage: `url(${selectedFood.image})`,
+                    }}
+                  ></div>
+                </div>
+                <ModalHeader className="flex flex-col gap-1">
+                  <div className="flex flex-row items-center justify-between">
+                    {selectedFood.title}
+                    <p className="text-xl">$9.99</p>
+                  </div>
+                  <span className="text-secondaryWord text-sm font-normal">
+                    Food tags
+                  </span>
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    Food description here. Lorem ipsum dolor sit amet,
+                    consectetur adipiscing elit. Nullam pulvinar risus non risus
+                    hendrerit venenatis. Pellentesque sit amet hendrerit risus,
+                    sed porttitor quam.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <button onClick={onClose} className="hover:text-primary">
+                    Close
+                  </button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </div>
   );

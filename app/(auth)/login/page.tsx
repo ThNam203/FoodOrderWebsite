@@ -95,7 +95,7 @@ export default function LoginPage() {
               iconBefore={isLoggingIn ? <LoadingIcon /> : null}
               content={isLoggingIn ? "" : "Sign Me In"}
               disabled={isLoggingIn}
-              className="mt-6 text-sm font-extrabold text-white bg-primary hover:bg-primary/90"
+              className="mt-6 text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
             />
 
             <span className="text-sm text-secondaryWord">

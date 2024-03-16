@@ -18,7 +18,7 @@
 }
 
 @layer utilities {
-  .text-balance {
+  /* .text-balance {
     text-wrap: balance;
   }
 
@@ -28,7 +28,7 @@
 
   .bg-primary {
     background-color: #12192C;
-  }
+  } */
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -39,7 +39,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -51,7 +51,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
@@ -86,9 +86,8 @@ input[type=number] {
   border: 0px solid #555555;
 }
 
-.small-scrollbar::-webkit-scrollbar
-{
-	width: 4px !important;
+.small-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
 }
 
 .scrollbar-hidden::-webkit-scrollbar {
@@ -96,8 +95,8 @@ input[type=number] {
 }
 
 .scrollbar-hidden {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* width */
