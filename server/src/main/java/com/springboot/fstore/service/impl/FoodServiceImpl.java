@@ -10,6 +10,7 @@ import com.springboot.fstore.mapper.FoodSizeMapper;
 import com.springboot.fstore.payload.FoodDTO;
 import com.springboot.fstore.repository.CategoryRepository;
 import com.springboot.fstore.repository.FoodRepository;
+import com.springboot.fstore.service.FileService;
 import com.springboot.fstore.service.FoodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,10 +24,15 @@ import java.util.List;
 public class FoodServiceImpl implements FoodService {
     private final FoodRepository foodRepository;
     private final CategoryRepository categoryRepository;
+    private final FileService fileService;
     @Override
     public FoodDTO createFood(MultipartFile[] files, FoodDTO foodDTO) {
         Food food = FoodMapper.toFood(foodDTO);
-        food.setImage("https://cdnphoto.dantri.com.vn/lod4Tx8WqZ2WBLsoEmwjyuA6ZU4=/thumb_w/960/2021/03/27/thuytrang-2731-1616857929781.jpg");
+
+        if (files != null) {
+            String url = fileService.uploadFile(files[0]);
+            food.setImage(url);
+        }
 
         if (foodDTO.getCategory() != null) {
             Category category = categoryRepository.findById(foodDTO.getCategory().getId()).orElseThrow(() -> new CustomException("Category not found", HttpStatus.NOT_FOUND));
@@ -54,7 +60,11 @@ public class FoodServiceImpl implements FoodService {
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
         food.setName(foodDTO.getName());
         food.setDescription(foodDTO.getDescription());
-        food.setImage(foodDTO.getImage());
+
+        if (files != null) {
+            String url = fileService.uploadFile(files[0]);
+            food.setImage(url);
+        }
 
         if (foodDTO.getCategory() == null)
             food.setCategory(null);
