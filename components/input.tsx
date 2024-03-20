@@ -3,7 +3,7 @@ import { cn } from "@/utils/cn";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
 import { ClassValue } from "clsx";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { SearchIcon } from "./icons";
+import { AddIcon, SearchIcon, SubtractIcon } from "./icons";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -12,7 +12,18 @@ export interface InputProps
   errorMessages?: string;
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+export interface TextAreaProps
+  extends React.InputHTMLAttributes<HTMLTextAreaElement> {
+  label?: string;
+  labelColor?: string;
+}
+
+export interface NumberInputProps extends InputProps {
+  onDecrease?: () => void;
+  onIncrease?: () => void;
+}
+
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className,
@@ -61,7 +72,41 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 Input.displayName = "Input";
 
-const SearchInput = ({
+export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
+  (
+    { className, type, name, id, placeholder, label, labelColor, ...props },
+    ref
+  ) => {
+    return (
+      <div className="w-full flex flex-col">
+        <label
+          htmlFor={id}
+          className={cn(
+            "font-semibold cursor-pointer mb-2",
+            labelColor ? labelColor : "text-primaryWord",
+            label ? "" : "hidden"
+          )}
+        >
+          {label}
+        </label>
+        <textarea
+          ref={ref}
+          id={id}
+          name={name}
+          placeholder={placeholder}
+          className={cn(
+            "border-0 outline outline-1 outline-borderColor rounded py-1 px-3 focus:outline-primary disabled:outline-disableColor font-normal text-primaryWord",
+            className
+          )}
+          {...props}
+        />
+      </div>
+    );
+  }
+);
+TextArea.displayName = "TextArea";
+
+export const SearchInput = ({
   id,
   type = "text",
   popoverPosition = "bottom",
@@ -116,4 +161,49 @@ const SearchInput = ({
   );
 };
 
-export { Input, SearchInput };
+export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
+  (
+    {
+      className,
+      type,
+      name,
+      id,
+      placeholder,
+      label,
+      labelColor,
+      errorMessages,
+      value,
+      onChange,
+      onDecrease,
+      onIncrease,
+      ...props
+    },
+    ref
+  ) => {
+    return (
+      <div className="w-full flex flex-row items-center justify-between gap-2">
+        <span className="cursor-pointer" onClick={onDecrease}>
+          <SubtractIcon />
+        </span>
+        <input
+          ref={ref}
+          id={id}
+          type="number"
+          name={name}
+          value={value}
+          onChange={onChange}
+          className={cn(
+            "w-[60px] border-0 outline outline-1 outline-borderColor rounded py-1 px-3 focus:outline-primary disabled:outline-disableColor font-normal text-center text-primaryWord",
+            errorMessages ? "outline-red-500" : "",
+            className
+          )}
+          {...props}
+        />
+        <span className="cursor-pointer" onClick={onIncrease}>
+          <AddIcon />
+        </span>
+      </div>
+    );
+  }
+);
+NumberInput.displayName = "Input";

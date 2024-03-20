@@ -47,13 +47,12 @@ const TabContent = ({
   content: ReactNode;
   selectedTab?: string;
 }) => {
+  useEffect(() => {
+    console.log(selectedTab + " " + contentFor);
+  }, [selectedTab]);
   return (
     <div
-      className={cn(
-        "",
-        selectedTab === contentFor ? "visible" : "hidden",
-        className
-      )}
+      className={cn("", selectedTab === contentFor ? "" : "hidden", className)}
     >
       {content}
     </div>

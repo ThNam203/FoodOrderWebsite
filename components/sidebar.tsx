@@ -93,7 +93,7 @@ export default function Sidebar({
               <span className={style["nav__name"]}>Browse</span>
             </a>
 
-            <a href="#" className={cn(style["nav__link"])}>
+            <a href="/cart" className={cn(style["nav__link"])}>
               <CartIcon />
               <span className={style["nav__name"]}>Your Cart</span>
             </a>
