@@ -4,9 +4,10 @@ import type { Metadata } from "next";
 import { Lato } from "next/font/google";
 import "@/styles/globals.css";
 import Sidebar from "@/components/sidebar";
-import { twMerge } from "tailwind-merge";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toast } from "@/components/toast";
+import { cn } from "@/utils/cn";
+import { getCookie, setCookie } from "cookies-next";
 
 const lato = Lato({
   weight: ["100", "300", "400", "700", "900"],
@@ -24,12 +25,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(
+    localStorage.getItem("sidebarState") === "true" ? true : false
+  );
+  const handleSidebarToggle = () => {
+    localStorage.setItem("sidebarState", isSidebarOpen ? "false" : "true");
+    setIsSidebarOpen((prevState) => !prevState);
+  };
 
   return (
     <html lang="en">
       <body
-        className={twMerge(
+        className={cn(
           lato.variable,
           "min-h-screen bg-white font-sans transition-[0.5] scrollbar",
           isSidebarOpen ? "ml-[calc(92px+6rem)]" : "ml-[92px]"
@@ -37,7 +44,7 @@ export default function RootLayout({
       >
         <Sidebar
           intitalState={isSidebarOpen}
-          onSidebarToggle={() => setIsSidebarOpen((prevState) => !prevState)}
+          onSidebarToggle={handleSidebarToggle}
         />
         {children}
         <Toast />

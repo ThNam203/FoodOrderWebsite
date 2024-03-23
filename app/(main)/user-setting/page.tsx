@@ -3,7 +3,7 @@ import { TextButton } from "@/components/buttons";
 import { Input } from "@/components/input";
 import { Separate } from "@/components/separate";
 import { Tab, TabContent } from "@/components/tab";
-import { showErrorToast } from "@/components/toast";
+import { showDefaultToast, showErrorToast } from "@/components/toast";
 import anime_girl from "@/public/images/anime_girl.jpg";
 import AddressService from "@/services/addressService";
 import Image from "next/image";
@@ -150,142 +150,151 @@ export default function UserSettingPage() {
           selectedTab={selectedTab}
           contentFor="General"
           content={
-            <div className="h-full flex flex-col items-center gap-14 relative">
-              <div className="w-full flex flex-col items-center gap-6">
-                <div className="w-full flex flex-col font-bold text-lg">
-                  Your profile
-                  <Separate classname="h-[1.5px]" />
+            <div className="h-full flex flex-col items-center justify-between">
+              <div className="w-full flex flex-col items-center gap-8 p-1 overflow-y-scroll">
+                <div className="w-full flex flex-col items-center gap-4">
+                  <div className="w-full flex flex-col font-bold text-lg">
+                    Your profile
+                    <Separate classname="h-[1.5px]" />
+                  </div>
+                  <Image
+                    src={anime_girl}
+                    width={400}
+                    height={400}
+                    alt="user avatar"
+                    className="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden cursor-pointer"
+                  />
+                  <div className="w-full flex flex-row items-center gap-6">
+                    <Input
+                      id="username"
+                      label="Name"
+                      defaultValue="Girl"
+                      labelColor="text-secondaryWord"
+                      className="text-secondaryWord"
+                      {...register("name")}
+                    />
+                    <Input
+                      id="phonenumber"
+                      label="Phonenumber"
+                      labelColor="text-secondaryWord"
+                      className="text-secondaryWord"
+                      type="tel"
+                      {...register("phonenumber")}
+                    />
+                  </div>
                 </div>
-                <Image
-                  src={anime_girl}
-                  width={400}
-                  height={400}
-                  alt="user avatar"
-                  className="w-24 h-24 flex-shrink-0 rounded-full overflow-hidden cursor-pointer"
-                />
-                <div className="w-full flex flex-row items-center gap-6">
-                  <Input
-                    id="username"
-                    label="Name"
-                    defaultValue="Girl"
-                    labelColor="text-secondaryWord"
-                    className="text-secondaryWord"
-                    {...register("name")}
-                  />
-                  <Input
-                    id="phonenumber"
-                    label="Phonenumber"
-                    labelColor="text-secondaryWord"
-                    className="text-secondaryWord"
-                    type="tel"
-                    {...register("phonenumber")}
-                  />
+                <div className="w-full flex flex-col items-center gap-6">
+                  <div className="w-full flex flex-col font-bold text-lg">
+                    Your address
+                    <Separate classname="h-[1.5px]" />
+                  </div>
+                  <div className="w-full flex flex-row gap-6">
+                    <Input
+                      id="house-number"
+                      label="House number"
+                      labelColor="text-secondaryWord"
+                      className="text-secondaryWord"
+                      {...register("houseNumber")}
+                    />
+                    <Input
+                      id="street"
+                      label="Street"
+                      labelColor="text-secondaryWord"
+                      className="text-secondaryWord"
+                      {...register("street")}
+                    />
+                    <Dropdown placement="bottom-start">
+                      <DropdownTrigger>
+                        <Input
+                          id="district"
+                          label="District"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord text-left"
+                          value={form.watch("district")}
+                          onClick={() => {
+                            if (districtNameList.length === 0) {
+                              showDefaultToast(
+                                "Please select a province first"
+                              );
+                            }
+                          }}
+                          onChange={(e) => {
+                            form.setValue("district", e.target.value);
+                          }}
+                        />
+                      </DropdownTrigger>
+                      <DropdownMenu>
+                        {districtNameList.map((districtName) => (
+                          <DropdownItem
+                            key={districtName}
+                            onClick={() =>
+                              form.setValue("district", districtName)
+                            }
+                          >
+                            <div className="text-primaryWord bg-transparent">
+                              {districtName}
+                            </div>
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </Dropdown>
+                    <Dropdown placement="bottom-start">
+                      <DropdownTrigger>
+                        <Input
+                          id="province"
+                          label="Province/City"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord text-left"
+                          value={form.watch("province")}
+                          onChange={(e) => {
+                            form.setValue("province", e.target.value);
+                          }}
+                        />
+                      </DropdownTrigger>
+                      <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll">
+                        {provinceNameList.map((provinceName) => (
+                          <DropdownItem
+                            key={provinceName}
+                            onClick={() => handleProvinceChange(provinceName)}
+                          >
+                            <div className="text-primaryWord bg-transparent">
+                              {provinceName}
+                            </div>
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
                 </div>
-              </div>
-              <div className="w-full flex flex-col items-center gap-6">
-                <div className="w-full flex flex-col font-bold text-lg">
-                  Your address
-                  <Separate classname="h-[1.5px]" />
-                </div>
-                <div className="w-full flex flex-row gap-2">
-                  <Input
-                    id="house-number"
-                    label="House number"
-                    labelColor="text-secondaryWord"
-                    className="text-secondaryWord"
-                    {...register("houseNumber")}
-                  />
-                  <Input
-                    id="street"
-                    label="Street"
-                    labelColor="text-secondaryWord"
-                    className="text-secondaryWord"
-                    {...register("street")}
-                  />
-                  <Dropdown placement="bottom-start">
-                    <DropdownTrigger>
-                      <Input
-                        id="district"
-                        label="District"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord text-left"
-                        value={form.watch("district")}
-                        onChange={(e) => {
-                          form.setValue("district", e.target.value);
-                        }}
-                      />
-                    </DropdownTrigger>
-                    <DropdownMenu>
-                      {districtNameList.map((districtName) => (
-                        <DropdownItem
-                          key={districtName}
-                          onClick={() =>
-                            form.setValue("district", districtName)
-                          }
-                        >
-                          <div className="text-primaryWord bg-transparent">
-                            {districtName}
-                          </div>
-                        </DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </Dropdown>
-                  <Dropdown placement="bottom-start">
-                    <DropdownTrigger>
-                      <Input
-                        id="province"
-                        label="Province/City"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord text-left"
-                        value={form.watch("province")}
-                        onChange={(e) => {
-                          form.setValue("province", e.target.value);
-                        }}
-                      />
-                    </DropdownTrigger>
-                    <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll">
-                      {provinceNameList.map((provinceName) => (
-                        <DropdownItem
-                          key={provinceName}
-                          onClick={() => handleProvinceChange(provinceName)}
-                        >
-                          <div className="text-primaryWord bg-transparent">
-                            {provinceName}
-                          </div>
-                        </DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-              </div>
-              <div className="w-full flex flex-col items-center gap-6">
-                <div className="w-full flex flex-col font-bold text-lg">
-                  Your account
-                  <Separate classname="h-[1.5px]" />
-                </div>
-                <div className="w-full flex flex-row items-center gap-6">
-                  <Input
-                    id="email"
-                    label="Email"
-                    placeholder="demo@gmail.com"
-                    labelColor="text-secondaryWord"
-                    className="text-secondaryWord"
-                    {...register("email")}
-                  />
-                  <Input
-                    id="password"
-                    label="Change password"
-                    labelColor="text-secondaryWord"
-                    className="text-secondaryWord"
-                    type="password"
-                    {...register("password")}
-                  />
+                <div className="w-full flex flex-col items-center gap-6">
+                  <div className="w-full flex flex-col font-bold text-lg">
+                    Your account
+                    <Separate classname="h-[1.5px]" />
+                  </div>
+                  <div className="w-full flex flex-row items-center gap-6">
+                    <Input
+                      id="email"
+                      label="Email"
+                      placeholder="demo@gmail.com"
+                      labelColor="text-secondaryWord"
+                      className="text-secondaryWord"
+                      {...register("email")}
+                    />
+                    <Input
+                      id="password"
+                      label="Change password"
+                      labelColor="text-secondaryWord"
+                      className="text-secondaryWord"
+                      type="password"
+                      {...register("password")}
+                    />
+                  </div>
                 </div>
               </div>
               <TextButton
                 type="submit"
                 content="Save"
-                className="absolute bottom-0 w-[100px] self-end text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
+                className="w-[100px] mr-2 self-end text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
               />
             </div>
           }

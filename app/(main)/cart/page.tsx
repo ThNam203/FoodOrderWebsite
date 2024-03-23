@@ -11,6 +11,8 @@ import { CartContent, CartTab } from "./cart_tab";
 import { TabContent } from "@/components/tab";
 import { useRouter } from "next/navigation";
 import { getCookie, setCookie } from "cookies-next";
+import Image from "next/image";
+import { showDefaultToast } from "@/components/toast";
 const Title = ({
   className,
   content,
@@ -30,9 +32,9 @@ const Title = ({
   );
 };
 
-const TitleBar = () => {
+const TitleBar = ({ className }: { className?: ClassValue }) => {
   return (
-    <div className="w-full flex flex-row items-center p-2">
+    <div className={cn("w-full flex flex-row items-center p-2", className)}>
       <Title content="Food" className="w-1/2 flex justify-self-start" />
       <Title content="Quantity" className="w-[150px] text-center" />
       <Title content="Price" className="w-[150px] text-center" />
@@ -170,9 +172,32 @@ const PaymenBar = ({
   );
 };
 
+const EmptyCart = () => {
+  return (
+    <div className="flex flex-col items-center gap-4 mt-10">
+      <Image
+        width={200}
+        height={200}
+        src="/images/empty_cart_item.svg"
+        alt="empty cart item image"
+      />
+      <span className="text-secondaryWord text-xl">Your cart is now empty</span>
+    </div>
+  );
+};
+
 const CartPage = () => {
   const router = useRouter();
-  const [cartData, setCartData] = useState(fakeCartData);
+  const [cartData, setCartData] = useState<
+    {
+      id: number;
+      image: string;
+      name: string;
+      price: number;
+      quantity: number;
+      currency: string;
+    }[]
+  >([]);
   let tempSubtotal = 0;
   cartData.forEach((item) => {
     tempSubtotal += item.price * item.quantity;
@@ -186,6 +211,10 @@ const CartPage = () => {
 
   const handleSelectedTabChange = (nextTab: string) => {
     if (nextTab === selectedTab) return;
+    if (cartData.length === 0 && nextTab === "Order Complete") {
+      showDefaultToast("Your cart is empty");
+      return;
+    }
     if (nextTab === "Order Complete") {
       collapseRightColumn();
     }
@@ -226,9 +255,15 @@ const CartPage = () => {
           selectedTab={selectedTab}
           className="h-3/4 flex flex-col gap-2"
           content={
-            <div className="h-full">
-              <TitleBar />
-              <div className="h-full overflow-y-scroll">
+            <div className={cn("h-full")}>
+              {cartData.length === 0 && <EmptyCart />}
+              <TitleBar className={cartData.length > 0 ? "" : "hidden"} />
+              <div
+                className={cn(
+                  "h-full overflow-y-scroll",
+                  cartData.length > 0 ? "" : "hidden"
+                )}
+              >
                 {cartData.map((item) => {
                   const onQuantityChange = (value: number) => {
                     setCartData(
@@ -264,7 +299,7 @@ const CartPage = () => {
         <CartContent
           contentFor="Checkout Details"
           selectedTab={selectedTab}
-          className="h-3/4 overflow-y-scroll"
+          className="h-3/4"
           content={
             <div className="h-full px-2 flex flex-col gap-8">
               <div className="w-full flex flex-col gap-2">
