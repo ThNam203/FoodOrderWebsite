@@ -1,14 +1,16 @@
 "use client";
-import { TextButton } from "@/components/buttons";
+import { IconButton, TextButton } from "@/components/buttons";
 import { Input, NumberInput, TextArea } from "@/components/input";
 import { Separate } from "@/components/separate";
 import { cn } from "@/utils/cn";
 import { ClassValue } from "clsx";
 import React, { useEffect, useRef, useState } from "react";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
 import { fakeCartData } from "./fakedata";
 import { CartContent, CartTab } from "./cart_tab";
 import { TabContent } from "@/components/tab";
+import { useRouter } from "next/navigation";
+import { getCookie, setCookie } from "cookies-next";
 const Title = ({
   className,
   content,
@@ -169,13 +171,44 @@ const PaymenBar = ({
 };
 
 const CartPage = () => {
+  const router = useRouter();
   const [cartData, setCartData] = useState(fakeCartData);
   let tempSubtotal = 0;
   cartData.forEach((item) => {
     tempSubtotal += item.price * item.quantity;
   });
   const [subtotal, setSubtotal] = useState(tempSubtotal);
-  const [selectedTab, setSelectedTab] = useState("Shopping Cart");
+  const rightColRef = useRef<HTMLDivElement>(null);
+  const [selectedTab, setSelectedTab] = useState(
+    getCookie("redirect") === "/cart" ? "Checkout Details" : "Shopping Cart"
+  );
+  setCookie("redirect", "");
+
+  const handleSelectedTabChange = (nextTab: string) => {
+    if (nextTab === selectedTab) return;
+    if (nextTab === "Order Complete") {
+      collapseRightColumn();
+    }
+    if (selectedTab === "Order Complete") {
+      appearRightColumn();
+    }
+    setSelectedTab(nextTab);
+  };
+
+  const collapseRightColumn = () => {
+    if (rightColRef.current) {
+      rightColRef.current.classList.remove("w-[400px]");
+      rightColRef.current.classList.add("w-0");
+      rightColRef.current.classList.remove("p-8");
+    }
+  };
+  const appearRightColumn = () => {
+    if (rightColRef.current) {
+      rightColRef.current.classList.remove("w-0");
+      rightColRef.current.classList.add("w-[400px]");
+      rightColRef.current.classList.add("p-8");
+    }
+  };
 
   return (
     <div className="w-full font-sans flex flex-row">
@@ -184,7 +217,7 @@ const CartPage = () => {
           <h1 className="text-primary text-3xl font-bold">Your cart</h1>
           <PaymenBar
             selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
+            setSelectedTab={handleSelectedTabChange}
           />
         </div>
 
@@ -233,32 +266,57 @@ const CartPage = () => {
           selectedTab={selectedTab}
           className="h-3/4 overflow-y-scroll"
           content={
-            <div className="h-full px-2">
-              <h1 className="text-lg font-semibold">Billing Information</h1>
+            <div className="h-full px-2 flex flex-col gap-8">
               <div className="w-full flex flex-col gap-2">
-                <Input
-                  id="full-name"
-                  label="Full name"
-                  placeholder="John Doe"
-                  labelColor="text-primaryWord"
-                  className="text-primaryWord"
-                />
-                <Input
-                  id="address"
-                  label="Address"
-                  placeholder="25/21 Phan Boi Chau Street, Dong Tan, Di An, Binh Duong"
-                  labelColor="text-primaryWord"
-                  className="text-primaryWord"
-                />
-                <Input
-                  id="phone-number"
-                  label="Phone number"
-                  placeholder="091xxxxxxx"
-                />
+                <div className="w-full flex flex-row items-center justify-between">
+                  <span className="text-lg font-semibold">
+                    Your profile information
+                  </span>
+                  <IconButton
+                    icon={<Pen className="w-4 h-4" strokeWidth={2} />}
+                    className="bg-gray-50 shadow-primaryShadow text-primary hover:bg-primary hover:text-white ease-linear duration-100"
+                    onClick={() => {
+                      setCookie("redirect", "/cart");
+                      router.push("/user-setting");
+                    }}
+                  />
+                </div>
+                <Separate classname="h-[1.5px]" />
+
+                <div className="w-full flex flex-col gap-2">
+                  <Input
+                    id="full-name"
+                    label="Full name"
+                    placeholder="John Doe"
+                    labelColor="text-secondaryWord"
+                    className="text-primaryWord"
+                    disabled
+                  />
+                  <Input
+                    id="address"
+                    label="Address"
+                    placeholder="25/21 Phan Boi Chau Street, Dong Tan, Di An, Binh Duong"
+                    labelColor="text-secondaryWord"
+                    className="text-primaryWord"
+                    disabled
+                  />
+                  <Input
+                    id="phone-number"
+                    label="Phone number"
+                    placeholder="091xxxxxxx"
+                    labelColor="text-secondaryWord"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="w-full flex flex-col gap-2">
+                <h1 className="text-lg font-semibold">More</h1>
+                <Separate classname="h-[1.5px]" />
                 <Input
                   id="discount"
                   label="Discount code"
                   placeholder="Your discount code here"
+                  labelColor="text-primaryWord"
                 />
                 <TextArea
                   id="note"
@@ -275,10 +333,42 @@ const CartPage = () => {
           contentFor="Order Complete"
           selectedTab={selectedTab}
           className="h-3/4 overflow-y-scroll"
-          content={<div>order complete</div>}
+          content={
+            <div className="flex flex-col items-center gap-4 mt-10">
+              <CircleCheck className="w-20 h-20 text-primary" strokeWidth={1} />
+              <span className="font-bold text-3xl">
+                Thank you for your ordering!
+              </span>
+              <span>
+                Your order has been placed successfully.{" "}
+                <a
+                  href=""
+                  className="hover:underline text-primary text-sm underline-offset-2 underline-primary"
+                >
+                  Download your bill here.
+                </a>
+              </span>
+
+              <div className="w-1/2 flex flex-row items-center justify-between gap-4 mt-8">
+                <TextButton
+                  content="View order"
+                  className="bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord"
+                  onClick={() => router.push("/")}
+                />
+                <TextButton
+                  content="Continue shopping"
+                  className="text-nowrap"
+                  onClick={() => router.push("/browse")}
+                />
+              </div>
+            </div>
+          }
         />
       </div>
-      <div className="w-[400px] min-h-screen bg-primary p-8">
+      <div
+        ref={rightColRef}
+        className="w-[400px] min-h-screen bg-primary p-8 ease-linear duration-200"
+      >
         <TabContent
           contentFor="Shopping Cart"
           selectedTab={selectedTab}
@@ -307,7 +397,7 @@ const CartPage = () => {
               <TextButton
                 content="Make payment"
                 className="absolute bottom-0 bg-[#12192c] hover:bg-[#12192c]/90"
-                onClick={() => setSelectedTab("Checkout Details")}
+                onClick={() => handleSelectedTabChange("Checkout Details")}
               />
             </div>
           }
@@ -354,6 +444,7 @@ const CartPage = () => {
               <TextButton
                 content="Order"
                 className="absolute bottom-0 bg-[#12192c] hover:bg-[#12192c]/90"
+                onClick={() => handleSelectedTabChange("Order Complete")}
               />
             </div>
           }

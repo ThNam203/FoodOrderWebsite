@@ -24,20 +24,7 @@ export interface NumberInputProps extends InputProps {
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      className,
-      type,
-      name,
-      id,
-      placeholder,
-      label,
-      labelColor,
-      errorMessages,
-      ...props
-    },
-    ref
-  ) => {
+  ({ className, id, label, labelColor, errorMessages, ...props }, ref) => {
     return (
       <div className="relative w-full flex flex-col">
         <label
@@ -53,9 +40,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={id}
-          type={type}
-          name={name}
-          placeholder={placeholder}
           className={cn(
             "border-0 outline outline-1 outline-borderColor rounded py-1 px-3 focus:outline-primary disabled:outline-disableColor font-normal text-primaryWord",
             errorMessages ? "outline-red-500" : "",

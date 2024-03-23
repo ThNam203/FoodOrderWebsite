@@ -28,13 +28,27 @@ module.exports = {
         primaryShadow: "0 0 45px -15px rgba(0,0,0,0.3)",
       },
       keyframes: {
-        disappear_to_left: {
+        move_to_left: {
+          "0%": { transform: "translateX(0)", width: "0px", opacity: 1 },
+          "100%": {
+            transform: "translateX(-100%)",
+            width: "400px",
+            opacity: 0,
+          },
+        },
+        move_to_right: {
           "0%": { transform: "translateX(0)", opacity: 1 },
-          "100%": { transform: "translateX(-100%)", opacity: 0 },
+          "100%": {
+            transform: "translateX(100%)",
+            width: "0px",
+            opacity: 0,
+          },
         },
       },
       animation: {
         "row-disappear": "disappear_to_left .3s linear",
+        "col-move-to-right": "move_to_right .3s linear forwards",
+        "col-move-to-left": "move_to_left .3s linear forwards",
       },
     },
   },

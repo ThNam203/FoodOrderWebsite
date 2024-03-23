@@ -26,16 +26,6 @@ export default function Sidebar({
   const [isSidebarOpen, setIsSidebarOpen] = useState(intitalState);
   const [isLogin, setIsLogin] = useState(false);
 
-  useEffect(() => {
-    console.log(getCookies());
-    setIsLogin(
-      getCookie("access-token") !== undefined &&
-        getCookie("access-token") !== ""
-        ? true
-        : false
-    );
-  }, []);
-
   return (
     <div
       className={cn(style["l-navbar"], isSidebarOpen ? style.expander : "")}
