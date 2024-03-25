@@ -28,6 +28,7 @@ public class SecurityConfiguration {
             "/swagger-ui/**",
             "/store-websocket/**",
             "/v3/api-docs/**",
+            "/api/foods/**",
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;

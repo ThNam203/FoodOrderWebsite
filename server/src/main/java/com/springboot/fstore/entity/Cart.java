@@ -18,11 +18,18 @@ public class Cart extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private int quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "food_id")
+    private Food food;
+
+    @ManyToOne
+    @JoinColumn(name = "food_size_id")
+    private FoodSize foodSize;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Order> orders;
 }
