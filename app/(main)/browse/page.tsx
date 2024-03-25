@@ -1,7 +1,7 @@
 "use client";
 
 import MainPageItem from "@/components/main_page_item";
-import { useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import emblaStyle from "@/styles/embla_carousel.module.css";
@@ -14,6 +14,10 @@ import {
   ModalFooter,
 } from "@nextui-org/react";
 import { cn } from "@/utils/cn";
+import { IconButton, TextButton } from "@/components/buttons";
+import { Heart, ShoppingCart } from "lucide-react";
+import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
+import { NumberInput } from "@/components/input";
 
 var data: any = {
   categories: [
@@ -77,6 +81,7 @@ var data: any = {
       cat1: "Deli",
       cat2: "Bagels",
       range: "$$",
+      favourite: false,
     },
     {
       title: "Dessert Rose",
@@ -88,6 +93,7 @@ var data: any = {
       cat1: "Cafes",
       cat2: "Desserts",
       range: "$",
+      favourite: false,
     },
     {
       title: "Barbecue Nation",
@@ -99,6 +105,7 @@ var data: any = {
       cat1: "Barbecue",
       cat2: "Chicken",
       range: "$$$",
+      favourite: false,
     },
     {
       title: "Twinkle Star",
@@ -110,6 +117,7 @@ var data: any = {
       cat1: "Barbecue",
       cat2: "Chicken",
       range: "$$$",
+      favourite: false,
     },
   ],
   cartItems: [
@@ -289,10 +297,14 @@ const FoodListComponent = ({ foods }: { foods: any }) => {
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
   const [isOpen, setOpen] = useState(false);
   const [selectedFood, setSelectedFood] = useState<any>(null);
+  const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
   const handleFoodClick = (food: any) => {
     setSelectedFood(food);
     setOpen(!isOpen);
   };
+  const [heartIconState, setHeartIconState] = useState(
+    selectedFood ? selectedFood.favourite : false
+  );
 
   return (
     <div className={cn(emblaStyle.embla)} ref={emblaRef}>
@@ -327,10 +339,49 @@ const FoodListComponent = ({ foods }: { foods: any }) => {
                   ></div>
                 </div>
                 <ModalHeader className="flex flex-col gap-1">
-                  <div className="flex flex-row items-center justify-between">
-                    {selectedFood.title}
-                    <p className="text-xl">$9.99</p>
+                  <div className="flex flex-col items-start">
+                    <div className="flex flex-row items-center gap-2">
+                      <span>{selectedFood.title}</span>
+                      <IconButton
+                        className="rounded-full ease-linear duration-100"
+                        icon={
+                          heartIconState ? <HeartIcon /> : <OutlineHeartIcon />
+                        }
+                        onClick={() => {
+                          setSelectedFood((prev: any) => ({
+                            ...prev,
+                            favourite: !prev.favourite,
+                          }));
+                          setHeartIconState(!heartIconState);
+                        }}
+                      />
+                    </div>
+                    <div className="w-full flex flex-row items-center justify-between">
+                      <p className="text-xl">$9.99</p>
+                      <div className="w-min font-sans">
+                        <NumberInput
+                          className="outline-0 text-primaryWord"
+                          value={selectedFoodQuantity}
+                          onDecrease={() =>
+                            setSelectedFoodQuantity(
+                              selectedFoodQuantity <= 1
+                                ? 1
+                                : selectedFoodQuantity - 1
+                            )
+                          }
+                          onIncrease={() =>
+                            setSelectedFoodQuantity(selectedFoodQuantity + 1)
+                          }
+                          onChange={(e) =>
+                            setSelectedFoodQuantity(
+                              Number.parseInt(e.target.value)
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
+
                   <span className="text-secondaryWord text-sm font-normal">
                     Food tags
                   </span>
@@ -344,9 +395,11 @@ const FoodListComponent = ({ foods }: { foods: any }) => {
                   </p>
                 </ModalBody>
                 <ModalFooter>
-                  <button onClick={onClose} className="hover:text-primary">
-                    Close
-                  </button>
+                  <TextButton
+                    iconAfter={<ShoppingCart className="w-4 h-4" />}
+                    content="Add to cart"
+                    className="w-min gap-2 text-nowrap text-primaryWord bg-transparent hover:text-primary hover:bg-transparent ease-linear duration-100"
+                  />
                 </ModalFooter>
               </>
             )}

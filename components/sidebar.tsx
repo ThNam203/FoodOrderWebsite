@@ -26,16 +26,6 @@ export default function Sidebar({
   const [isSidebarOpen, setIsSidebarOpen] = useState(intitalState);
   const [isLogin, setIsLogin] = useState(false);
 
-  useEffect(() => {
-    console.log(getCookies());
-    setIsLogin(
-      getCookie("access-token") !== undefined &&
-        getCookie("access-token") !== ""
-        ? true
-        : false
-    );
-  }, []);
-
   return (
     <div
       className={cn(style["l-navbar"], isSidebarOpen ? style.expander : "")}
@@ -93,7 +83,7 @@ export default function Sidebar({
               <span className={style["nav__name"]}>Browse</span>
             </a>
 
-            <a href="#" className={cn(style["nav__link"])}>
+            <a href="/cart" className={cn(style["nav__link"])}>
               <CartIcon />
               <span className={style["nav__name"]}>Your Cart</span>
             </a>
