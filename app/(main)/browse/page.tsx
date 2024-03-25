@@ -18,6 +18,7 @@ import { IconButton, TextButton } from "@/components/buttons";
 import { Heart, ShoppingCart } from "lucide-react";
 import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
 import { NumberInput } from "@/components/input";
+import { useRouter } from "next/navigation";
 
 var data: any = {
   categories: [
@@ -149,6 +150,7 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState(1);
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setOpen] = useState(false);
+  const router = useRouter();
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
@@ -186,7 +188,10 @@ export default function Home() {
                 placeholder="Search"
               />
             </div>
-            <div className="flex flex-row items-center gap-2 hover:cursor-pointer">
+            <div
+              className="flex flex-row items-center gap-2 hover:cursor-pointer"
+              onClick={() => router.push("/user-setting")}
+            >
               <img
                 src="https://scontent.fsgn19-1.fna.fbcdn.net/v/t1.6435-1/89355819_802321806918041_2820306896441835520_n.jpg?stp=dst-jpg_p240x240&_nc_cat=106&ccb=1-7&_nc_sid=2b6aad&_nc_ohc=mGJ07GAwJPIAX-HmCpl&_nc_ht=scontent.fsgn19-1.fna&oh=00_AfDzBpS8oC1vm-lKKyG65r9dHO5IqZrn36HGZ17stH9nXg&oe=6606CBD4"
                 className="w-10 h-10 rounded-full"

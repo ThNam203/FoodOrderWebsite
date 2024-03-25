@@ -10,9 +10,13 @@ import { fakeCartData } from "./fakedata";
 import { CartContent, CartTab } from "./cart_tab";
 import { TabContent } from "@/components/tab";
 import { useRouter } from "next/navigation";
-import { getCookie, setCookie } from "cookies-next";
+import { CookieValueTypes, getCookie, setCookie } from "cookies-next";
 import Image from "next/image";
 import { showDefaultToast } from "@/components/toast";
+import { Checkbox } from "@nextui-org/react";
+import { Food } from "@/models/Food";
+import { Cart } from "@/models/Cart";
+import { fakeFoodData } from "../favourite/fakedata";
 const Title = ({
   className,
   content,
@@ -32,10 +36,33 @@ const Title = ({
   );
 };
 
-const TitleBar = ({ className }: { className?: ClassValue }) => {
+const TitleBar = ({
+  className,
+  cartData,
+  selectedItems,
+  setSelectedItems,
+}: {
+  className?: ClassValue;
+  cartData: Cart[];
+  selectedItems: number[];
+  setSelectedItems: (selectedItems: number[]) => void;
+}) => {
   return (
-    <div className={cn("w-full flex flex-row items-center p-2", className)}>
-      <Title content="Food" className="w-1/2 flex justify-self-start" />
+    <div
+      className={cn(
+        "w-full flex flex-row items-center justify-end p-2",
+        className
+      )}
+    >
+      <Checkbox
+        className="mr-2"
+        isSelected={selectedItems.length === cartData.length}
+        onClick={() => {
+          if (selectedItems.length === cartData.length) setSelectedItems([]);
+          else setSelectedItems(cartData.map((item) => item.id));
+        }}
+      />
+      <Title content="Food" className="w-1/2 flex" />
       <Title content="Quantity" className="w-[150px] text-center" />
       <Title content="Price" className="w-[150px] text-center" />
       <Title content="Total" className="w-[150px] text-center" />
@@ -62,7 +89,7 @@ const SummaryItem = ({
         <X className={cn("inline-block", quantity ? "" : "hidden")} size={16} />
         {quantity}
       </div>
-      <span>{currencyChar + total}</span>
+      <span>{currencyChar + total.toFixed(2)}</span>
     </div>
   );
 };
@@ -75,6 +102,8 @@ const CartItem = ({
   currencyChar,
   onQuantityChange,
   onDelete,
+  isSelected = false,
+  onSelected,
 }: {
   foodImageUrl: string;
   foodName: string;
@@ -83,6 +112,8 @@ const CartItem = ({
   currencyChar: string;
   onQuantityChange: (value: number) => void;
   onDelete: () => void;
+  isSelected?: boolean;
+  onSelected?: () => void;
 }) => {
   const cartRef = useRef<HTMLDivElement>(null);
   const addAnimation = () => {
@@ -90,6 +121,7 @@ const CartItem = ({
       cartRef.current.classList.add("animate-row-disappear");
     }
   };
+
   return (
     <div
       ref={cartRef}
@@ -97,11 +129,12 @@ const CartItem = ({
         "w-full group text-primaryWord rounded-md bg-slate-50 flex flex-row items-center p-2"
       )}
     >
+      <Checkbox isSelected={isSelected} className="mr-2" onClick={onSelected} />
       <div className="w-1/2 flex flex-row items-center justify-self-start text-center font-semibold text-lg">
         <img
           src={foodImageUrl}
           alt="Twinkle Star"
-          className="h-20 rounded justify-seft-start"
+          className="h-20 w-40 rounded justify-seft-start object-cover"
         />
         <span className="ml-10">{foodName}</span>
       </div>
@@ -117,7 +150,7 @@ const CartItem = ({
       </div>
       <span className="w-[150px] text-center">{currencyChar + foodPrice}</span>
       <span className="w-[150px] text-center">
-        {currencyChar + foodPrice * foodQuantity}
+        {currencyChar + (foodPrice * foodQuantity).toFixed(2)}
       </span>
       <X
         className="w-[50px] text-center opacity-0 text-red-500 group-hover:opacity-100 ease-linear duration-100 cursor-pointer"
@@ -186,23 +219,37 @@ const EmptyCart = () => {
   );
 };
 
+const getCookieCartData = () => {
+  const cookieRes = getCookie("cartData");
+  if (!cookieRes) return null;
+  return JSON.parse(cookieRes as string) as Cart[];
+};
+
+const getCookieSelectedCardIds = () => {
+  const cookieRes = getCookie("selectedCardIds");
+  if (!cookieRes) return null;
+  return (JSON.parse(cookieRes as string) as string)
+    .split(",")
+    .map((strNum) => Number.parseInt(strNum));
+};
+
 const CartPage = () => {
   const router = useRouter();
-  const [cartData, setCartData] = useState<
-    {
-      id: number;
-      image: string;
-      name: string;
-      price: number;
-      quantity: number;
-      currency: string;
-    }[]
-  >([]);
-  let tempSubtotal = 0;
-  cartData.forEach((item) => {
-    tempSubtotal += item.price * item.quantity;
-  });
-  const [subtotal, setSubtotal] = useState(tempSubtotal);
+  const [cartData, setCartData] = useState<Cart[]>(
+    getCookieCartData() || fakeCartData
+  );
+  const [foodData, setFoodData] = useState<Food[]>(fakeFoodData);
+  const [selectedCardIds, setSelectedCartIds] = useState<number[]>(
+    getCookieSelectedCardIds() || []
+  );
+  const handleSelectedCardIdsChange = (id: number) => {
+    if (selectedCardIds.includes(id)) {
+      setSelectedCartIds(selectedCardIds.filter((i) => i !== id));
+    } else {
+      setSelectedCartIds([...selectedCardIds, id]);
+    }
+  };
+  const [subtotal, setSubtotal] = useState(0);
   const rightColRef = useRef<HTMLDivElement>(null);
   const [selectedTab, setSelectedTab] = useState(
     getCookie("redirect") === "/cart" ? "Checkout Details" : "Shopping Cart"
@@ -239,6 +286,29 @@ const CartPage = () => {
     }
   };
 
+  useEffect(() => {
+    let tempSubtotal = 0;
+    const selectedCarts = cartData.filter((cart) =>
+      selectedCardIds.includes(cart.id)
+    );
+    if (selectedCarts.length === 0) {
+      setSubtotal(0);
+      return;
+    }
+    selectedCarts.forEach((cart) => {
+      const food = foodData.find((food) => food.id === cart.foodId);
+      if (!food) return;
+      const foodSize = food.foodSizes.find(
+        (size) => size.id === cart.foodSizeId
+      );
+      if (!foodSize) return;
+      tempSubtotal += foodSize.price * cart.quantity;
+    });
+    setSubtotal(tempSubtotal);
+    setCookie("selectedCardIds", JSON.stringify(selectedCardIds.join(",")));
+    setCookie("cartData", JSON.stringify(cartData));
+  }, [selectedCardIds, cartData, foodData]);
+
   return (
     <div className="w-full font-sans flex flex-row">
       <div className="max-h-screen flex-1 flex-col p-8 text-primaryWord">
@@ -257,38 +327,47 @@ const CartPage = () => {
           content={
             <div className={cn("h-full")}>
               {cartData.length === 0 && <EmptyCart />}
-              <TitleBar className={cartData.length > 0 ? "" : "hidden"} />
+              <TitleBar
+                className={cartData.length > 0 ? "" : "hidden"}
+                cartData={cartData}
+                selectedItems={selectedCardIds}
+                setSelectedItems={setSelectedCartIds}
+              />
               <div
                 className={cn(
-                  "h-full overflow-y-scroll",
+                  "h-full overflow-y-scroll flex flex-col items-center gap-2",
                   cartData.length > 0 ? "" : "hidden"
                 )}
               >
-                {cartData.map((item) => {
+                {cartData.map((cart) => {
                   const onQuantityChange = (value: number) => {
                     setCartData(
                       cartData.map((i) =>
-                        i.id === item.id ? { ...i, quantity: value } : i
+                        i.id === cart.id ? { ...i, quantity: value } : i
                       )
-                    );
-                    setSubtotal(
-                      subtotal - item.price * item.quantity + item.price * value
                     );
                   };
                   const onDelete = (id: number) => {
                     setCartData(cartData.filter((i) => i.id !== id));
-                    setSubtotal(subtotal - item.price * item.quantity);
                   };
+                  const food = foodData.find((food) => food.id === cart.foodId);
+                  if (!food) return null;
+                  const foodSize = food.foodSizes.find(
+                    (size) => size.id === cart.foodSizeId
+                  );
+                  if (!foodSize) return null;
                   return (
                     <CartItem
-                      key={item.id}
-                      foodImageUrl={item.image}
-                      foodName={item.name}
-                      foodQuantity={item.quantity}
-                      foodPrice={item.price}
-                      currencyChar={item.currency}
+                      key={cart.id}
+                      foodImageUrl={food.image}
+                      foodName={food.name}
+                      foodQuantity={cart.quantity}
+                      foodPrice={foodSize.price}
+                      currencyChar={food.currency}
                       onQuantityChange={onQuantityChange}
-                      onDelete={() => onDelete(item.id)}
+                      onDelete={() => onDelete(cart.id)}
+                      isSelected={selectedCardIds.includes(cart.id)}
+                      onSelected={() => handleSelectedCardIdsChange(cart.id)}
                     />
                   );
                 })}
@@ -445,17 +524,28 @@ const CartPage = () => {
             <div className="relative w-full h-full flex flex-col justify-start text-white gap-4">
               <h1 className="text-3xl font-bold">Order Summary</h1>
               <div className="w-full h-3/5 max-h-3/5 flex flex-col gap-4 overflow-y-scroll">
-                {cartData.sort().map((item) => {
-                  return (
-                    <SummaryItem
-                      key={item.id}
-                      title={item.name}
-                      total={item.price * item.quantity}
-                      quantity={item.quantity}
-                      currencyChar={item.currency}
-                    />
-                  );
-                })}
+                {cartData
+                  .filter((cart) => selectedCardIds.includes(cart.id))
+                  .sort()
+                  .map((cart) => {
+                    const food = foodData.find(
+                      (food) => food.id === cart.foodId
+                    );
+                    if (!food) return null;
+                    const foodSize = food.foodSizes.find(
+                      (size) => size.id === cart.foodSizeId
+                    );
+                    if (!foodSize) return null;
+                    return (
+                      <SummaryItem
+                        key={cart.id}
+                        title={food.name}
+                        total={foodSize.price * cart.quantity}
+                        quantity={cart.quantity}
+                        currencyChar={food.currency}
+                      />
+                    );
+                  })}
               </div>
               <div className="flex flex-col gap-4">
                 <Separate classname="h-[1.5px]" />

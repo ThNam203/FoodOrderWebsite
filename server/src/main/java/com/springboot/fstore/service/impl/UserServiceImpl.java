@@ -30,10 +30,10 @@ public class UserServiceImpl implements UserService {
     public UserDTO updateInfoMe(MultipartFile[] files, UserDTO userDTO) {
         User user = getAuthorizedUser();
         user.setName(userDTO.getName());
-        user.setAge(userDTO.getAge());
+       user.setAge(userDTO.getAge());
         user.setAddress(userDTO.getAddress());
         user.setPhoneNumber(userDTO.getPhoneNumber());
-        user.setPreferences(userDTO.getPreferences());
+       user.setPreferences(userDTO.getPreferences());
         if (files != null) {
             String url = fileService.uploadFile(files[0]);
             user.setProfileImage(url);

@@ -22,13 +22,13 @@ public class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int age;
+   private int age;
     private String name;
     private String email;
     private String password;
     private String address;
     private String phoneNumber;
-    private String preferences;
+   private String preferences;
     private String profileImage;
     private Boolean isAdmin;
 

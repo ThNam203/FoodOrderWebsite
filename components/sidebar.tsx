@@ -18,12 +18,11 @@ import { cn } from "@/utils/cn";
 
 export default function Sidebar({
   onSidebarToggle,
-  intitalState,
+  isSidebarOpen,
 }: {
-  intitalState: boolean;
+  isSidebarOpen: boolean;
   onSidebarToggle: () => void;
 }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(intitalState);
   const [isLogin, setIsLogin] = useState(false);
 
   return (
@@ -43,7 +42,6 @@ export default function Sidebar({
               id="nav-toggle"
               onClick={() => {
                 onSidebarToggle();
-                setIsSidebarOpen(!isSidebarOpen);
               }}
             >
               <path
@@ -88,7 +86,7 @@ export default function Sidebar({
               <span className={style["nav__name"]}>Your Cart</span>
             </a>
 
-            <a href="#" className={cn(style["nav__link"])}>
+            <a href="/favourite" className={cn(style["nav__link"])}>
               <FavouriteIcon />
               <span className={style["nav__name"]}>Favorites</span>
             </a>
