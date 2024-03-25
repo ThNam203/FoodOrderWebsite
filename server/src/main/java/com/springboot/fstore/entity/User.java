@@ -32,6 +32,14 @@ public class User extends BaseEntity implements UserDetails {
     private String profileImage;
     private Boolean isAdmin;
 
+    @ManyToMany
+    @JoinTable(
+            name = "favourites_food",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "food_id")
+    )
+    private List<Food> favouriteFoods;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

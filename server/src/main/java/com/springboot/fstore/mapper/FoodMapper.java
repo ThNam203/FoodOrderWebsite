@@ -6,6 +6,7 @@ import com.springboot.fstore.payload.FoodDTO;
 
 public class FoodMapper {
     public static FoodDTO toFoodDTO(Food food) {
+        if (food == null) return null;
         return FoodDTO.builder()
                 .id(food.getId())
                 .name(food.getName())
@@ -13,7 +14,7 @@ public class FoodMapper {
                 .image(food.getImage())
                 .isDeleted(food.getIsDeleted())
                 .createdAt(food.getCreatedAt())
-                .foodSizes(food.getFoodSizes().stream().map(FoodSizeMapper::toFoodSizeDTO).toList())
+                .foodSizes(food.getFoodSizes() != null ? food.getFoodSizes().stream().map(FoodSizeMapper::toFoodSizeDTO).toList() : null)
                 .category(food.getCategory() != null ? CategoryMapper.toCategoryDTO(food.getCategory()) : null)
                 .build();
     }
