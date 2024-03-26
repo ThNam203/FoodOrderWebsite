@@ -2,7 +2,7 @@ import { LoginFormData } from "@/app/(auth)/login/page";
 import { RegisterFormData } from "@/app/(auth)/register/page";
 import AxiosService from "./axiosService";
 
-const Register = (data: RegisterFormData) => {
+const register = (data: RegisterFormData) => {
   return AxiosService.post(
     "/api/auth/register",
     {
@@ -14,7 +14,7 @@ const Register = (data: RegisterFormData) => {
   );
 };
 
-const Login = (data: LoginFormData) => {
+const login = (data: LoginFormData) => {
   return AxiosService.post(
     "/api/auth/authenticate",
     {
@@ -25,7 +25,7 @@ const Login = (data: LoginFormData) => {
   );
 };
 
-const LogOut = (token: string) => {
+const logOut = (token: string) => {
   return AxiosService.get("/auth/logout", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -35,9 +35,9 @@ const LogOut = (token: string) => {
 };
 
 const AuthService = {
-  Register,
-  Login,
-  LogOut,
+  register,
+  login,
+  logOut,
 };
 
 export default AuthService;

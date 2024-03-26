@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
   const handleFormSubmit = async (data: RegisterFormData) => {
     setIsSigningUp(true);
-    await AuthService.Register(data)
+    await AuthService.register(data)
       .then((res) => {
         console.log(res);
         showSuccessToast("Sign Up Success");

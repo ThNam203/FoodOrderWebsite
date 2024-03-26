@@ -15,6 +15,7 @@ import {
 } from "./icons";
 import { getCookie, getCookies } from "cookies-next";
 import { cn } from "@/utils/cn";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function Sidebar({
   onSidebarToggle,
@@ -23,7 +24,7 @@ export default function Sidebar({
   isSidebarOpen: boolean;
   onSidebarToggle: () => void;
 }) {
-  const [isLogin, setIsLogin] = useState(false);
+  const isLogin= useAppSelector((state) => state.profile.isLogin);
 
   return (
     <div
@@ -97,7 +98,7 @@ export default function Sidebar({
           </div>
         </div>
 
-        <div className={style["nav__list"]}>
+        {isLogin && <div className={style["nav__list"]}>
           <a
             href="/user-setting"
             className={cn(style["nav__link"], "hover:bg-red-400")}
@@ -105,16 +106,6 @@ export default function Sidebar({
             <SettingIcon />
             <span className={style["nav__name"]}>User Setting</span>
           </a>
-          <span className={isLogin ? "hidden" : ""}>
-            <a
-              href="/login"
-              className={cn(style["nav__link"], "hover:bg-red-400")}
-            >
-              <LoginIcon />
-              <span className={style["nav__name"]}>Log In</span>
-            </a>
-          </span>
-          <span className={isLogin ? "" : "hidden"}>
             <a
               href="#"
               className={cn(
@@ -126,8 +117,7 @@ export default function Sidebar({
               <LogoutIcon />
               <span className={style["nav__name"]}>Log Out</span>
             </a>
-          </span>
-        </div>
+        </div>}
       </nav>
     </div>
   );
