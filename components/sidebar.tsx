@@ -15,16 +15,16 @@ import {
 } from "./icons";
 import { getCookie, getCookies } from "cookies-next";
 import { cn } from "@/utils/cn";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function Sidebar({
   onSidebarToggle,
-  intitalState,
+  isSidebarOpen,
 }: {
-  intitalState: boolean;
+  isSidebarOpen: boolean;
   onSidebarToggle: () => void;
 }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(intitalState);
-  const [isLogin, setIsLogin] = useState(false);
+  const isLogin= useAppSelector((state) => state.profile.isLogin);
 
   return (
     <div
@@ -43,7 +43,6 @@ export default function Sidebar({
               id="nav-toggle"
               onClick={() => {
                 onSidebarToggle();
-                setIsSidebarOpen(!isSidebarOpen);
               }}
             >
               <path
@@ -88,7 +87,7 @@ export default function Sidebar({
               <span className={style["nav__name"]}>Your Cart</span>
             </a>
 
-            <a href="#" className={cn(style["nav__link"])}>
+            <a href="/favourite" className={cn(style["nav__link"])}>
               <FavouriteIcon />
               <span className={style["nav__name"]}>Favorites</span>
             </a>
@@ -99,7 +98,7 @@ export default function Sidebar({
           </div>
         </div>
 
-        <div className={style["nav__list"]}>
+        {isLogin && <div className={style["nav__list"]}>
           <a
             href="/user-setting"
             className={cn(style["nav__link"], "hover:bg-red-400")}
@@ -107,16 +106,6 @@ export default function Sidebar({
             <SettingIcon />
             <span className={style["nav__name"]}>User Setting</span>
           </a>
-          <span className={isLogin ? "hidden" : ""}>
-            <a
-              href="/login"
-              className={cn(style["nav__link"], "hover:bg-red-400")}
-            >
-              <LoginIcon />
-              <span className={style["nav__name"]}>Log In</span>
-            </a>
-          </span>
-          <span className={isLogin ? "" : "hidden"}>
             <a
               href="#"
               className={cn(
@@ -128,8 +117,7 @@ export default function Sidebar({
               <LogoutIcon />
               <span className={style["nav__name"]}>Log Out</span>
             </a>
-          </span>
-        </div>
+        </div>}
       </nav>
     </div>
   );

@@ -55,7 +55,7 @@ export default function MenuTable({
         </div>
       ),
     }),
-    columnHelper.accessor("foodId", {
+    columnHelper.accessor("id", {
       maxSize: 30,
       enableResizing: false,
       header: (h) => "Id",
@@ -73,12 +73,7 @@ export default function MenuTable({
       header: (h) => "Image",
       cell: (info) => <ImageCell info={info} />,
     }),
-    columnHelper.accessor("price", {
-      maxSize: 100,
-      header: (h) => "Price",
-      cell: (info) => <CellDefaultTemplate info={info} />,
-    }),
-    columnHelper.accessor("category", {
+    columnHelper.accessor("category.name", {
       maxSize: 100,
       header: (h) => "Category",
       cell: (info) => <CellDefaultTemplate info={info} />,
@@ -94,7 +89,7 @@ export default function MenuTable({
       enableSorting: false,
       cell: ({ row }) => (
         <RowEditCell
-          onDeleteClick={() => onDeleteClick(row.original.foodId)}
+          onDeleteClick={() => onDeleteClick(row.original.id)}
           onEditClick={() => {}}
         />
       ),

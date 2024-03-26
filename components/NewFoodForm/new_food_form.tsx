@@ -1,26 +1,26 @@
 "use client";
 
+import { useAppDispatch } from "@/redux/hooks";
+import { addFood } from "@/redux/slices/food";
+import FoodService from "@/services/foodService";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useId, useState } from "react";
 import {
   FieldError,
-  FieldErrors,
-  Form,
-  FormState,
   Path,
   UseFormRegister,
-  useForm,
+  useForm
 } from "react-hook-form";
 import * as z from "zod";
-import React, { useEffect, useId, useState } from "react";
-import { ChooseImageButton } from "./choose_image_button";
+import AddNewThingModal from "../new_category_modal";
+import SearchAndChooseButton from "../search_and_choose_button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "../shadcn_components/accordion";
-import SearchAndChooseButton from "../search_and_choose_button";
-import AddNewThingDialog from "../add_new_category_dialog";
+import { ChooseImageButton } from "./choose_image_button";
 
 const foodSchema = z.object({
   name: z
@@ -67,6 +67,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
   ]);
 
   const [isUploadingFood, setIsUploadingFood] = useState(false);
+  const dispatch = useAppDispatch();
 
   const {
     register,
@@ -109,31 +110,30 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
     );
     setChosenImageFiles(chosenImageFiles);
   };
-
-  console.log(errors);
+  
   function onSubmit(values: z.infer<typeof foodSchema>) {
-    // const dataForm: any = new FormData();
-    // dataForm.append(
-    //   "data",
-    //   new Blob([JSON.stringify(data)], { type: "application/json" })
-    // );
-    // chosenImageFiles
-    //   .filter((file) => file != null)
-    //   .forEach((imageFile) => dataForm.append("files", imageFile));
-    // setIsCreatingNewProduct(true);
-    // ProductService.createNewProduct(dataForm)
-    //   .then((result) => {
-    //     onNewProductsAdded(result.data);
-    //     onChangeVisibility(false);
-    //   })
-    //   .catch((e) => axiosUIErrorHandler(e, toast, router))
-    //   .finally(() => {
-    //     setIsCreatingNewProduct(false);
-    //   });
+    const dataForm: any = new FormData();
+    dataForm.append(
+      "data",
+      new Blob([JSON.stringify(values)], { type: "application/json" })
+    );
+    chosenImageFiles
+      .filter((file) => file != null)
+      .forEach((imageFile) => dataForm.append("files", imageFile));
+    setIsUploadingFood(true);
+    FoodService.createNewFood(dataForm)
+      .then((result) => {
+        dispatch(addFood(result.data))
+      })
+      .catch((e) => console.error(e))
+      .finally(() => {
+        setIsUploadingFood(false);
+        closeForm();
+      });
   }
 
   return (
-    <div className="fixed left-0 top-0 z-[100] flex h-screen w-screen items-center justify-center bg-black bg-opacity-30">
+    <div className="fixed left-0 top-0 z-[50] flex h-screen w-screen items-center justify-center bg-black bg-opacity-30">
       <div
         className={
           "flex max-h-[95%] w-[95%] max-w-[600px] flex-col overflow-y-auto rounded-md bg-white p-4 scrollbar-no-arrows scrollbar scrollbar-hidden"
@@ -413,11 +413,9 @@ const CategoryInput = ({ label, value, onValueChanged, categories, error } : {
             choices={categories.map((v) => v)}
           />
         </div>
-        <AddNewThingDialog
-          title="Add new group"
-          placeholder="Group's name"
-          open={openCategoryDialog}
-          onOpenChange={setOpenCategoryDialog}
+        <AddNewThingModal
+          title="New category"
+          placeholder="Category name"
           onAddClick={async () => {}}
         />
       </div>

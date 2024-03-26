@@ -44,6 +44,13 @@ module.exports = {
             opacity: 0,
           },
         },
+        disappear_to_left: {
+          "0%": { transform: "translateX(0)", opacity: 1 },
+          "100%": {
+            transform: "translateX(-100%)",
+            opacity: 0,
+          },
+        },
       },
       animation: {
         "row-disappear": "disappear_to_left .3s linear",

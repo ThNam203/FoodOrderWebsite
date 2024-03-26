@@ -10,7 +10,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .address(user.getAddress())
                 .phoneNumber(user.getPhoneNumber())
-                .preferences(user.getPreferences())
+               .preferences(user.getPreferences())
                 .profileImage(user.getProfileImage())
                 .isAdmin(user.getIsAdmin())
                 .createdAt(user.getCreatedAt())
@@ -22,7 +22,7 @@ public class UserMapper {
                 .email(userDTO.getEmail())
                 .address(userDTO.getAddress())
                 .phoneNumber(userDTO.getPhoneNumber())
-                .preferences(userDTO.getPreferences())
+               .preferences(userDTO.getPreferences())
                 .profileImage(userDTO.getProfileImage())
                 .isAdmin(userDTO.getIsAdmin())
                 .build();

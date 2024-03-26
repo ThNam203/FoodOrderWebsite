@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
+import FoodRating from "./food_rating";
 
 export default function MainPageItem({
   food,
@@ -31,15 +32,7 @@ export default function MainPageItem({
         <p className="text-base">{food.title}</p>
         <p className="text-xl">$9.99</p>
         <div className="flex items-center">
-          <div className="flex flex-row">
-            {food.rating}
-            <Image
-              src={"/svgs/star.svg"}
-              width={24}
-              height={24}
-              alt="dish image"
-            />
-          </div>
+          <FoodRating rating={food.rating} />
           <Tag name={food.cat1} />
           <Tag name={food.cat2} />
         </div>
