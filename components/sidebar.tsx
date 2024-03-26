@@ -24,7 +24,7 @@ export default function Sidebar({
   isSidebarOpen: boolean;
   onSidebarToggle: () => void;
 }) {
-  const isLogin= useAppSelector((state) => state.profile.isLogin);
+  const isLogin = useAppSelector((state) => state.profile.isLogin);
 
   return (
     <div
@@ -91,21 +91,22 @@ export default function Sidebar({
               <FavouriteIcon />
               <span className={style["nav__name"]}>Favorites</span>
             </a>
-            <a href="#" className={cn(style["nav__link"])}>
+            <a href="/history" className={cn(style["nav__link"])}>
               <HistoryIcon />
               <span className={style["nav__name"]}>History</span>
             </a>
           </div>
         </div>
 
-        {isLogin && <div className={style["nav__list"]}>
-          <a
-            href="/user-setting"
-            className={cn(style["nav__link"], "hover:bg-red-400")}
-          >
-            <SettingIcon />
-            <span className={style["nav__name"]}>User Setting</span>
-          </a>
+        {isLogin && (
+          <div className={style["nav__list"]}>
+            <a
+              href="/user-setting"
+              className={cn(style["nav__link"], "hover:bg-red-400")}
+            >
+              <SettingIcon />
+              <span className={style["nav__name"]}>User Setting</span>
+            </a>
             <a
               href="#"
               className={cn(
@@ -117,7 +118,8 @@ export default function Sidebar({
               <LogoutIcon />
               <span className={style["nav__name"]}>Log Out</span>
             </a>
-        </div>}
+          </div>
+        )}
       </nav>
     </div>
   );

@@ -14,5 +14,15 @@
     "typescriptreact",
     "vue",
     "vue-html"
-  ]
+  ],
+  "cSpell.words": ["createdate", "nextui"],
+  "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "javascript": "javascript",
+    "css": "css",
+    "typescriptreact": "html"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  }
 }
