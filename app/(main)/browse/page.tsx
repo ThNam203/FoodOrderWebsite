@@ -19,6 +19,12 @@ import { Heart, ShoppingCart } from "lucide-react";
 import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
 import { NumberInput } from "@/components/input";
 import { useRouter } from "next/navigation";
+import { Food, FoodSize } from "@/models/Food";
+import { fakeFoodItems } from "./fakeData";
+import { FoodDetail } from "@/components/food_detail";
+import { Cart } from "@/models/Cart";
+import CartService from "@/services/cartService";
+import { showErrorToast, showSuccessToast } from "@/components/toast";
 
 var data: any = {
   categories: [
@@ -71,56 +77,56 @@ var data: any = {
       quantity: 5,
     },
   ],
-  foodItems: [
-    {
-      title: "Bagel Story",
-      image:
-        "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/25008305-442083466194421-4458779521922891776-n-1517333246.jpg?crop=1xw:1xh;center,top&resize=480:*",
-      prepTimeValue: "25 - 30",
-      prepTimeUnit: "min",
-      rating: 4.7,
-      cat1: "Deli",
-      cat2: "Bagels",
-      range: "$$",
-      favourite: false,
-    },
-    {
-      title: "Dessert Rose",
-      image:
-        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
-      prepTimeValue: "30 - 35",
-      prepTimeUnit: "min",
-      rating: 4.5,
-      cat1: "Cafes",
-      cat2: "Desserts",
-      range: "$",
-      favourite: false,
-    },
-    {
-      title: "Barbecue Nation",
-      image:
-        "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
-      prepTimeValue: "40 - 60",
-      prepTimeUnit: "min",
-      rating: 4.6,
-      cat1: "Barbecue",
-      cat2: "Chicken",
-      range: "$$$",
-      favourite: false,
-    },
-    {
-      title: "Twinkle Star",
-      image:
-        "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGZvb2R8ZW58MHx8MHx8fDA%3D",
-      prepTimeValue: "40 - 60",
-      prepTimeUnit: "min",
-      rating: 4.6,
-      cat1: "Barbecue",
-      cat2: "Chicken",
-      range: "$$$",
-      favourite: false,
-    },
-  ],
+  // foodItems: [
+  //   {
+  //     title: "Bagel Story",
+  //     image:
+  //       "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/25008305-442083466194421-4458779521922891776-n-1517333246.jpg?crop=1xw:1xh;center,top&resize=480:*",
+  //     prepTimeValue: "25 - 30",
+  //     prepTimeUnit: "min",
+  //     rating: 4.7,
+  //     cat1: "Deli",
+  //     cat2: "Bagels",
+  //     range: "$$",
+  //     favourite: false,
+  //   },
+  //   {
+  //     title: "Dessert Rose",
+  //     image:
+  //       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
+  //     prepTimeValue: "30 - 35",
+  //     prepTimeUnit: "min",
+  //     rating: 4.5,
+  //     cat1: "Cafes",
+  //     cat2: "Desserts",
+  //     range: "$",
+  //     favourite: false,
+  //   },
+  //   {
+  //     title: "Barbecue Nation",
+  //     image:
+  //       "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
+  //     prepTimeValue: "40 - 60",
+  //     prepTimeUnit: "min",
+  //     rating: 4.6,
+  //     cat1: "Barbecue",
+  //     cat2: "Chicken",
+  //     range: "$$$",
+  //     favourite: false,
+  //   },
+  //   {
+  //     title: "Twinkle Star",
+  //     image:
+  //       "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGZvb2R8ZW58MHx8MHx8fDA%3D",
+  //     prepTimeValue: "40 - 60",
+  //     prepTimeUnit: "min",
+  //     rating: 4.6,
+  //     cat1: "Barbecue",
+  //     cat2: "Chicken",
+  //     range: "$$$",
+  //     favourite: false,
+  //   },
+  // ],
   cartItems: [
     {
       title: "BBQ Burger",
@@ -157,6 +163,8 @@ export default function Home() {
       categoriesContainerRef.current.scrollLeft += scrollValue;
     }
   };
+
+  console.log(fakeFoodItems);
 
   return (
     <>
@@ -219,16 +227,16 @@ export default function Home() {
           <section>
             <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
 
-            <FoodListComponent foods={data.foodItems} />
+            <FoodListComponent foods={fakeFoodItems} />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">On sale</h3>
 
-            <FoodListComponent foods={data.foodItems} />
+            <FoodListComponent foods={fakeFoodItems} />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">Best rated</h3>
-            <FoodListComponent foods={data.foodItems} />
+            <FoodListComponent foods={fakeFoodItems} />
           </section>
           <section className="mb-8">
             <h3 className="text-4xl font-semibold my-8">Categories</h3>
@@ -290,7 +298,7 @@ export default function Home() {
                 </svg>
               </button>
             </div>
-            <FoodListComponent foods={data.foodItems} />
+            <FoodListComponent foods={fakeFoodItems} />
           </section>
         </div>
       </section>
@@ -298,18 +306,42 @@ export default function Home() {
   );
 }
 
-const FoodListComponent = ({ foods }: { foods: any }) => {
+const FoodListComponent = ({ foods }: { foods: Food[] }) => {
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
   const [isOpen, setOpen] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<any>(null);
+  const [selectedFood, setSelectedFood] = useState<Food>(fakeFoodItems[0]);
+  const [selectedSize, setSelectedSize] = useState<FoodSize>(
+    selectedFood.foodSizes[0]
+  );
   const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
-  const handleFoodClick = (food: any) => {
+  const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
+    if (selectedFood !== food) setSelectedSize(food.foodSizes[0]);
     setOpen(!isOpen);
   };
-  const [heartIconState, setHeartIconState] = useState(
-    selectedFood ? selectedFood.favourite : false
-  );
+  const [heartIconState, setHeartIconState] = useState(false);
+
+  const handleAddToCart = async (food: Food) => {
+    const newCartItem: Cart = {
+      id: -1,
+      quantity: selectedFoodQuantity,
+      foodId: food.id,
+      foodSizeId: selectedSize.id,
+    };
+    await CartService.AddCart(newCartItem)
+      .then((res) => {
+        console.log(res);
+        showSuccessToast("Added to cart successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        showErrorToast("Failed to add to cart");
+      })
+      .finally(() => {});
+  };
+  const handleFoodSizeChange = (foodSize: FoodSize) => {
+    if (selectedSize !== foodSize) setSelectedSize(foodSize);
+  };
 
   return (
     <div className={cn(emblaStyle.embla)} ref={emblaRef}>
@@ -322,94 +354,23 @@ const FoodListComponent = ({ foods }: { foods: any }) => {
             onClick={() => handleFoodClick(food)}
           />
         ))}
-        <Modal
+
+        <FoodDetail
           isOpen={isOpen}
           onOpenChange={() => setOpen(!isOpen)}
-          className="text-primaryWord rounded-lg overflow-hidden"
-          hideCloseButton
-          size="xl"
-        >
-          <ModalContent>
-            {(onClose) => (
-              <>
-                <div className="w-full h-40 overflow-hidden">
-                  <div
-                    className="object-center hover:scale-125 h-40 ease-linear transition-all duration-300"
-                    style={{
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      backgroundRepeat: "no-repeat",
-                      backgroundImage: `url(${selectedFood.image})`,
-                    }}
-                  ></div>
-                </div>
-                <ModalHeader className="flex flex-col gap-1">
-                  <div className="flex flex-col items-start">
-                    <div className="flex flex-row items-center gap-2">
-                      <span>{selectedFood.title}</span>
-                      <IconButton
-                        className="rounded-full ease-linear duration-100"
-                        icon={
-                          heartIconState ? <HeartIcon /> : <OutlineHeartIcon />
-                        }
-                        onClick={() => {
-                          setSelectedFood((prev: any) => ({
-                            ...prev,
-                            favourite: !prev.favourite,
-                          }));
-                          setHeartIconState(!heartIconState);
-                        }}
-                      />
-                    </div>
-                    <div className="w-full flex flex-row items-center justify-between">
-                      <p className="text-xl">$9.99</p>
-                      <div className="w-min font-sans">
-                        <NumberInput
-                          className="outline-0 text-primaryWord"
-                          value={selectedFoodQuantity}
-                          onDecrease={() =>
-                            setSelectedFoodQuantity(
-                              selectedFoodQuantity <= 1
-                                ? 1
-                                : selectedFoodQuantity - 1
-                            )
-                          }
-                          onIncrease={() =>
-                            setSelectedFoodQuantity(selectedFoodQuantity + 1)
-                          }
-                          onChange={(e) =>
-                            setSelectedFoodQuantity(
-                              Number.parseInt(e.target.value)
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <span className="text-secondaryWord text-sm font-normal">
-                    Food tags
-                  </span>
-                </ModalHeader>
-                <ModalBody>
-                  <p>
-                    Food description here. Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit. Nullam pulvinar risus non risus
-                    hendrerit venenatis. Pellentesque sit amet hendrerit risus,
-                    sed porttitor quam.
-                  </p>
-                </ModalBody>
-                <ModalFooter>
-                  <TextButton
-                    iconAfter={<ShoppingCart className="w-4 h-4" />}
-                    content="Add to cart"
-                    className="w-min gap-2 text-nowrap text-primaryWord bg-transparent hover:text-primary hover:bg-transparent ease-linear duration-100"
-                  />
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
+          food={selectedFood}
+          foodQuantity={selectedFoodQuantity}
+          onFoodQuantityChange={(quantity: number) =>
+            setSelectedFoodQuantity(quantity)
+          }
+          selectedSize={selectedSize}
+          onFoodSizeChange={(foodSize: any) => handleFoodSizeChange(foodSize)}
+          isFavorite={heartIconState}
+          onFavoriteChange={(isFavorite: boolean) =>
+            setHeartIconState(isFavorite)
+          }
+          onAddToCart={() => handleAddToCart(selectedFood)}
+        />
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "min-h-screen bg-white font-sans transition-[0.5] scrollbar ease-linear duration-100",
+        "min-h-screen bg-white font-sans transition-[0.5] scrollbar ease-linear duration-300",
         isSidebarOpen ? "pl-[calc(92px+6rem)]" : "pl-[92px]"
       )}
     >
