@@ -38,7 +38,7 @@ export default function LoginPage() {
 
   const handleFormSubmit = async (data: LoginFormData) => {
     setIsLoggingIn(true);
-    await AuthService.Login(data)
+    await AuthService.login(data)
       .then((res) => {
         console.log(res);
         showSuccessToast("Login Successfully");

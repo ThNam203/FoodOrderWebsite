@@ -1,13 +1,17 @@
 "use client";
 
-import type { Metadata } from "next";
-import { Lato } from "next/font/google";
-import "@/styles/globals.css";
 import Sidebar from "@/components/sidebar";
-import { use, useEffect, useRef, useState } from "react";
 import { Toast } from "@/components/toast";
+import "@/styles/globals.css";
 import { cn } from "@/utils/cn";
-import { getCookie, setCookie } from "cookies-next";
+import { Lato } from "next/font/google";
+import { useState } from "react";
+
+const lato = Lato({
+  weight: ["100", "300", "400", "700", "900"],
+  subsets: ["latin"],
+  variable: "--font-lato",
+});
 
 export default function RootLayout({
   children,

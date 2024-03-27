@@ -41,11 +41,6 @@ public class OrderServiceImpl implements OrderService {
                 }
                 if (orderDetailDTO.getFoodSize() != null) {
                     FoodSize foodSize = foodSizeRepository.findById(orderDetailDTO.getFoodSize().getId()).orElseThrow(() -> new CustomException("Food size not found", HttpStatus.NOT_FOUND));
-                    if (foodSize.getQuantity() < orderDetailDTO.getQuantity()) {
-                        throw new CustomException("Not enough quantity", HttpStatus.BAD_REQUEST);
-                    }
-                    foodSize.setQuantity(foodSize.getQuantity() - orderDetailDTO.getQuantity());
-                    foodSizeRepository.save(foodSize);
                     orderDetail.setFoodSize(foodSize);
                 }
                 orderDetail.setOrder(order);

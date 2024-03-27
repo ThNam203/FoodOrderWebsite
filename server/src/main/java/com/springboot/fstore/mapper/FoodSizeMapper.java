@@ -11,7 +11,6 @@ public class FoodSizeMapper {
                 .price(foodSize.getPrice())
                 .weight(foodSize.getWeight())
                 .note(foodSize.getNote())
-                .quantity(foodSize.getQuantity())
                 .build();
     }
 
@@ -21,7 +20,6 @@ public class FoodSizeMapper {
                 .price(foodSizeDTO.getPrice())
                 .weight(foodSizeDTO.getWeight())
                 .note(foodSizeDTO.getNote())
-                .quantity(foodSizeDTO.getQuantity())
                 .build();
     }
 }

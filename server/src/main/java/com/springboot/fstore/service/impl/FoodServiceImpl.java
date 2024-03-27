@@ -1,9 +1,6 @@
 package com.springboot.fstore.service.impl;
 
-import com.springboot.fstore.entity.Category;
-import com.springboot.fstore.entity.Food;
-import com.springboot.fstore.entity.FoodSize;
-import com.springboot.fstore.entity.User;
+import com.springboot.fstore.entity.*;
 import com.springboot.fstore.exception.CustomException;
 import com.springboot.fstore.exception.ResourceNotFoundException;
 import com.springboot.fstore.mapper.FoodMapper;
@@ -20,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,8 +31,29 @@ public class FoodServiceImpl implements FoodService {
         Food food = FoodMapper.toFood(foodDTO);
 
         if (files != null) {
-            String url = fileService.uploadFile(files[0]);
-            food.setImage(url);
+            List<Image> images = new ArrayList<>();
+            for (MultipartFile file : files) {
+                String url = fileService.uploadFile(file);
+                if (url == null) continue;
+                Image image = Image.builder()
+                        .url(url)
+                        .build();
+                images.add(image);
+            }
+            if (!images.isEmpty()) {
+                food.setImages(images);
+            }
+        }
+
+        if (foodDTO.getTags() != null) {
+            food.setTags(foodDTO.getTags()
+                    .stream()
+                    .map(tag -> {
+                        return Tag.builder()
+                                .name(tag)
+                                .build();
+                    })
+                    .toList());
         }
 
         if (foodDTO.getCategory() != null) {
@@ -64,9 +83,32 @@ public class FoodServiceImpl implements FoodService {
         food.setName(foodDTO.getName());
         food.setDescription(foodDTO.getDescription());
 
+        food.getImages().clear();
+        food.getTags().clear();
+
         if (files != null) {
-            String url = fileService.uploadFile(files[0]);
-            food.setImage(url);
+            List<Image> images = new ArrayList<>();
+            for (MultipartFile file : files) {
+                String url = fileService.uploadFile(file);
+                if (url == null) continue;
+                Image image = Image.builder()
+                        .url(url)
+                        .build();
+                images.add(image);
+            }
+            if (!images.isEmpty()) {
+                food.getImages().addAll(images);
+            }
+        }
+        if (foodDTO.getTags() != null) {
+            food.getTags().addAll(foodDTO.getTags()
+                    .stream()
+                    .map(tag -> {
+                        return Tag.builder()
+                                .name(tag)
+                                .build();
+                    })
+                    .toList());
         }
 
         if (foodDTO.getCategory() == null)
@@ -89,7 +131,8 @@ public class FoodServiceImpl implements FoodService {
                     })
                     .toList());
         }
-        return FoodMapper.toFoodDTO(foodRepository.save(food));
+        Food newFood = foodRepository.save(food);
+        return FoodMapper.toFoodDTO(newFood);
     }
 
     @Override

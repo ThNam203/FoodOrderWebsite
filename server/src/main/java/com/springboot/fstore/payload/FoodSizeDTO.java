@@ -15,5 +15,4 @@ public class FoodSizeDTO {
     private Double price;
     private Double weight;
     private String note;
-    private int quantity;
 }

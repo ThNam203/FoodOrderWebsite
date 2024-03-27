@@ -2,21 +2,25 @@ export type FoodSize = {
   id: number;
   name: string;
   price: number;
-  weight: number;
-  note: string;
-  quantity: number;
-  foodId: number;
+  weight?: number;
+  note?: string;
 };
+
+export type FoodCategory = {
+  id: number;
+  name: string;
+  image: string;
+}
 
 export type Food = {
   id: number;
   name: string;
   description: string;
-  image: string;
+  images: string[];
   isDeleted: boolean;
   foodSizes: FoodSize[];
-  categoryId: number;
+  category: FoodCategory;
   rating: number;
   tags: string[];
-  currency: string;
+  createdDate: string;
 };
