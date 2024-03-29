@@ -5,23 +5,7 @@ import { HeartIcon } from "../icons";
 import { IconButton } from "../buttons";
 import FoodRating from "../food_rating";
 import { useState } from "react";
-
-const FoodPrice = ({
-  currency = "đ",
-  defaultPrice,
-  secondPrice,
-}: {
-  currency?: string;
-  defaultPrice: number | string;
-  secondPrice?: number | string;
-}) => {
-  return (
-    <span className="font-semibold">
-      {currency + defaultPrice}{" "}
-      {secondPrice ? " - " + currency + secondPrice : null}
-    </span>
-  );
-};
+import { FoodPrice } from "../food_price";
 
 export default function FavouriteFood({
   food,

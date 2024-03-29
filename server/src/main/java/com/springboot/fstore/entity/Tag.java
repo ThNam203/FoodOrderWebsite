@@ -5,22 +5,15 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 
 @Entity
-@Table(name = "food_sizes")
-public class FoodSize extends BaseEntity {
+@Table(name = "tags")
+public class Tag extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private Double price;
-    private Double weight;
-    private String note;
-
-    @ManyToOne
-    @JoinColumn(name = "food_id")
-    private Food food;
 }
