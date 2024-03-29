@@ -1,9 +1,9 @@
 import { Food, FoodCategory } from "@/models/Food";
 import AxiosService from "./axiosService";
 
-const createNewCategory = (value: string) => {
-  return AxiosService.post<FoodCategory>("/api/categories", {
-    name: value,
+const createNewCategory = (data: any) => {
+  return AxiosService.post<FoodCategory>("/api/categories", data, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
 };
 

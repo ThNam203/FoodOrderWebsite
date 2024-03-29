@@ -1,11 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import profileReducer from "./slices/profile";
 import preloaderReducer from "./slices/preloader";
+import foodReducer from "./slices/food";
+import foodCategoryReducer from "./slices/category";
 
 export const store = configureStore({
   reducer: {
     profile: profileReducer,
     preloader: preloaderReducer,
+    food: foodReducer,
+    foodCategory: foodCategoryReducer,
   },
 });
 

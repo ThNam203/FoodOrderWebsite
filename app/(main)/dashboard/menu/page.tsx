@@ -1,7 +1,6 @@
 "use client";
 import MenuTable from "@/components/MenuTable/menu_table";
 import { NewFoodForm } from "@/components/NewFoodForm/new_food_form";
-import NewCategoryModal from "@/components/new_category_modal";
 import { Food } from "@/models/Food";
 import { useState } from "react";
 
@@ -63,7 +62,6 @@ export default function DashboardMenu() {
 
   return (
     <section className="p-4 text-black">
-      <NewCategoryModal title="ddd" placeholder="ddd" onAddClick={async () => {}} />
       <div className="flex justify-between">
         <h1 className="text-4xl font-bold text-black my-8">Menu</h1>
         <button className="text-black" onClick={() => setOpenNewFoodForm(true)}>Add Food</button>
