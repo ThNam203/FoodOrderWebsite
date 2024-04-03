@@ -1,3 +1,4 @@
+import { cn } from "@/utils/cn";
 import { useState } from "react";
 
 export default function SearchAndChooseButton({
@@ -83,7 +84,10 @@ export default function SearchAndChooseButton({
         <div className="absolute max-h-[200px] top-full left-0 right-0 overflow-y-auto !rounded-none bg-white z-[1000] shadow-sm shadow-gray-600 scrollbar small-scrollbar">
           <div className="flex flex-col">
             <input
-              className="!m-0 pl-2 h-10 w-full !rounded-none border-0 placeholder:text-xs"
+              className={cn(
+                "!m-0 pl-2 h-10 w-full !rounded-none border-0 placeholder:text-xs",
+                results.length === 0 ? "hidden" : ""
+              )}
               value={searchInput}
               placeholder={searchPlaceholder}
               onChange={(e) => setSearchInput(e.target.value)}

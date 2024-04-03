@@ -2,15 +2,15 @@ export type FoodSize = {
   id: number;
   name: string;
   price: number;
-  weight?: number;
-  note?: string;
+  weight: number;
+  note: string;
 };
 
 export type FoodCategory = {
   id: number;
   name: string;
   image: string;
-}
+};
 
 export type Food = {
   id: number;

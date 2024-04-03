@@ -16,11 +16,29 @@ import {
   AccordionTrigger,
 } from "../shadcn_components/accordion";
 import { ChooseImageButton } from "./choose_image_button";
-import { addFoodCategory, setFoodCategories } from "@/redux/slices/category";
+import category, {
+  addFoodCategory,
+  setFoodCategories,
+} from "@/redux/slices/category";
 import NewCategoryModal from "../new_category_modal";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
+import { FoodFormDataToFood, FoodToSend } from "@/convertor/foodConvertor";
 
-const foodSchema = z.object({
+export type FoodFormData = {
+  name: string;
+  status: string;
+  category: string;
+  images: (string | null)[];
+  sizes: {
+    sizeName: string;
+    price: number;
+    weight: number;
+    note: string;
+  }[];
+  description: string;
+};
+
+const foodSchema: z.ZodType<FoodFormData> = z.object({
   name: z
     .string()
     .trim()
@@ -57,13 +75,16 @@ const foodSchema = z.object({
 
 export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
   const dispatch = useAppDispatch();
+  const categories = useAppSelector((state) => state.foodCategory.value);
 
   useEffect(() => {
     dispatch(showPreloader());
     const getData = async () => {
-      FoodService.getCategories().then((data) =>
-        dispatch(setFoodCategories(data.data))
-      );
+      await FoodService.getCategories()
+        .then((data) => dispatch(setFoodCategories(data.data)))
+        .catch((err) => {
+          console.log(err);
+        });
     };
 
     getData()
@@ -124,17 +145,23 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
     setChosenImageFiles(chosenImageFiles);
   };
 
-  function onSubmit(values: z.infer<typeof foodSchema>) {
+  const onSubmit = async (values: FoodFormData) => {
+    const selectedCategory = categories.find(
+      (cat) => cat.name === values.category
+    );
+    const newFood = FoodFormDataToFood(values, selectedCategory!);
     const dataForm: any = new FormData();
     dataForm.append(
       "data",
-      new Blob([JSON.stringify(values)], { type: "application/json" })
+      new Blob([JSON.stringify(FoodToSend(newFood))], {
+        type: "application/json",
+      })
     );
     chosenImageFiles
       .filter((file) => file != null)
       .forEach((imageFile) => dataForm.append("files", imageFile));
     setIsUploadingFood(true);
-    FoodService.createNewFood(dataForm)
+    await FoodService.createNewFood(dataForm)
       .then((result) => {
         dispatch(addFood(result.data));
       })
@@ -143,7 +170,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
         setIsUploadingFood(false);
         closeForm();
       });
-  }
+  };
 
   return (
     <div className="fixed left-0 top-0 z-[50] flex h-screen w-screen items-center justify-center bg-black bg-opacity-30">
@@ -286,9 +313,6 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
               type="submit"
               className="min-w-[150px] px-4 uppercase bg-green-600 text-white rounded-sm py-2"
               disabled={isUploadingFood}
-              onClick={() => {
-                console.log(errors);
-              }}
             >
               Save
             </button>
@@ -441,7 +465,7 @@ const CategoryInput = ({
               })
             );
             if (imageFile) dataForm.append("files", imageFile);
-            FoodService.createNewCategory(dataForm)
+            await FoodService.createNewCategory(dataForm)
               .then((newCat) => {
                 dispatch(addFoodCategory(newCat.data));
               })

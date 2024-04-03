@@ -18,6 +18,7 @@ const getAllFood = () => {
 const createNewFood = (data: any) => {
   return AxiosService.post<Food>("/api/foods", data, {
     headers: { "Content-Type": "multipart/form-data" },
+    withCredentials: true,
   });
 };
 

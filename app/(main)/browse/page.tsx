@@ -25,6 +25,9 @@ import { Cart } from "@/models/Cart";
 import CartService from "@/services/cartService";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { fakeFoodItems } from "@/fakedata/foodData";
+import { setCookie } from "cookies-next";
+import { setSelectedLink } from "@/redux/slices/sidebar";
+import { useAppDispatch } from "@/redux/hooks";
 
 var data: any = {
   categories: [
@@ -153,6 +156,7 @@ var data: any = {
 };
 
 export default function Home() {
+  const dispatch = useAppDispatch();
   const [activeCategory, setActiveCategory] = useState(1);
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setOpen] = useState(false);
@@ -196,7 +200,10 @@ export default function Home() {
             </div>
             <div
               className="flex flex-row items-center gap-2 hover:cursor-pointer"
-              onClick={() => router.push("/user-setting")}
+              onClick={() => {
+                router.push("/user-setting");
+                dispatch(setSelectedLink("/user-setting"));
+              }}
             >
               <img
                 src="https://scontent.fsgn19-1.fna.fbcdn.net/v/t1.6435-1/89355819_802321806918041_2820306896441835520_n.jpg?stp=dst-jpg_p240x240&_nc_cat=106&ccb=1-7&_nc_sid=2b6aad&_nc_ohc=mGJ07GAwJPIAX-HmCpl&_nc_ht=scontent.fsgn19-1.fna&oh=00_AfDzBpS8oC1vm-lKKyG65r9dHO5IqZrn36HGZ17stH9nXg&oe=6606CBD4"

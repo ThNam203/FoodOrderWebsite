@@ -13,11 +13,13 @@ import {
   LogoutIcon,
   SettingIcon,
 } from "./icons";
-import { getCookie, getCookies } from "cookies-next";
+import { getCookie, getCookies, setCookie } from "cookies-next";
 import { cn } from "@/utils/cn";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { ClassValue } from "clsx";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { setSelectedLink } from "@/redux/slices/sidebar";
 
 const CustomLink = ({
   className,
@@ -39,15 +41,21 @@ const CustomLink = ({
       href={href}
       className={cn(
         style["nav__link"],
-        selectedLink === content ? style["active"] : "",
+        selectedLink === href ? style["active"] : "",
         className
       )}
-      onClick={() => setSelectedLink(content)}
+      onClick={() => setSelectedLink(href)}
     >
       {icon}
       <span className={style["nav__name"]}>{content}</span>
     </Link>
   );
+};
+
+const getCookieSelectedLink = () => {
+  const cookieRes = getCookie("sidebar_selectedLink");
+  if (!cookieRes) return null;
+  return JSON.parse(cookieRes as string) as string;
 };
 
 export default function Sidebar({
@@ -57,11 +65,13 @@ export default function Sidebar({
   isSidebarOpen: boolean;
   onSidebarToggle: () => void;
 }) {
+  const dispatch = useAppDispatch();
   const isLogin = useAppSelector((state) => state.profile.isLogin);
-  const [selectedLink, setSelectedLink] = useState("Dashboard");
-  useEffect(() => {
-    console.log(selectedLink);
-  }, [selectedLink]);
+  const selectedLink = useAppSelector((state) => state.sidebar.selectedLink);
+
+  const handleSelectedLinkChange = (link: string) => {
+    dispatch(setSelectedLink(link));
+  };
 
   return (
     <div
@@ -97,7 +107,7 @@ export default function Sidebar({
               content="Dashboard"
               icon={<DashBoardIcon />}
               selectedLink={selectedLink}
-              setSelectedLink={setSelectedLink}
+              setSelectedLink={handleSelectedLinkChange}
             />
             {/* <a href="/" className={twMerge(style["nav__link"])}>
               <svg
@@ -123,14 +133,14 @@ export default function Sidebar({
               content="Browse"
               icon={<BrowseIcon />}
               selectedLink={selectedLink}
-              setSelectedLink={setSelectedLink}
+              setSelectedLink={handleSelectedLinkChange}
             />
             <CustomLink
               href="/cart"
               content="Your cart"
               icon={<CartIcon />}
               selectedLink={selectedLink}
-              setSelectedLink={setSelectedLink}
+              setSelectedLink={handleSelectedLinkChange}
             />
 
             <CustomLink
@@ -138,14 +148,14 @@ export default function Sidebar({
               content="Favourites"
               icon={<FavouriteIcon />}
               selectedLink={selectedLink}
-              setSelectedLink={setSelectedLink}
+              setSelectedLink={handleSelectedLinkChange}
             />
             <CustomLink
               href="/history"
               content="History"
               icon={<HistoryIcon />}
               selectedLink={selectedLink}
-              setSelectedLink={setSelectedLink}
+              setSelectedLink={handleSelectedLinkChange}
             />
           </div>
         </div>
@@ -157,13 +167,13 @@ export default function Sidebar({
               content="User setting"
               icon={<SettingIcon />}
               selectedLink={selectedLink}
-              setSelectedLink={setSelectedLink}
+              setSelectedLink={handleSelectedLinkChange}
             />
             <CustomLink
               content="Log out"
               icon={<LogoutIcon />}
               selectedLink={selectedLink}
-              setSelectedLink={setSelectedLink}
+              setSelectedLink={handleSelectedLinkChange}
               className={cn("hover:bg-red-400")}
             />
           </div>

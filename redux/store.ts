@@ -3,6 +3,7 @@ import profileReducer from "./slices/profile";
 import preloaderReducer from "./slices/preloader";
 import foodReducer from "./slices/food";
 import foodCategoryReducer from "./slices/category";
+import sidebarReducer from "./slices/sidebar";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     preloader: preloaderReducer,
     food: foodReducer,
     foodCategory: foodCategoryReducer,
+    sidebar: sidebarReducer,
   },
 });
 
