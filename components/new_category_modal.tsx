@@ -11,15 +11,12 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import Image from "next/image";
+import { useAppSelector } from "@/redux/hooks";
 
 const NewCategoryModal = ({
-  title,
-  placeholder,
   onAddClick,
 }: {
-  title: string;
-  placeholder: string;
-  onAddClick: (value: string) => Promise<any>;
+  onAddClick: (value: string, image: File | null) => Promise<any>;
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [value, setValue] = useState("");
@@ -53,7 +50,7 @@ const NewCategoryModal = ({
             return (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  {title}
+                  New category
                 </ModalHeader>
                 <ModalBody>
                   <div className="flex justify-between">
@@ -63,7 +60,7 @@ const NewCategoryModal = ({
                         htmlFor="alert_input"
                         className="w-36 font-semibold"
                       >
-                        {placeholder}
+                        New category name
                       </label>
                       <input
                         id="alert_input"
@@ -79,7 +76,7 @@ const NewCategoryModal = ({
                     onClick={async (e) => {
                       setIsLoading(true);
                       try {
-                        await onAddClick(value);
+                        await onAddClick(value, image);
                         onClose();
                       } catch (e) {}
 

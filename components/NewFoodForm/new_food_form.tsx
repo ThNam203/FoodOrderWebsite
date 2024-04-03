@@ -1,10 +1,10 @@
 "use client";
 
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addFood } from "@/redux/slices/food";
 import FoodService from "@/services/foodService";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { FieldError, Path, UseFormRegister, useForm } from "react-hook-form";
 import * as z from "zod";
 import AddNewThingModal from "../new_category_modal";
@@ -16,6 +16,9 @@ import {
   AccordionTrigger,
 } from "../shadcn_components/accordion";
 import { ChooseImageButton } from "./choose_image_button";
+import { addFoodCategory, setFoodCategories } from "@/redux/slices/category";
+import NewCategoryModal from "../new_category_modal";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 
 const foodSchema = z.object({
   name: z
@@ -31,7 +34,7 @@ const foodSchema = z.object({
       z.object({
         sizeName: z
           .string({ required_error: "Missing size name" })
-          .min(10, { message: "Missing size name" })
+          .min(1, { message: "Missing size name" })
           .max(100, { message: "Size name must be less than 100" }),
         price: z
           .number({ required_error: "Missing price!" })
@@ -53,6 +56,21 @@ const foodSchema = z.object({
 });
 
 export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(showPreloader());
+    const getData = async () => {
+      FoodService.getCategories().then((data) =>
+        dispatch(setFoodCategories(data.data))
+      );
+    };
+
+    getData()
+      .catch((err) => console.log(err))
+      .finally(() => dispatch(disablePreloader()));
+  }, []);
+
   const [chosenImageFiles, setChosenImageFiles] = useState<(File | null)[]>([
     null,
     null,
@@ -62,7 +80,6 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
   ]);
 
   const [isUploadingFood, setIsUploadingFood] = useState(false);
-  const dispatch = useAppDispatch();
 
   const {
     register,
@@ -77,6 +94,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
       name: "",
       status: "true",
       images: [null, null, null, null, null],
+      category: "",
       sizes: [
         {
           sizeName: "Default",
@@ -170,10 +188,8 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
               error={errors.status}
             />
             <CategoryInput
-              label="category"
               value={watch("category")}
               onValueChanged={(val) => setValue("category", val ? val : "")}
-              categories={["a", "b", "c"]}
               error={errors.category}
             />
             <ImagesInput
@@ -270,6 +286,9 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
               type="submit"
               className="min-w-[150px] px-4 uppercase bg-green-600 text-white rounded-sm py-2"
               disabled={isUploadingFood}
+              onClick={() => {
+                console.log(errors);
+              }}
             >
               Save
             </button>
@@ -383,19 +402,17 @@ const StatusInput = ({ label, register, required, error }: InputProps) => {
 };
 
 const CategoryInput = ({
-  label,
   value,
   onValueChanged,
-  categories,
   error,
 }: {
-  label: Path<z.infer<typeof foodSchema>>;
   value: string;
-  categories: string[];
   onValueChanged: (value: string | null) => any;
   error?: FieldError;
 }) => {
-  const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
+  const dispatch = useAppDispatch();
+  const categories = useAppSelector((state) => state.foodCategory.value);
+
   return (
     <div className="flex flex-row items-baseline">
       <div className="w-[150px]">
@@ -411,13 +428,25 @@ const CategoryInput = ({
             placeholder="---Choose category---"
             searchPlaceholder="Search category..."
             onValueChanged={onValueChanged}
-            choices={categories.map((v) => v)}
+            choices={categories.map((v) => v.name)}
           />
         </div>
-        <AddNewThingModal
-          title="New category"
-          placeholder="Category name"
-          onAddClick={async () => {}}
+        <NewCategoryModal
+          onAddClick={async (catName: string, imageFile: File | null) => {
+            const dataForm: any = new FormData();
+            dataForm.append(
+              "data",
+              new Blob([JSON.stringify({ name: catName })], {
+                type: "application/json",
+              })
+            );
+            if (imageFile) dataForm.append("files", imageFile);
+            FoodService.createNewCategory(dataForm)
+              .then((newCat) => {
+                dispatch(addFoodCategory(newCat.data));
+              })
+              .catch((errr) => console.log(errr));
+          }}
         />
       </div>
     </div>
