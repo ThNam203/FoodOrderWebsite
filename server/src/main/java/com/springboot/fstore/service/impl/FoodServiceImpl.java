@@ -82,6 +82,7 @@ public class FoodServiceImpl implements FoodService {
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
         food.setName(foodDTO.getName());
         food.setDescription(foodDTO.getDescription());
+        food.setStatus(foodDTO.getStatus());
 
         food.getImages().clear();
         food.getTags().clear();

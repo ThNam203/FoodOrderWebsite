@@ -19,6 +19,7 @@ public class FoodDTO {
     private int id;
     private String name;
     private String description;
+    private String status;
     private Boolean isDeleted;
     private LocalDateTime createdAt;
     private CategoryDTO category;

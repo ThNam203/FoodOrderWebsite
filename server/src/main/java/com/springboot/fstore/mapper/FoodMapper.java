@@ -13,6 +13,7 @@ public class FoodMapper {
                 .id(food.getId())
                 .name(food.getName())
                 .description(food.getDescription())
+                .status(food.getStatus())
                 .isDeleted(food.getIsDeleted())
                 .createdAt(food.getCreatedAt())
                 .foodSizes(food.getFoodSizes() != null ? food.getFoodSizes().stream().map(FoodSizeMapper::toFoodSizeDTO).toList() : null)
@@ -25,6 +26,7 @@ public class FoodMapper {
         return Food.builder()
                 .name(foodDTO.getName())
                 .description(foodDTO.getDescription())
+                .status(foodDTO.getStatus())
                 .isDeleted(foodDTO.getIsDeleted() != null && foodDTO.getIsDeleted())
                 .build();
     }
