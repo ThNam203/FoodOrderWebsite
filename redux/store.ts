@@ -3,6 +3,7 @@ import profileReducer from "./slices/profile";
 import preloaderReducer from "./slices/preloader";
 import foodReducer from "./slices/food";
 import foodCategoryReducer from "./slices/category";
+import cartReducer from "./slices/cart";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     preloader: preloaderReducer,
     food: foodReducer,
     foodCategory: foodCategoryReducer,
+    cart: cartReducer,
   },
 });
 

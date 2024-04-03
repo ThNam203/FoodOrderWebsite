@@ -1,6 +1,8 @@
+import { Food, FoodSize } from "./Food";
+
 export type Cart = {
   id: number;
   quantity: number;
-  foodId: number;
-  foodSizeId: number;
+  food: Food;
+  foodSize: FoodSize;
 };

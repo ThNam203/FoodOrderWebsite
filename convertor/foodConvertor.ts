@@ -11,6 +11,7 @@ const FoodToSend = (food: Food) => {
       id: food.category.id,
     },
     tags: food.tags,
+    status: food.status,
     foodSizes: food.foodSizes.map((size) => {
       return {
         name: size.name,
@@ -42,6 +43,7 @@ const FoodFormDataToFood = (formData: FoodFormData, category: FoodCategory) => {
     category: category,
     rating: 0,
     tags: [],
+    status: formData.status,
     createdDate: new Date().toString(),
   };
   return food;
@@ -58,6 +60,7 @@ const FoodToReceive = (data: any): Food => {
     category: data.category,
     rating: data.rating,
     tags: data.tags,
+    status: data.status,
     createdDate: data.createdDate,
   };
   return foodReceived;

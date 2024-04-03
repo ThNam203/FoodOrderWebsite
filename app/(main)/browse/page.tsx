@@ -1,7 +1,7 @@
 "use client";
 
 import MainPageItem from "@/components/main_page_item";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, use, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import emblaStyle from "@/styles/embla_carousel.module.css";
@@ -26,7 +26,10 @@ import CartService from "@/services/cartService";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { fakeFoodItems } from "@/fakedata/foodData";
 import { setCookie } from "cookies-next";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { addCartItem } from "@/redux/slices/cart";
+import FoodService from "@/services/foodService";
+import { setFoods } from "@/redux/slices/food";
 
 var data: any = {
   categories: [
@@ -160,12 +163,28 @@ export default function Home() {
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setOpen] = useState(false);
   const router = useRouter();
+  const [food, setFood] = useState<Food[]>(
+    useAppSelector((state) => state.food.activeFood)
+  );
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
       categoriesContainerRef.current.scrollLeft += scrollValue;
     }
   };
+  useEffect(() => {
+    const fetchData = async () => {
+      await FoodService.getAllFood()
+        .then((res) => {
+          setFood(res.data);
+          dispatch(setFoods(res.data));
+        })
+        .catch((err) => {
+          showErrorToast("Failed to fetch data");
+        });
+    };
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -230,7 +249,7 @@ export default function Home() {
           <section>
             <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
 
-            <FoodListComponent foods={fakeFoodItems} />
+            <FoodListComponent foods={food} />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">On sale</h3>
@@ -311,6 +330,7 @@ export default function Home() {
 
 const FoodListComponent = ({ foods }: { foods: Food[] }) => {
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
+  const dispatch = useAppDispatch();
   const [isOpen, setOpen] = useState(false);
   const [selectedFood, setSelectedFood] = useState<Food>(fakeFoodItems[0]);
   const [selectedSize, setSelectedSize] = useState<FoodSize>(
@@ -328,12 +348,13 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
     const newCartItem: Cart = {
       id: -1,
       quantity: selectedFoodQuantity,
-      foodId: food.id,
-      foodSizeId: selectedSize.id,
+      food: food,
+      foodSize: selectedSize,
     };
     await CartService.AddCart(newCartItem)
       .then((res) => {
         console.log(res);
+        dispatch(addCartItem(res.data));
         showSuccessToast("Added to cart successfully");
       })
       .catch((err) => {

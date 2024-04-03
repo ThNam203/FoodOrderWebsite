@@ -22,5 +22,6 @@ export type Food = {
   category: FoodCategory;
   rating: number;
   tags: string[];
+  status: string;
   createdDate: string;
 };

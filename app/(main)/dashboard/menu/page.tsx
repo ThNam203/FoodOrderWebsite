@@ -9,12 +9,13 @@ import { useEffect, useState } from "react";
 
 export default function DashboardMenu() {
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.food.allFood);
+  const [data, setData] = useState<Food[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       await FoodService.getAllFood()
         .then((res) => {
+          setData(res.data);
           dispatch(setFoods(res.data));
           console.log(res.data);
         })

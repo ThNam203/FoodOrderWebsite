@@ -15,6 +15,7 @@ export const fakeFoodItems: Food[] = [
       image:
         "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
     },
+    status: "active",
     description: "Bagel Story is a deli that specializes in bagels.",
     foodSizes: [
       {
@@ -49,6 +50,7 @@ export const fakeFoodItems: Food[] = [
       image:
         "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
     },
+    status: "active",
     description: "Dessert Rose is a cafe that specializes in desserts.",
     foodSizes: [
       {
@@ -76,6 +78,7 @@ export const fakeFoodItems: Food[] = [
       image:
         "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
     },
+    status: "active",
     description:
       "Barbecue Nation is a restaurant that specializes in barbecue and chicken.",
     foodSizes: [
@@ -104,6 +107,7 @@ export const fakeFoodItems: Food[] = [
       image:
         "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGZvb2R8ZW58MHx8MHx8fDA%3D",
     },
+    status: "active",
     description:
       "Twinkle Star is a restaurant that specializes in barbecue and chicken.",
     foodSizes: [
@@ -131,6 +135,7 @@ export const fakeFoodItems: Food[] = [
     images: [
       "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     ],
+    status: "active",
     description: "Delicious pizza with assorted toppings.",
     createdDate: new Date().toISOString(),
     isDeleted: false,
@@ -158,6 +163,7 @@ export const fakeFoodItems: Food[] = [
     images: [
       "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1981&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     ],
+    status: "active",
     description: "Fresh sushi rolls with wasabi and soy sauce.",
     createdDate: new Date().toISOString(),
     isDeleted: false,

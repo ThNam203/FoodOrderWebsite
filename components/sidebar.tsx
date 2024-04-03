@@ -157,6 +157,16 @@ export default function Sidebar({
             />
           </div>
         )}
+        {!isLogin && (
+          <div className={style["nav__list"]}>
+            <CustomLink
+              href="/login"
+              content="Login"
+              icon={<LoginIcon />}
+              selectedLink={selectedLink}
+            />
+          </div>
+        )}
       </nav>
     </div>
   );

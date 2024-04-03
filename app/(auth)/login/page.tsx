@@ -45,7 +45,7 @@ export default function LoginPage() {
         router.push("/");
       })
       .catch((err) => {
-        showErrorToast("Login Failed");
+        showErrorToast("Wrong email or password");
         console.log(err);
       })
       .finally(() => {
