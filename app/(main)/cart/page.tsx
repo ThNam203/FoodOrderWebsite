@@ -6,7 +6,7 @@ import { cn } from "@/utils/cn";
 import { ClassValue } from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
-import { fakeCartData } from "./fakedata";
+import { fakeCartData } from "../../../fakedata/cartData";
 import { CartContent, CartTab } from "./cart_tab";
 import { TabContent } from "@/components/tab";
 import { useRouter } from "next/navigation";

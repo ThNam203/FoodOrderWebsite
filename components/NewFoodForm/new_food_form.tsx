@@ -75,7 +75,7 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
 
 export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
   const dispatch = useAppDispatch();
-  const categories = useAppSelector((state) => state.foodCategory.value);
+  const categories = useAppSelector((state: any) => state.foodCategory.value);
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -147,7 +147,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
 
   const onSubmit = async (values: FoodFormData) => {
     const selectedCategory = categories.find(
-      (cat) => cat.name === values.category
+      (cat: any) => cat.name === values.category
     );
     const newFood = FoodFormDataToFood(values, selectedCategory!);
     const dataForm: any = new FormData();

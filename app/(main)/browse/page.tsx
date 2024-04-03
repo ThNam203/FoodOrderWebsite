@@ -26,7 +26,6 @@ import CartService from "@/services/cartService";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { fakeFoodItems } from "@/fakedata/foodData";
 import { setCookie } from "cookies-next";
-import { setSelectedLink } from "@/redux/slices/sidebar";
 import { useAppDispatch } from "@/redux/hooks";
 
 var data: any = {
@@ -202,7 +201,6 @@ export default function Home() {
               className="flex flex-row items-center gap-2 hover:cursor-pointer"
               onClick={() => {
                 router.push("/user-setting");
-                dispatch(setSelectedLink("/user-setting"));
               }}
             >
               <img
