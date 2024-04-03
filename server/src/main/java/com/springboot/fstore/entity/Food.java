@@ -22,6 +22,7 @@ public class Food extends BaseEntity {
     private int id;
     private String name;
     private String description;
+    private String status;
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
