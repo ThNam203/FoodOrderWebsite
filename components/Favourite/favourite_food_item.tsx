@@ -34,7 +34,7 @@ export default function FavouriteFood({
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            backgroundImage: `url(${food.image})`,
+            backgroundImage: `url(${food.images[0]})`,
           }}
           onClick={onClick}
         ></div>
@@ -51,7 +51,7 @@ export default function FavouriteFood({
           />
         </div>
         <FoodPrice
-          currency={food.currency}
+          currency="đ"
           defaultPrice={sortedPriceList[0]}
           secondPrice={sortedPriceList[1]}
         />

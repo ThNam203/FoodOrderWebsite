@@ -5,12 +5,7 @@ import { addFood } from "@/redux/slices/food";
 import FoodService from "@/services/foodService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useId, useState } from "react";
-import {
-  FieldError,
-  Path,
-  UseFormRegister,
-  useForm
-} from "react-hook-form";
+import { FieldError, Path, UseFormRegister, useForm } from "react-hook-form";
 import * as z from "zod";
 import AddNewThingModal from "../new_category_modal";
 import SearchAndChooseButton from "../search_and_choose_button";
@@ -110,7 +105,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
     );
     setChosenImageFiles(chosenImageFiles);
   };
-  
+
   function onSubmit(values: z.infer<typeof foodSchema>) {
     const dataForm: any = new FormData();
     dataForm.append(
@@ -123,7 +118,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
     setIsUploadingFood(true);
     FoodService.createNewFood(dataForm)
       .then((result) => {
-        dispatch(addFood(result.data))
+        dispatch(addFood(result.data));
       })
       .catch((e) => console.error(e))
       .finally(() => {
@@ -180,7 +175,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
               onValueChanged={(val) => setValue("category", val ? val : "")}
               categories={["a", "b", "c"]}
               error={errors.category}
-              />
+            />
             <ImagesInput
               fileUrls={watch("images")}
               onImageChanged={handleImageChosen}
@@ -387,10 +382,16 @@ const StatusInput = ({ label, register, required, error }: InputProps) => {
   );
 };
 
-const CategoryInput = ({ label, value, onValueChanged, categories, error } : {
+const CategoryInput = ({
+  label,
+  value,
+  onValueChanged,
+  categories,
+  error,
+}: {
   label: Path<z.infer<typeof foodSchema>>;
   value: string;
-  categories: string[],
+  categories: string[];
   onValueChanged: (value: string | null) => any;
   error?: FieldError;
 }) => {

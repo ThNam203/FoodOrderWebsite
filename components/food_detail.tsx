@@ -57,7 +57,7 @@ export const FoodDetail = ({
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
-                  backgroundImage: `url(${food.image})`,
+                  backgroundImage: `url(${food.images[0]})`,
                 }}
               ></div>
             </div>
@@ -74,9 +74,7 @@ export const FoodDetail = ({
                   />
                 </div>
                 <div className="w-full flex flex-row items-center justify-between">
-                  <p className="text-xl">
-                    {food.currency + selectedSize.price}
-                  </p>
+                  <p className="text-xl">{selectedSize.price + "đ"}</p>
                   <div className="w-min font-sans">
                     <NumberInput
                       className="outline-0 text-primaryWord"

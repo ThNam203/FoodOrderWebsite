@@ -2,7 +2,6 @@
 import FavouriteFood from "@/components/Favourite/favourite_food_item";
 import { Food, FoodSize } from "@/models/Food";
 import { useState } from "react";
-import { fakeFoodData } from "./fakedata";
 
 import { IconButton, TextButton } from "@/components/buttons";
 import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
@@ -20,9 +19,10 @@ import { cn } from "@/utils/cn";
 import FoodRating from "@/components/food_rating";
 import { FoodDetail } from "@/components/food_detail";
 import { showDefaultToast } from "@/components/toast";
+import { fakeFoodItems } from "@/fakedata/foodData";
 
 export default function FavouritePages() {
-  const [favouriteFoods, setFavouriteFoods] = useState<Food[]>(fakeFoodData);
+  const [favouriteFoods, setFavouriteFoods] = useState<Food[]>(fakeFoodItems);
   const [isOpen, setOpen] = useState(false);
   const [selectedFood, setSelectedFood] = useState<Food>(favouriteFoods[0]);
   const [selectedSize, setSelectedSize] = useState<FoodSize>(

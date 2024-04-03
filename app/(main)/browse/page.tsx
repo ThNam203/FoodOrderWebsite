@@ -20,11 +20,11 @@ import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
 import { NumberInput } from "@/components/input";
 import { useRouter } from "next/navigation";
 import { Food, FoodSize } from "@/models/Food";
-import { fakeFoodItems } from "./fakeData";
 import { FoodDetail } from "@/components/food_detail";
 import { Cart } from "@/models/Cart";
 import CartService from "@/services/cartService";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
+import { fakeFoodItems } from "@/fakedata/foodData";
 
 var data: any = {
   categories: [
@@ -163,8 +163,6 @@ export default function Home() {
       categoriesContainerRef.current.scrollLeft += scrollValue;
     }
   };
-
-  console.log(fakeFoodItems);
 
   return (
     <>

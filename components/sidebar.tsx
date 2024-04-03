@@ -1,7 +1,7 @@
 "use client";
 
 import style from "@/styles/sidebar.module.css";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   BrowseIcon,
   CartIcon,
@@ -16,6 +16,39 @@ import {
 import { getCookie, getCookies } from "cookies-next";
 import { cn } from "@/utils/cn";
 import { useAppSelector } from "@/redux/hooks";
+import { ClassValue } from "clsx";
+import Link from "next/link";
+
+const CustomLink = ({
+  className,
+  href = "#",
+  icon,
+  content,
+  selectedLink,
+  setSelectedLink,
+}: {
+  className?: ClassValue;
+  href?: string;
+  content: string;
+  selectedLink: string;
+  setSelectedLink: (link: string) => void;
+  icon?: ReactNode;
+}) => {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        style["nav__link"],
+        selectedLink === content ? style["active"] : "",
+        className
+      )}
+      onClick={() => setSelectedLink(content)}
+    >
+      {icon}
+      <span className={style["nav__name"]}>{content}</span>
+    </Link>
+  );
+};
 
 export default function Sidebar({
   onSidebarToggle,
@@ -25,6 +58,10 @@ export default function Sidebar({
   onSidebarToggle: () => void;
 }) {
   const isLogin = useAppSelector((state) => state.profile.isLogin);
+  const [selectedLink, setSelectedLink] = useState("Dashboard");
+  useEffect(() => {
+    console.log(selectedLink);
+  }, [selectedLink]);
 
   return (
     <div
@@ -55,10 +92,13 @@ export default function Sidebar({
             </a>
           </div>
           <div className={style["nav__list"]}>
-            <a href="#" className={cn(style["nav__link"], style["active"])}>
-              <DashBoardIcon />
-              <span className={style["nav__name"]}>Dashboard</span>
-            </a>
+            <CustomLink
+              href="/dashboard/menu"
+              content="Dashboard"
+              icon={<DashBoardIcon />}
+              selectedLink={selectedLink}
+              setSelectedLink={setSelectedLink}
+            />
             {/* <a href="/" className={twMerge(style["nav__link"])}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -77,47 +117,55 @@ export default function Sidebar({
               </svg>
               <span className={style["nav__name"]}>Intro</span>
             </a> */}
-            <a href="/browse" className={style["nav__link"]}>
-              <BrowseIcon />
-              <span className={style["nav__name"]}>Browse</span>
-            </a>
 
-            <a href="/cart" className={cn(style["nav__link"])}>
-              <CartIcon />
-              <span className={style["nav__name"]}>Your Cart</span>
-            </a>
+            <CustomLink
+              href="/browse"
+              content="Browse"
+              icon={<BrowseIcon />}
+              selectedLink={selectedLink}
+              setSelectedLink={setSelectedLink}
+            />
+            <CustomLink
+              href="/cart"
+              content="Your cart"
+              icon={<CartIcon />}
+              selectedLink={selectedLink}
+              setSelectedLink={setSelectedLink}
+            />
 
-            <a href="/favourite" className={cn(style["nav__link"])}>
-              <FavouriteIcon />
-              <span className={style["nav__name"]}>Favorites</span>
-            </a>
-            <a href="/history" className={cn(style["nav__link"])}>
-              <HistoryIcon />
-              <span className={style["nav__name"]}>History</span>
-            </a>
+            <CustomLink
+              href="/favourite"
+              content="Favourites"
+              icon={<FavouriteIcon />}
+              selectedLink={selectedLink}
+              setSelectedLink={setSelectedLink}
+            />
+            <CustomLink
+              href="/history"
+              content="History"
+              icon={<HistoryIcon />}
+              selectedLink={selectedLink}
+              setSelectedLink={setSelectedLink}
+            />
           </div>
         </div>
 
         {isLogin && (
           <div className={style["nav__list"]}>
-            <a
+            <CustomLink
               href="/user-setting"
-              className={cn(style["nav__link"], "hover:bg-red-400")}
-            >
-              <SettingIcon />
-              <span className={style["nav__name"]}>User Setting</span>
-            </a>
-            <a
-              href="#"
-              className={cn(
-                style["nav__link"],
-                "hover:bg-red-400",
-                isLogin ? "" : "hidden"
-              )}
-            >
-              <LogoutIcon />
-              <span className={style["nav__name"]}>Log Out</span>
-            </a>
+              content="User setting"
+              icon={<SettingIcon />}
+              selectedLink={selectedLink}
+              setSelectedLink={setSelectedLink}
+            />
+            <CustomLink
+              content="Log out"
+              icon={<LogoutIcon />}
+              selectedLink={selectedLink}
+              setSelectedLink={setSelectedLink}
+              className={cn("hover:bg-red-400")}
+            />
           </div>
         )}
       </nav>

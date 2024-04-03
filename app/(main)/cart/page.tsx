@@ -16,7 +16,7 @@ import { showDefaultToast } from "@/components/toast";
 import { Checkbox } from "@nextui-org/react";
 import { Food } from "@/models/Food";
 import { Cart } from "@/models/Cart";
-import { fakeFoodData } from "../favourite/fakedata";
+import { fakeFoodItems } from "@/fakedata/foodData";
 const Title = ({
   className,
   content,
@@ -89,7 +89,7 @@ const SummaryItem = ({
         <X className={cn("inline-block", quantity ? "" : "hidden")} size={16} />
         {quantity}
       </div>
-      <span>{currencyChar + total.toFixed(2)}</span>
+      <span>{total.toFixed(2) + currencyChar}</span>
     </div>
   );
 };
@@ -238,7 +238,7 @@ const CartPage = () => {
   const [cartData, setCartData] = useState<Cart[]>(
     getCookieCartData() || fakeCartData
   );
-  const [foodData, setFoodData] = useState<Food[]>(fakeFoodData);
+  const [foodData, setFoodData] = useState<Food[]>(fakeFoodItems);
   const [selectedCardIds, setSelectedCartIds] = useState<number[]>(
     getCookieSelectedCardIds() || []
   );
@@ -359,11 +359,11 @@ const CartPage = () => {
                   return (
                     <CartItem
                       key={cart.id}
-                      foodImageUrl={food.image}
+                      foodImageUrl={food.images[0]}
                       foodName={food.name}
                       foodQuantity={cart.quantity}
                       foodPrice={foodSize.price}
-                      currencyChar={food.currency}
+                      currencyChar="đ"
                       onQuantityChange={onQuantityChange}
                       onDelete={() => onDelete(cart.id)}
                       isSelected={selectedCardIds.includes(cart.id)}
@@ -542,7 +542,7 @@ const CartPage = () => {
                         title={food.name}
                         total={foodSize.price * cart.quantity}
                         quantity={cart.quantity}
-                        currencyChar={food.currency}
+                        currencyChar="đ"
                       />
                     );
                   })}

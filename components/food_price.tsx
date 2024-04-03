@@ -9,8 +9,8 @@ export const FoodPrice = ({
 }) => {
   return (
     <span className="font-semibold">
-      {currency + defaultPrice}{" "}
-      {secondPrice ? " - " + currency + secondPrice : null}
+      {defaultPrice + currency}{" "}
+      {secondPrice ? " - " + secondPrice + currency : null}
     </span>
   );
 };
