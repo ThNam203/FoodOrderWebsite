@@ -4,9 +4,12 @@ import com.springboot.fstore.entity.*;
 import com.springboot.fstore.exception.CustomException;
 import com.springboot.fstore.exception.ResourceNotFoundException;
 import com.springboot.fstore.mapper.FoodMapper;
+import com.springboot.fstore.mapper.FoodRattingMapper;
 import com.springboot.fstore.mapper.FoodSizeMapper;
 import com.springboot.fstore.payload.FoodDTO;
+import com.springboot.fstore.payload.FoodRattingDTO;
 import com.springboot.fstore.repository.CategoryRepository;
+import com.springboot.fstore.repository.FoodRattingRepository;
 import com.springboot.fstore.repository.FoodRepository;
 import com.springboot.fstore.repository.UserRepository;
 import com.springboot.fstore.service.FileService;
@@ -23,7 +26,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FoodServiceImpl implements FoodService {
+    private final UserService userService;
     private final FoodRepository foodRepository;
+    private final FoodRattingRepository foodRattingRepository;
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
     @Override
@@ -153,5 +158,29 @@ public class FoodServiceImpl implements FoodService {
     public List<FoodDTO> getFoods() {
         List<Food> foods = foodRepository.findAll();
         return foods.stream().map(FoodMapper::toFoodDTO).toList();
+    }
+
+    @Override
+    public void rateFood(int foodId, FoodRattingDTO foodRattingDTO) {
+        User user = userService.getAuthorizedUser();
+        Food food = foodRepository.findById(foodId).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
+
+        if (foodRattingDTO.getRate() < 1 || foodRattingDTO.getRate() > 5) {
+            throw new CustomException("Rate must be between 1 and 5", HttpStatus.BAD_REQUEST);
+        }
+
+        if (food.getFoodRattings().stream().anyMatch(foodRatting -> foodRatting.getUser().getId() == user.getId())) {
+            FoodRatting foodRatting = foodRattingRepository.findByFoodIdAndUserId(foodId, user.getId()).orElseThrow(() -> new CustomException("Food ratting not found", HttpStatus.NOT_FOUND));
+            foodRatting.setRate(foodRattingDTO.getRate());
+            foodRatting.setComment(foodRattingDTO.getComment());
+            foodRattingRepository.save(foodRatting);
+        } else {
+            FoodRatting foodRatting = FoodRattingMapper.toFoodRatting(foodRattingDTO);
+            foodRatting.setFood(food);
+            foodRatting.setUser(user);
+
+            food.getFoodRattings().add(foodRatting);
+            foodRepository.save(food);
+        }
     }
 }

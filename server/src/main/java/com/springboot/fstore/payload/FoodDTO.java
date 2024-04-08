@@ -21,9 +21,11 @@ public class FoodDTO {
     private String description;
     private String status;
     private Boolean isDeleted;
+    private Double totalRating;
     private LocalDateTime createdAt;
     private CategoryDTO category;
     private List<String> images;
     private List<String> tags;
     private List<FoodSizeDTO> foodSizes;
+    private List<FoodRattingDTO> foodRattings;
 }

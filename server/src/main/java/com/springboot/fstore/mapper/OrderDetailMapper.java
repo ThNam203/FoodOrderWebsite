@@ -11,6 +11,7 @@ public class OrderDetailMapper {
                 .price(orderDetail.getPrice())
                 .food(orderDetail.getFood() != null ? FoodMapper.toFoodDTO(orderDetail.getFood()) : null)
                 .foodSize(orderDetail.getFoodSize() != null ? FoodSizeMapper.toFoodSizeDTO(orderDetail.getFoodSize()): null)
+                .createdAt(orderDetail.getCreatedAt())
                 .build();
     }
 
