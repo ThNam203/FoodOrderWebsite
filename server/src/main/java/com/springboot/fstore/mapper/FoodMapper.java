@@ -20,6 +20,8 @@ public class FoodMapper {
                 .category(food.getCategory() != null ? CategoryMapper.toCategoryDTO(food.getCategory()) : null)
                 .images(food.getImages() != null ? food.getImages().stream().map(Image::getUrl).toList() : null)
                 .tags(food.getTags() != null ? food.getTags().stream().map(Tag::getName).toList() : null)
+                .foodRattings(food.getFoodRattings() != null ? food.getFoodRattings().stream().map(FoodRattingMapper::toFoodRattingDTO).toList() : null)
+                .totalRating(food.getFoodRattings().isEmpty() ? 0.0 : food.getFoodRattings().stream().reduce(0.0, (a, b) -> a + b.getRate(), Double::sum) / food.getFoodRattings().size())
                 .build();
     }
     public static Food toFood(FoodDTO foodDTO) {

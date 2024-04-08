@@ -10,6 +10,7 @@ public class OrderMapper {
                 .total(order.getTotal())
                 .status(order.getStatus())
                 .orderDetails(order.getOrderDetails() != null ? order.getOrderDetails().stream().map(OrderDetailMapper::toOrderDetailDTO).toList() : null)
+                .createdAt(order.getCreatedAt())
                 .build();
     }
     public static Order toOrder(OrderDTO orderDTO) {
