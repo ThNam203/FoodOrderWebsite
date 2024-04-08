@@ -1,4 +1,5 @@
 import LayoutLoader from "@/components/layout_loader";
+import { Toast } from "@/components/toast";
 import ReduxProvider from "@/redux/provider";
 import "@/styles/globals.css";
 import { Lato } from "next/font/google";
@@ -25,6 +26,7 @@ export default function RootLayout({
         <ReduxProvider>
           <LayoutLoader>{children}</LayoutLoader>
         </ReduxProvider>
+        <Toast />
       </body>
     </html>
   );

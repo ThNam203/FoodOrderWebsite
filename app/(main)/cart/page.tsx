@@ -6,17 +6,22 @@ import { cn } from "@/utils/cn";
 import { ClassValue } from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
-import { fakeCartData } from "./fakedata";
+import { fakeCartData } from "../../../fakedata/cartData";
 import { CartContent, CartTab } from "./cart_tab";
 import { TabContent } from "@/components/tab";
 import { useRouter } from "next/navigation";
 import { CookieValueTypes, getCookie, setCookie } from "cookies-next";
 import Image from "next/image";
-import { showDefaultToast } from "@/components/toast";
+import { showDefaultToast, showErrorToast } from "@/components/toast";
 import { Checkbox } from "@nextui-org/react";
 import { Food } from "@/models/Food";
 import { Cart } from "@/models/Cart";
 import { fakeFoodItems } from "@/fakedata/foodData";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import CartService from "@/services/cartService";
+import { deleteCartItem, setCartItems } from "@/redux/slices/cart";
+import FoodService from "@/services/foodService";
+import { setFoods } from "@/redux/slices/food";
 const Title = ({
   className,
   content,
@@ -47,6 +52,14 @@ const TitleBar = ({
   selectedItems: number[];
   setSelectedItems: (selectedItems: number[]) => void;
 }) => {
+  console.log(cartData.length, " ", selectedItems.length);
+  let isSelected = true;
+  cartData.forEach((cart) => {
+    if (!selectedItems.includes(cart.id)) {
+      isSelected = false;
+      return;
+    }
+  });
   return (
     <div
       className={cn(
@@ -56,7 +69,7 @@ const TitleBar = ({
     >
       <Checkbox
         className="mr-2"
-        isSelected={selectedItems.length === cartData.length}
+        isSelected={isSelected}
         onClick={() => {
           if (selectedItems.length === cartData.length) setSelectedItems([]);
           else setSelectedItems(cartData.map((item) => item.id));
@@ -75,12 +88,10 @@ const SummaryItem = ({
   title,
   quantity,
   total,
-  currencyChar,
 }: {
   title: string;
   quantity?: number;
   total: number;
-  currencyChar: string;
 }) => {
   return (
     <div className="flex flex-row items-center justify-between text-nowrap">
@@ -89,7 +100,7 @@ const SummaryItem = ({
         <X className={cn("inline-block", quantity ? "" : "hidden")} size={16} />
         {quantity}
       </div>
-      <span>{total.toFixed(2) + currencyChar}</span>
+      <span>{total.toFixed(0) + "đ"}</span>
     </div>
   );
 };
@@ -99,7 +110,6 @@ const CartItem = ({
   foodName,
   foodQuantity,
   foodPrice,
-  currencyChar,
   onQuantityChange,
   onDelete,
   isSelected = false,
@@ -109,7 +119,6 @@ const CartItem = ({
   foodName: string;
   foodQuantity: number;
   foodPrice: number;
-  currencyChar: string;
   onQuantityChange: (value: number) => void;
   onDelete: () => void;
   isSelected?: boolean;
@@ -148,9 +157,9 @@ const CartItem = ({
           onChange={(e) => onQuantityChange(Number.parseInt(e.target.value))}
         />
       </div>
-      <span className="w-[150px] text-center">{currencyChar + foodPrice}</span>
+      <span className="w-[150px] text-center">{foodPrice + "đ"}</span>
       <span className="w-[150px] text-center">
-        {currencyChar + (foodPrice * foodQuantity).toFixed(2)}
+        {(foodPrice * foodQuantity).toFixed(0) + "đ"}
       </span>
       <X
         className="w-[50px] text-center opacity-0 text-red-500 group-hover:opacity-100 ease-linear duration-100 cursor-pointer"
@@ -234,11 +243,10 @@ const getCookieSelectedCardIds = () => {
 };
 
 const CartPage = () => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
-  const [cartData, setCartData] = useState<Cart[]>(
-    getCookieCartData() || fakeCartData
-  );
-  const [foodData, setFoodData] = useState<Food[]>(fakeFoodItems);
+  const [cartData, setCartData] = useState<Cart[]>([]);
+  const [foodData, setFoodData] = useState<Food[]>([]);
   const [selectedCardIds, setSelectedCartIds] = useState<number[]>(
     getCookieSelectedCardIds() || []
   );
@@ -287,6 +295,28 @@ const CartPage = () => {
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      await CartService.GetCart()
+        .then((res) => {
+          setCartData(res.data);
+          dispatch(setCartItems(res.data));
+        })
+        .catch((err) => {
+          showErrorToast("Error while fetching cart data");
+        });
+      await FoodService.getAllFood()
+        .then((res) => {
+          setFoodData(res.data);
+          dispatch(setFoods(res.data));
+        })
+        .catch((err) => {
+          showErrorToast("Failed to fetch data");
+        });
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
     let tempSubtotal = 0;
     const selectedCarts = cartData.filter((cart) =>
       selectedCardIds.includes(cart.id)
@@ -296,17 +326,16 @@ const CartPage = () => {
       return;
     }
     selectedCarts.forEach((cart) => {
-      const food = foodData.find((food) => food.id === cart.foodId);
+      const food = foodData.find((food) => food.id === cart.food.id);
       if (!food) return;
       const foodSize = food.foodSizes.find(
-        (size) => size.id === cart.foodSizeId
+        (size) => size.id === cart.foodSize.id
       );
       if (!foodSize) return;
       tempSubtotal += foodSize.price * cart.quantity;
     });
     setSubtotal(tempSubtotal);
     setCookie("selectedCardIds", JSON.stringify(selectedCardIds.join(",")));
-    setCookie("cartData", JSON.stringify(cartData));
   }, [selectedCardIds, cartData, foodData]);
 
   return (
@@ -335,8 +364,7 @@ const CartPage = () => {
               />
               <div
                 className={cn(
-                  "h-full overflow-y-scroll flex flex-col items-center gap-2",
-                  cartData.length > 0 ? "" : "hidden"
+                  "h-full overflow-y-scroll flex flex-col items-center gap-2"
                 )}
               >
                 {cartData.map((cart) => {
@@ -347,13 +375,20 @@ const CartPage = () => {
                       )
                     );
                   };
-                  const onDelete = (id: number) => {
+                  const onDelete = async (id: number) => {
+                    // await CartService.
+                    dispatch(deleteCartItem(id));
                     setCartData(cartData.filter((i) => i.id !== id));
                   };
-                  const food = foodData.find((food) => food.id === cart.foodId);
+                  const food = foodData.find(
+                    (food) => food.id === cart.food.id
+                  );
+                  console.log(cart);
+                  console.log(foodData);
+                  console.log(food);
                   if (!food) return null;
                   const foodSize = food.foodSizes.find(
-                    (size) => size.id === cart.foodSizeId
+                    (size) => size.id === cart.foodSize.id
                   );
                   if (!foodSize) return null;
                   return (
@@ -363,7 +398,6 @@ const CartPage = () => {
                       foodName={food.name}
                       foodQuantity={cart.quantity}
                       foodPrice={foodSize.price}
-                      currencyChar="đ"
                       onQuantityChange={onQuantityChange}
                       onDelete={() => onDelete(cart.id)}
                       isSelected={selectedCardIds.includes(cart.id)}
@@ -491,22 +525,10 @@ const CartPage = () => {
             <div className="relative w-full h-full flex flex-col justify-start text-white gap-4">
               <h1 className="text-3xl font-bold">Order Summary</h1>
               <div className="flex flex-col gap-4">
-                <SummaryItem
-                  title="Subtotal"
-                  total={subtotal}
-                  currencyChar="$"
-                />
-                <SummaryItem
-                  title="V.A.T"
-                  total={subtotal * 0.1}
-                  currencyChar="$"
-                />
+                <SummaryItem title="Subtotal" total={subtotal} />
+                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem
-                  title="Total"
-                  total={subtotal + subtotal * 0.1}
-                  currencyChar="$"
-                />
+                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
                 content="Make payment"
@@ -529,11 +551,11 @@ const CartPage = () => {
                   .sort()
                   .map((cart) => {
                     const food = foodData.find(
-                      (food) => food.id === cart.foodId
+                      (food) => food.id === cart.food.id
                     );
                     if (!food) return null;
                     const foodSize = food.foodSizes.find(
-                      (size) => size.id === cart.foodSizeId
+                      (size) => size.id === cart.foodSize.id
                     );
                     if (!foodSize) return null;
                     return (
@@ -542,29 +564,16 @@ const CartPage = () => {
                         title={food.name}
                         total={foodSize.price * cart.quantity}
                         quantity={cart.quantity}
-                        currencyChar="đ"
                       />
                     );
                   })}
               </div>
               <div className="flex flex-col gap-4">
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem
-                  title="Subtotal"
-                  total={subtotal}
-                  currencyChar="$"
-                />
-                <SummaryItem
-                  title="V.A.T"
-                  total={subtotal * 0.1}
-                  currencyChar="$"
-                />
+                <SummaryItem title="Subtotal" total={subtotal} />
+                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem
-                  title="Total"
-                  total={subtotal + subtotal * 0.1}
-                  currencyChar="$"
-                />
+                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
                 content="Order"

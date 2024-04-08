@@ -1,13 +1,15 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { addFoodCategory, setFoodCategories } from "@/redux/slices/category";
 import { addFood } from "@/redux/slices/food";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import FoodService from "@/services/foodService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useId, useState } from "react";
 import { FieldError, Path, UseFormRegister, useForm } from "react-hook-form";
 import * as z from "zod";
-import AddNewThingModal from "../new_category_modal";
+import NewCategoryModal from "../new_category_modal";
 import SearchAndChooseButton from "../search_and_choose_button";
 import {
   Accordion,
@@ -16,13 +18,8 @@ import {
   AccordionTrigger,
 } from "../shadcn_components/accordion";
 import { ChooseImageButton } from "./choose_image_button";
-import category, {
-  addFoodCategory,
-  setFoodCategories,
-} from "@/redux/slices/category";
-import NewCategoryModal from "../new_category_modal";
-import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import { FoodFormDataToFood, FoodToSend } from "@/convertor/foodConvertor";
+import { X } from "lucide-react";
 
 export type FoodFormData = {
   name: string;
@@ -36,6 +33,7 @@ export type FoodFormData = {
     note: string;
   }[];
   description: string;
+  tags: string[];
 };
 
 const foodSchema: z.ZodType<FoodFormData> = z.object({
@@ -71,11 +69,12 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
     )
     .min(1),
   description: z.string(),
+  tags: z.array(z.string()),
 });
 
 export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
   const dispatch = useAppDispatch();
-  const categories = useAppSelector((state) => state.foodCategory.value);
+  const categories = useAppSelector((state: any) => state.foodCategory.value);
 
   useEffect(() => {
     dispatch(showPreloader());
@@ -125,6 +124,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
         },
       ],
       description: "",
+      tags: [],
     },
   });
 
@@ -147,7 +147,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
 
   const onSubmit = async (values: FoodFormData) => {
     const selectedCategory = categories.find(
-      (cat) => cat.name === values.category
+      (cat: any) => cat.name === values.category
     );
     const newFood = FoodFormDataToFood(values, selectedCategory!);
     const dataForm: any = new FormData();
@@ -217,6 +217,11 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
             <CategoryInput
               value={watch("category")}
               onValueChanged={(val) => setValue("category", val ? val : "")}
+              error={errors.category}
+            />
+            <TagsInput
+              value={watch("tags")}
+              onValueChanged={(vals) => setValue("tags", vals)}
               error={errors.category}
             />
             <ImagesInput
@@ -471,6 +476,56 @@ const CategoryInput = ({
               })
               .catch((errr) => console.log(errr));
           }}
+        />
+      </div>
+    </div>
+  );
+};
+const TagsInput = ({
+  value,
+  onValueChanged,
+  error,
+}: {
+  value: string[];
+  onValueChanged: (value: string[]) => any;
+  error?: FieldError;
+}) => {
+  const [curInput, setCurInput] = useState("");
+
+  return (
+    <div className="flex flex-row items-baseline">
+      <div className="w-[150px]">
+        <h5 className="text-sm">Tags</h5>
+        {error && error.message ? (
+          <p className="text-xs text-red-500">{error.message}</p>
+        ) : null}
+      </div>
+      <div className="!m-0 p-1 min-h-[40px] rounded-md border border-input flex flex-1 flex-row flex-wrap items-center gap-1">
+        {value.map((keyVal, keyIdx) => (
+          <div
+            key={keyIdx}
+            className="flex flex-row items-center gap-[2px] rounded-md bg-blue-400 p-1 text-white"
+          >
+            <p>{keyVal}</p>
+            <X
+              size={16}
+              color="white"
+              className="p-[2px] hover:cursor-pointer"
+              onClick={(e) => onValueChanged(value.filter((v) => v !== keyVal))}
+            />
+          </div>
+        ))}
+        <input
+          placeholder="Type value and enter"
+          value={curInput}
+          onChange={(e) => setCurInput(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onValueChanged([...value, curInput]);
+              setCurInput("");
+            }
+          }}
+          className="h-[35px] min-w-[150px] flex-1 rounded-none border-0 outline-none"
         />
       </div>
     </div>
