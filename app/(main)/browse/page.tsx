@@ -369,7 +369,7 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
 
   return (
     <div className={cn(emblaStyle.embla)} ref={emblaRef}>
-      <div className="flex gap-[calc((100%-99%)/3)]">
+      <div className="w-full flex gap-[calc((100%-99%)/3)]">
         {foods.map((food: any, index: number) => (
           <MainPageItem
             className="flex-[0_0_33%] min-w-0"
