@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface OrderService {
     void makeOrder(OrderDTO orderDTO);
+    void updateOrder(int orderId, OrderDTO orderDTO);
     List<OrderDTO> getOrders();
 }
