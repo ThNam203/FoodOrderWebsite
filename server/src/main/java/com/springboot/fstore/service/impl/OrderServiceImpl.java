@@ -27,7 +27,7 @@ public class OrderServiceImpl implements OrderService {
     private final FoodSizeRepository foodSizeRepository;
     private final CartRepository cartRepository;
     @Override
-    public void makeOrder(OrderDTO orderDTO) {
+    public OrderDTO makeOrder(OrderDTO orderDTO) {
         User user = userService.getAuthorizedUser();
         Order order = OrderMapper.toOrder(orderDTO);
         order.setUser(user);
@@ -43,10 +43,11 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         orderRepository.save(order);
+        return OrderMapper.toOrderDTO(order);
     }
 
     @Override
-    public void updateOrder(int orderId, OrderDTO orderDTO) {
+    public OrderDTO updateOrder(int orderId, OrderDTO orderDTO) {
         User user = userService.getAuthorizedUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
         if (order.getUser().getId() != user.getId()) {
@@ -54,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setStatus(orderDTO.getStatus());
         orderRepository.save(order);
+        return OrderMapper.toOrderDTO(order);
     }
 
     @Override

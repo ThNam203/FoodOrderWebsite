@@ -15,9 +15,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<?> makeOrder(@RequestBody OrderDTO orderDTO) {
-        orderService.makeOrder(orderDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<OrderDTO> makeOrder(@RequestBody OrderDTO orderDTO) {
+        return ResponseEntity.ok(orderService.makeOrder(orderDTO));
     }
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getOrders() {
@@ -25,8 +24,7 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}")
-    public ResponseEntity<?> updateOrder(@PathVariable int orderId, @RequestBody OrderDTO orderDTO) {
-        orderService.updateOrder(orderId, orderDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable int orderId, @RequestBody OrderDTO orderDTO) {
+        return ResponseEntity.ok(orderService.updateOrder(orderId, orderDTO));
     }
 }
