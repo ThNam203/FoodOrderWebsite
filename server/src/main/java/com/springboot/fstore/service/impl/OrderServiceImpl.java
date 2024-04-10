@@ -42,9 +42,11 @@ public class OrderServiceImpl implements OrderService {
                 if (orderDetailDTO.getFoodSize() != null) {
                     FoodSize foodSize = foodSizeRepository.findById(orderDetailDTO.getFoodSize().getId()).orElseThrow(() -> new CustomException("Food size not found", HttpStatus.NOT_FOUND));
                     orderDetail.setFoodSize(foodSize);
+                    orderDetail.setPrice(foodSize.getPrice() * orderDetail.getQuantity());
                 }
                 orderDetail.setOrder(order);
                 order.getOrderDetails().add(orderDetail);
+                order.setTotal(order.getTotal() + orderDetail.getPrice());
             }
         }
         orderRepository.save(order);
@@ -57,8 +59,7 @@ public class OrderServiceImpl implements OrderService {
         if (order.getUser().getId() != user.getId()) {
             throw new CustomException("You are not authorized to update this order", HttpStatus.UNAUTHORIZED);
         }
-        order.setTotal(orderDTO.getTotal());
-        order.setStatus(orderDTO.getStatus());
+        order.setTotal(0.0);
         order.setStatus(orderDTO.getStatus());
         if (orderDTO.getOrderDetails() != null) {
             order.getOrderDetails().clear();
@@ -71,9 +72,11 @@ public class OrderServiceImpl implements OrderService {
                 if (orderDetailDTO.getFoodSize() != null) {
                     FoodSize foodSize = foodSizeRepository.findById(orderDetailDTO.getFoodSize().getId()).orElseThrow(() -> new CustomException("Food size not found", HttpStatus.NOT_FOUND));
                     orderDetail.setFoodSize(foodSize);
+                    orderDetail.setPrice(foodSize.getPrice() * orderDetail.getQuantity());
                 }
                 orderDetail.setOrder(order);
                 order.getOrderDetails().add(orderDetail);
+                order.setTotal(order.getTotal() + orderDetail.getPrice());
             }
         }
         orderRepository.save(order);
