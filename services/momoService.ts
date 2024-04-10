@@ -1,16 +1,15 @@
-import { CartToSend } from "@/convertor/cartConvertor";
-import { Cart } from "@/models/Cart";
 import AxiosService from "./axiosService";
 
 const MakePayment = (data: any) => {
-  const paymentData = {};
   return AxiosService.post(
     "https://test-payment.momo.vn/v2/gateway/api/pos",
-    paymentData,
+    data,
     { withCredentials: true }
   );
 };
 
-const MomoService = {};
+const MomoService = {
+  MakePayment,
+};
 
 export default MomoService;

@@ -1,11 +1,20 @@
 import { Cart } from "@/models/Cart";
 import { Order, OrderDetail, OrderStatus } from "@/models/Order";
 
-const OrderToSend = (cartList: Cart[], status: OrderStatus) => {
+const CartsToOrderForSending = (cartList: Cart[], status: OrderStatus) => {
   const orderToSend = {
     total: 0,
     status: status,
-    orderDetails: CartsToOrderDetail(cartList),
+    orderDetails: CartsToOrderDetailForSending(cartList),
+  };
+  return orderToSend;
+};
+
+const UpdateOrderForSending = (order: Order, status: OrderStatus) => {
+  const orderToSend = {
+    total: order.total,
+    status: status,
+    orderDetails: order.orderDetails,
   };
   return orderToSend;
 };
@@ -21,7 +30,7 @@ const OrderToReceive = (data: any): Order => {
   return orderReceived;
 };
 
-const CartsToOrderDetail = (cartList: Cart[]) => {
+const CartsToOrderDetailForSending = (cartList: Cart[]) => {
   const orderDetail = cartList.map((cart) => {
     return {
       price: 0,
@@ -37,4 +46,17 @@ const CartsToOrderDetail = (cartList: Cart[]) => {
   return orderDetail;
 };
 
-export { OrderToSend, OrderToReceive };
+// const CartsToOrder = (cart: Cart[]) => {
+//   const total = cart.reduce((total, cur) => {
+//     return total + cur.quantity * cur.foodSize.price;
+//   }, 0);
+//   const order: Order = {
+//     id: 0,
+//      total: total,
+//      orderDetails: CartsToOrderDetail(cart),
+//   };
+//   return order;
+
+// }
+
+export { CartsToOrderForSending, OrderToReceive, UpdateOrderForSending };
