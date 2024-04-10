@@ -2,10 +2,10 @@ package com.springboot.fstore.service.impl;
 
 import com.springboot.fstore.entity.*;
 import com.springboot.fstore.exception.CustomException;
-import com.springboot.fstore.mapper.OrderDetailMapper;
 import com.springboot.fstore.mapper.OrderMapper;
+import com.springboot.fstore.payload.CartDTO;
 import com.springboot.fstore.payload.OrderDTO;
-import com.springboot.fstore.payload.OrderDetailDTO;
+import com.springboot.fstore.repository.CartRepository;
 import com.springboot.fstore.repository.FoodRepository;
 import com.springboot.fstore.repository.FoodSizeRepository;
 import com.springboot.fstore.repository.OrderRepository;
@@ -25,28 +25,21 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final FoodRepository foodRepository;
     private final FoodSizeRepository foodSizeRepository;
+    private final CartRepository cartRepository;
     @Override
     public void makeOrder(OrderDTO orderDTO) {
         User user = userService.getAuthorizedUser();
         Order order = OrderMapper.toOrder(orderDTO);
         order.setUser(user);
-        order.setOrderDetails(new ArrayList<>());
+        order.setItems(new ArrayList<>());
 
-        if (orderDTO.getOrderDetails() != null) {
-            for (OrderDetailDTO orderDetailDTO : orderDTO.getOrderDetails()) {
-                OrderDetail orderDetail = OrderDetailMapper.toOrderDetail(orderDetailDTO);
-                if (orderDetailDTO.getFood() != null) {
-                    Food food = foodRepository.findById(orderDetailDTO.getFood().getId()).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
-                    orderDetail.setFood(food);
-                }
-                if (orderDetailDTO.getFoodSize() != null) {
-                    FoodSize foodSize = foodSizeRepository.findById(orderDetailDTO.getFoodSize().getId()).orElseThrow(() -> new CustomException("Food size not found", HttpStatus.NOT_FOUND));
-                    orderDetail.setFoodSize(foodSize);
-                    orderDetail.setPrice(foodSize.getPrice() * orderDetail.getQuantity());
-                }
-                orderDetail.setOrder(order);
-                order.getOrderDetails().add(orderDetail);
-                order.setTotal(order.getTotal() + orderDetail.getPrice());
+        if (orderDTO.getItems() != null) {
+            for (CartDTO item : orderDTO.getItems()) {
+                Cart cart = cartRepository.findById(item.getId()).orElseThrow(() -> new CustomException("Cart not found", HttpStatus.NOT_FOUND));
+                cart.setOrdered(true);
+                cart.setOrder(order);
+                order.getItems().add(cart);
+                order.setTotal(order.getTotal() + cart.getPrice());
             }
         }
         orderRepository.save(order);
@@ -59,26 +52,7 @@ public class OrderServiceImpl implements OrderService {
         if (order.getUser().getId() != user.getId()) {
             throw new CustomException("You are not authorized to update this order", HttpStatus.UNAUTHORIZED);
         }
-        order.setTotal(0.0);
         order.setStatus(orderDTO.getStatus());
-        if (orderDTO.getOrderDetails() != null) {
-            order.getOrderDetails().clear();
-            for (OrderDetailDTO orderDetailDTO : orderDTO.getOrderDetails()) {
-                OrderDetail orderDetail = OrderDetailMapper.toOrderDetail(orderDetailDTO);
-                if (orderDetailDTO.getFood() != null) {
-                    Food food = foodRepository.findById(orderDetailDTO.getFood().getId()).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
-                    orderDetail.setFood(food);
-                }
-                if (orderDetailDTO.getFoodSize() != null) {
-                    FoodSize foodSize = foodSizeRepository.findById(orderDetailDTO.getFoodSize().getId()).orElseThrow(() -> new CustomException("Food size not found", HttpStatus.NOT_FOUND));
-                    orderDetail.setFoodSize(foodSize);
-                    orderDetail.setPrice(foodSize.getPrice() * orderDetail.getQuantity());
-                }
-                orderDetail.setOrder(order);
-                order.getOrderDetails().add(orderDetail);
-                order.setTotal(order.getTotal() + orderDetail.getPrice());
-            }
-        }
         orderRepository.save(order);
     }
 

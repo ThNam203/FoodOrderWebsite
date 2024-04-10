@@ -9,6 +9,7 @@ public class CartMapper {
         return CartDTO.builder()
                 .id(cart.getId())
                 .quantity(cart.getQuantity())
+                .price(cart.getPrice())
                 .food(cart.getFood() != null ? FoodMapper.toFoodDTO(cart.getFood()) : null)
                 .foodSize(cart.getFoodSize() != null ? FoodSizeMapper.toFoodSizeDTO(cart.getFoodSize()) : null)
                 .build();

@@ -34,6 +34,7 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public FoodDTO createFood(MultipartFile[] files, FoodDTO foodDTO) {
         Food food = FoodMapper.toFood(foodDTO);
+        food.setFoodRattings(new ArrayList<>());
 
         if (files != null) {
             List<Image> images = new ArrayList<>();
