@@ -14,6 +14,7 @@ import java.util.List;
 public class CartDTO {
     private int id;
     private int quantity;
+    private Double price;
     private FoodDTO food;
     private FoodSizeDTO foodSize;
 }

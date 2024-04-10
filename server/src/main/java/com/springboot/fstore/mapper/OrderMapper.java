@@ -9,7 +9,7 @@ public class OrderMapper {
                 .id(order.getId())
                 .total(order.getTotal())
                 .status(order.getStatus())
-                .orderDetails(order.getOrderDetails() != null ? order.getOrderDetails().stream().map(OrderDetailMapper::toOrderDetailDTO).toList() : null)
+                .items(order.getItems() != null ? order.getItems().stream().map(CartMapper::toCartDTO).toList() : null)
                 .createdAt(order.getCreatedAt())
                 .build();
     }

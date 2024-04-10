@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,7 +30,11 @@ public class CartServiceImpl implements CartService {
     public List<CartDTO> getCart() {
         User user = userService.getAuthorizedUser();
         List<Cart> cartList = cartRepository.findByUserId(user.getId());
-        return cartList.stream().map(CartMapper::toCartDTO).toList();
+
+        List<CartDTO> cartDTOList = new ArrayList<>();
+        for (Cart cart : cartList)
+            if (!cart.isOrdered()) cartDTOList.add(CartMapper.toCartDTO(cart));
+        return cartDTOList;
     }
 
     @Override
@@ -37,6 +42,7 @@ public class CartServiceImpl implements CartService {
         User user = userService.getAuthorizedUser();
         Cart cart = CartMapper.toCart(cartDTO);
         cart.setUser(user);
+        cart.setOrdered(false);
 
         if (cartDTO.getFood() != null) {
             Food food = foodRepository.findById(cartDTO.getFood().getId())
@@ -47,6 +53,7 @@ public class CartServiceImpl implements CartService {
             FoodSize foodSize = foodSizeRepository.findById(cartDTO.getFoodSize().getId())
                     .orElseThrow(() -> new CustomException("Food size not found", HttpStatus.NOT_FOUND));
             cart.setFoodSize(foodSize);
+            cart.setPrice(foodSize.getPrice() * cart.getQuantity());
         }
 
         cartRepository.save(cart);
