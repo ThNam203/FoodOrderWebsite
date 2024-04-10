@@ -23,6 +23,8 @@ module.exports = {
         secondaryWord: "#777777",
         disableColor: "#d8d8d8",
         borderColor: "#e3e3e6",
+        momoBorderColor: "#d82d8b",
+        momoBgColor: "#fff0f6",
       },
       boxShadow: {
         primaryShadow: "0 0 45px -15px rgba(0,0,0,0.3)",

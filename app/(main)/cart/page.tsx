@@ -1,27 +1,29 @@
 "use client";
-import { IconButton, TextButton } from "@/components/buttons";
+import { IconButton, PayMethodButton, TextButton } from "@/components/buttons";
 import { Input, NumberInput, TextArea } from "@/components/input";
 import { Separate } from "@/components/separate";
-import { cn } from "@/utils/cn";
-import { ClassValue } from "clsx";
-import React, { useEffect, useRef, useState } from "react";
-import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
-import { fakeCartData } from "../../../fakedata/cartData";
-import { CartContent, CartTab } from "./cart_tab";
 import { TabContent } from "@/components/tab";
-import { useRouter } from "next/navigation";
-import { CookieValueTypes, getCookie, setCookie } from "cookies-next";
-import Image from "next/image";
-import { showDefaultToast, showErrorToast } from "@/components/toast";
-import { Checkbox } from "@nextui-org/react";
-import { Food } from "@/models/Food";
+import {
+  showDefaultToast,
+  showErrorToast,
+  showSuccessToast,
+} from "@/components/toast";
 import { Cart } from "@/models/Cart";
-import { fakeFoodItems } from "@/fakedata/foodData";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import CartService from "@/services/cartService";
+import { Food } from "@/models/Food";
+import { useAppDispatch } from "@/redux/hooks";
 import { deleteCartItem, setCartItems } from "@/redux/slices/cart";
-import FoodService from "@/services/foodService";
 import { setFoods } from "@/redux/slices/food";
+import CartService from "@/services/cartService";
+import FoodService from "@/services/foodService";
+import { cn } from "@/utils/cn";
+import { Checkbox } from "@nextui-org/react";
+import { ClassValue } from "clsx";
+import { getCookie, setCookie } from "cookies-next";
+import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { CartContent, CartTab } from "./cart_tab";
 const Title = ({
   className,
   content,
@@ -52,7 +54,6 @@ const TitleBar = ({
   selectedItems: number[];
   setSelectedItems: (selectedItems: number[]) => void;
 }) => {
-  console.log(cartData.length, " ", selectedItems.length);
   let isSelected = true;
   cartData.forEach((cart) => {
     if (!selectedItems.includes(cart.id)) {
@@ -120,7 +121,7 @@ const CartItem = ({
   foodQuantity: number;
   foodPrice: number;
   onQuantityChange: (value: number) => void;
-  onDelete: () => void;
+  onDelete: () => Promise<void>;
   isSelected?: boolean;
   onSelected?: () => void;
 }) => {
@@ -130,6 +131,7 @@ const CartItem = ({
       cartRef.current.classList.add("animate-row-disappear");
     }
   };
+  const [isDeleting, setIsDeleting] = useState(false);
 
   return (
     <div
@@ -164,10 +166,10 @@ const CartItem = ({
       <X
         className="w-[50px] text-center opacity-0 text-red-500 group-hover:opacity-100 ease-linear duration-100 cursor-pointer"
         onClick={() => {
-          addAnimation();
           setTimeout(() => {
             onDelete();
           }, 200);
+          addAnimation();
         }}
       />
     </div>
@@ -256,6 +258,11 @@ const CartPage = () => {
     } else {
       setSelectedCartIds([...selectedCardIds, id]);
     }
+  };
+  const [selectedPayMethod, setSelectedPayMethod] = useState("");
+  const handlePayMethodChange = (method: string) => {
+    if (selectedPayMethod === method) setSelectedPayMethod("");
+    else setSelectedPayMethod(method);
   };
   const [subtotal, setSubtotal] = useState(0);
   const rightColRef = useRef<HTMLDivElement>(null);
@@ -376,9 +383,17 @@ const CartPage = () => {
                     );
                   };
                   const onDelete = async (id: number) => {
-                    // await CartService.
-                    dispatch(deleteCartItem(id));
-                    setCartData(cartData.filter((i) => i.id !== id));
+                    return await CartService.DeleteCart(id)
+                      .then(() => {
+                        dispatch(deleteCartItem(id));
+                        setCartData(cartData.filter((i) => i.id !== id));
+                        showSuccessToast("Deleted cart item successfully");
+                      })
+                      .catch((err) => {
+                        showErrorToast(
+                          "Failed to delete cart item with error:" + err
+                        );
+                      });
                   };
                   const food = foodData.find(
                     (food) => food.id === cart.food.id
@@ -416,49 +431,40 @@ const CartPage = () => {
           content={
             <div className="h-full px-2 flex flex-col gap-8">
               <div className="w-full flex flex-col gap-2">
-                <div className="w-full flex flex-row items-center justify-between">
-                  <span className="text-lg font-semibold">
-                    Your profile information
-                  </span>
-                  <IconButton
-                    icon={<Pen className="w-4 h-4" strokeWidth={2} />}
-                    className="bg-gray-50 shadow-primaryShadow text-primary hover:bg-primary hover:text-white ease-linear duration-100"
-                    onClick={() => {
-                      setCookie("redirect", "/cart");
-                      router.push("/user-setting");
-                    }}
-                  />
-                </div>
+                <IconButton
+                  icon={<Pen className="w-4 h-4" strokeWidth={2} />}
+                  className="self-end bg-gray-50 shadow-primaryShadow text-primary hover:bg-primary hover:text-white ease-linear duration-100"
+                  onClick={() => {
+                    setCookie("redirect", "/cart");
+                    router.push("/user-setting");
+                  }}
+                />
                 <Separate classname="h-[1.5px]" />
-
-                <div className="w-full flex flex-col gap-2">
-                  <Input
-                    id="full-name"
-                    label="Full name"
-                    placeholder="John Doe"
-                    labelColor="text-secondaryWord"
-                    className="text-primaryWord"
-                    disabled
-                  />
-                  <Input
-                    id="address"
-                    label="Address"
-                    placeholder="25/21 Phan Boi Chau Street, Dong Tan, Di An, Binh Duong"
-                    labelColor="text-secondaryWord"
-                    className="text-primaryWord"
-                    disabled
-                  />
-                  <Input
-                    id="phone-number"
-                    label="Phone number"
-                    placeholder="091xxxxxxx"
-                    labelColor="text-secondaryWord"
-                    disabled
-                  />
-                </div>
+                <Input
+                  id="full-name"
+                  label="Full name"
+                  placeholder="John Doe"
+                  labelColor="text-secondaryWord"
+                  className="text-primaryWord"
+                  disabled
+                />
+                <Input
+                  id="address"
+                  label="Address"
+                  placeholder="25/21 Phan Boi Chau Street, Dong Tan, Di An, Binh Duong"
+                  labelColor="text-secondaryWord"
+                  className="text-primaryWord"
+                  disabled
+                />
+                <Input
+                  id="phone-number"
+                  label="Phone number"
+                  placeholder="091xxxxxxx"
+                  labelColor="text-secondaryWord"
+                  disabled
+                />
               </div>
               <div className="w-full flex flex-col gap-2">
-                <h1 className="text-lg font-semibold">More</h1>
                 <Separate classname="h-[1.5px]" />
                 <Input
                   id="discount"
@@ -473,6 +479,42 @@ const CartPage = () => {
                   labelColor="text-primaryWord"
                   className="resize-none h-24"
                 />
+              </div>
+              <div className="w-full flex flex-col gap-2">
+                <Separate classname="h-[1.5px]" />
+                <div className="font-bold">Pay method</div>
+                <div className="w-full flex flex-row items-center justify-start gap-2">
+                  <PayMethodButton
+                    content="Pay with Momo wallet"
+                    icon={
+                      <Image
+                        src="/images/momo_logo.svg"
+                        alt="momo"
+                        className="rounded-lg"
+                        width={40}
+                        height={40}
+                      />
+                    }
+                    selectedButton={selectedPayMethod}
+                    onClick={() =>
+                      handlePayMethodChange("Pay with Momo wallet")
+                    }
+                  />
+                  <PayMethodButton
+                    content="Pay by cash"
+                    icon={
+                      <Image
+                        src="/images/pay_by_cash.png"
+                        alt="momo"
+                        className="rounded-lg"
+                        width={40}
+                        height={40}
+                      />
+                    }
+                    selectedButton={selectedPayMethod}
+                    onClick={() => handlePayMethodChange("Pay by cash")}
+                  />
+                </div>
               </div>
             </div>
           }
