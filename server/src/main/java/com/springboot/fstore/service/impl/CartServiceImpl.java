@@ -38,7 +38,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void addCart(CartDTO cartDTO) {
+    public CartDTO addCart(CartDTO cartDTO) {
         User user = userService.getAuthorizedUser();
         Cart cart = CartMapper.toCart(cartDTO);
         cart.setUser(user);
@@ -57,6 +57,7 @@ public class CartServiceImpl implements CartService {
         }
 
         cartRepository.save(cart);
+        return CartMapper.toCartDTO(cart);
     }
 
 

@@ -20,9 +20,8 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addCart(@RequestBody CartDTO cartDTO) {
-        cartService.addCart(cartDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CartDTO> addCart(@RequestBody CartDTO cartDTO) {
+        return ResponseEntity.ok(cartService.addCart(cartDTO));
     }
 
     @DeleteMapping("/{cartId}")
