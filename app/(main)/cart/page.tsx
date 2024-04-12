@@ -30,8 +30,6 @@ import LoadingCircle from "@/components/LoadingCircle/loading_circle";
 import { LoadingIcon } from "@/components/icons";
 import { CreateDataForPayment } from "@/convertor/momoConvertor";
 import MomoService from "@/services/momoService";
-import CreatePdf from "@/utils/createPdf";
-import { CartsToOrderForSending } from "@/convertor/orderConvertor";
 const Title = ({
   className,
   content,
@@ -146,7 +144,6 @@ const CartItem = ({
       className={cn(
         "w-full group text-primaryWord rounded-md bg-slate-50 flex flex-row items-center p-2 cursor-pointer"
       )}
-      onClick={onSelected}
     >
       <Checkbox isSelected={isSelected} className="mr-2" onClick={onSelected} />
       <div className="w-1/2 flex flex-row items-center justify-self-start text-center font-semibold text-lg">
@@ -317,7 +314,6 @@ const CartPage = () => {
     }
   };
   const updateSelectedCardIdsCookie = (cardIds: number[]) => {
-    console.log(cardIds);
     setCookie(
       "selectedCardIds",
       cardIds.length > 0 ? JSON.stringify(cardIds.join(",")) : ""
@@ -345,6 +341,7 @@ const CartPage = () => {
     };
     fetchData();
     setCookie("redirect", "");
+    setSelectedCartIds(getCookieSelectedCardIds() || []);
   }, []);
 
   useEffect(() => {
@@ -645,31 +642,38 @@ const CartPage = () => {
                 <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
-                iconBefore={isOrdering ? <LoadingCircle /> : null}
+                iconBefore={isOrdering ? <LoadingIcon /> : null}
                 content={isOrdering ? "" : "Order"}
                 className="absolute bottom-0 bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={async () => {
+                  if (!thisUser) {
+                    router.push("/login");
+                    return;
+                  }
                   const cartList = cartData.filter((cart) =>
                     selectedCardIds.includes(cart.id)
                   );
                   setIsOrdering(true);
-                  await OrderService.AddOrder(cartList, OrderStatus.PENDING)
-                    .then(() => {
-                      handleSelectedTabChange("Order Complete");
-                      setHasCompletedOrder(true);
-                      CreatePdf.createBillPdf(thisUser!);
-                    })
-                    .catch((err) =>
-                      showErrorToast("Failed to order with error: " + err)
-                    )
-                    .finally(() => setIsOrdering(false));
-                  await MomoService.MakePayment(CreateDataForPayment())
+                  const totalPrice = subtotal + subtotal * 0.1;
+
+                  await MomoService.MakePayment(
+                    CreateDataForPayment(totalPrice)
+                  )
                     .then((res) => {
                       console.log("momo res: ", res);
                     })
                     .catch((err) => {
                       console.log("momo err: ", err);
                     });
+                  await OrderService.AddOrder(cartList, OrderStatus.PENDING)
+                    .then(() => {
+                      handleSelectedTabChange("Order Complete");
+                      setHasCompletedOrder(true);
+                    })
+                    .catch((err) =>
+                      showErrorToast("Failed to order with error: " + err)
+                    )
+                    .finally(() => setIsOrdering(false));
                 }}
               />
             </div>

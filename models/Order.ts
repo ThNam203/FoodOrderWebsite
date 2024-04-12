@@ -1,19 +1,11 @@
+import { Cart } from "./Cart";
 import { Food, FoodSize } from "./Food";
 
 export type Order = {
   id: number;
   total: number;
-  status: string;
-  orderDetails: OrderDetail[];
-  createdAt: Date;
-};
-
-export type OrderDetail = {
-  id: number;
-  quantity: number;
-  price: number;
-  food: Food;
-  foodSize: FoodSize;
+  status: OrderStatus;
+  items: Cart[];
   createdAt: Date;
 };
 

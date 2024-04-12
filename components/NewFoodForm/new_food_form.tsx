@@ -18,8 +18,13 @@ import {
   AccordionTrigger,
 } from "../shadcn_components/accordion";
 import { ChooseImageButton } from "./choose_image_button";
-import { FoodFormDataToFood, FoodToSend } from "@/convertor/foodConvertor";
+import {
+  FoodFormDataToFood,
+  FoodToReceive,
+  FoodToSend,
+} from "@/convertor/foodConvertor";
 import { X } from "lucide-react";
+import { Food } from "@/models/Food";
 
 export type FoodFormData = {
   name: string;
@@ -72,7 +77,13 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
   tags: z.array(z.string()),
 });
 
-export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
+export const NewFoodForm = ({
+  closeForm,
+  onNewFoodSubmit,
+}: {
+  closeForm: () => any;
+  onNewFoodSubmit: (data: Food) => void;
+}) => {
   const dispatch = useAppDispatch();
   const categories = useAppSelector((state: any) => state.foodCategory.value);
 
@@ -111,10 +122,8 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
   } = useForm<z.infer<typeof foodSchema>>({
     resolver: zodResolver(foodSchema),
     defaultValues: {
-      name: "",
       status: "true",
       images: [null, null, null, null, null],
-      category: "",
       sizes: [
         {
           sizeName: "Default",
@@ -163,7 +172,9 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
     setIsUploadingFood(true);
     await FoodService.createNewFood(dataForm)
       .then((result) => {
-        dispatch(addFood(result.data));
+        const newFood = FoodToReceive(result.data);
+        dispatch(addFood(newFood));
+        onNewFoodSubmit(newFood);
       })
       .catch((e) => console.error(e))
       .finally(() => {
@@ -347,20 +358,36 @@ type InputProps = {
   error?: FieldError;
 };
 
+const LabelInput = ({
+  label,
+  error,
+}: {
+  label: string;
+  error?: FieldError;
+}) => {
+  return (
+    <div className="w-[150px]">
+      <label htmlFor={label} className="w-[150px] text-sm font-medium">
+        {label.length > 0
+          ? label[0].toUpperCase() + label.slice(1, label.length)
+          : ""}
+      </label>
+      <ErrorMessage error={error} />
+    </div>
+  );
+};
+
+const ErrorMessage = ({ error }: { error?: FieldError }) => {
+  return error && error.message ? (
+    <p className="text-xs text-red-500">{error.message}</p>
+  ) : null;
+};
+
 const DefaultInput = ({ label, register, required, error }: InputProps) => {
   const id = useId();
   return (
     <div className="flex flex-row w-full items-center h-10">
-      <div className="w-[150px]">
-        <label htmlFor={id} className="w-[150px] text-sm font-medium">
-          {label.length > 0
-            ? label[0].toUpperCase() + label.slice(1, label.length)
-            : ""}
-        </label>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
+      <LabelInput label={label} error={error} />
       <input
         id={id}
         className="flex-1 h-10 border rounded-md px-2"
@@ -381,9 +408,7 @@ const DescriptionInput = ({ label, register, required, error }: InputProps) => {
         rows={3}
         placeholder="Description"
       />
-      {error && error.message ? (
-        <p className="text-xs text-red-500">{error.message}</p>
-      ) : null}
+      <ErrorMessage error={error} />
     </>
   );
 };
@@ -394,16 +419,7 @@ const StatusInput = ({ label, register, required, error }: InputProps) => {
 
   return (
     <div className="flex flex-row w-full items-center h-10">
-      <div className="w-[150px]">
-        <p className="w-[150px] text-sm font-medium">
-          {label.length > 0
-            ? label[0].toUpperCase() + label.slice(1, label.length)
-            : ""}
-        </p>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
+      <LabelInput label={label} error={error} />
       <input
         id={id1}
         {...register(label, {
@@ -444,12 +460,7 @@ const CategoryInput = ({
 
   return (
     <div className="flex flex-row items-baseline">
-      <div className="w-[150px]">
-        <h5 className="text-sm">Category</h5>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
+      <LabelInput label="Category" error={error} />
       <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
         <div className="h-full w-full flex-1">
           <SearchAndChooseButton
@@ -494,12 +505,7 @@ const TagsInput = ({
 
   return (
     <div className="flex flex-row items-baseline">
-      <div className="w-[150px]">
-        <h5 className="text-sm">Tags</h5>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
+      <LabelInput label="Tags" error={error} />
       <div className="!m-0 p-1 min-h-[40px] rounded-md border border-input flex flex-1 flex-row flex-wrap items-center gap-1">
         {value.map((keyVal, keyIdx) => (
           <div

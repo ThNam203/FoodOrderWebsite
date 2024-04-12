@@ -1,20 +1,25 @@
 import { Cart } from "@/models/Cart";
-import { Order, OrderDetail, OrderStatus } from "@/models/Order";
+import { Order, OrderStatus } from "@/models/Order";
+import { CartToSend } from "./cartConvertor";
 
-const CartsToOrderForSending = (cartList: Cart[], status: OrderStatus) => {
-  const orderToSend = {
-    total: 0,
-    status: status,
-    orderDetails: CartsToOrderDetailForSending(cartList),
+const CartsToOrder = (cartList: Cart[]) => {
+  const total = cartList.reduce((acc, cart) => {
+    return acc + cart.price;
+  }, 0);
+  const order: Order = {
+    id: 0,
+    total: total,
+    status: OrderStatus.PENDING,
+    items: cartList,
+    createdAt: new Date(),
   };
-  return orderToSend;
+  return order;
 };
 
-const UpdateOrderForSending = (order: Order, status: OrderStatus) => {
+const OrderToSend = (order: Order, status: OrderStatus) => {
   const orderToSend = {
-    total: order.total,
+    ...order,
     status: status,
-    orderDetails: order.orderDetails,
   };
   return orderToSend;
 };
@@ -24,39 +29,10 @@ const OrderToReceive = (data: any): Order => {
     id: data.id,
     total: data.total,
     status: data.status,
-    orderDetails: data.orderDetails,
+    items: data.items,
     createdAt: data.createdAt,
   };
   return orderReceived;
 };
 
-const CartsToOrderDetailForSending = (cartList: Cart[]) => {
-  const orderDetail = cartList.map((cart) => {
-    return {
-      price: 0,
-      quantity: cart.quantity,
-      food: {
-        id: cart.food.id,
-      },
-      foodSize: {
-        id: cart.foodSize.id,
-      },
-    };
-  });
-  return orderDetail;
-};
-
-// const CartsToOrder = (cart: Cart[]) => {
-//   const total = cart.reduce((total, cur) => {
-//     return total + cur.quantity * cur.foodSize.price;
-//   }, 0);
-//   const order: Order = {
-//     id: 0,
-//      total: total,
-//      orderDetails: CartsToOrderDetail(cart),
-//   };
-//   return order;
-
-// }
-
-export { CartsToOrderForSending, OrderToReceive, UpdateOrderForSending };
+export { CartsToOrder, OrderToSend, OrderToReceive };

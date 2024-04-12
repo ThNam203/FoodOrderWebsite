@@ -348,6 +348,7 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
     const newCartItem: Cart = {
       id: -1,
       quantity: selectedFoodQuantity,
+      price: selectedFoodQuantity * selectedSize.price,
       food: food,
       foodSize: selectedSize,
     };

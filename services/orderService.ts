@@ -2,13 +2,10 @@ import { CartToSend } from "@/convertor/cartConvertor";
 import { Cart } from "@/models/Cart";
 import AxiosService from "./axiosService";
 import { Order, OrderStatus } from "@/models/Order";
-import {
-  CartsToOrderForSending,
-  UpdateOrderForSending,
-} from "@/convertor/orderConvertor";
+import { CartsToOrder, OrderToSend } from "@/convertor/orderConvertor";
 
 const AddOrder = (data: Cart[], status: OrderStatus) => {
-  const orderToSend = CartsToOrderForSending(data, status);
+  const orderToSend = OrderToSend(CartsToOrder(data), status);
   return AxiosService.post("/api/orders", orderToSend, {
     withCredentials: true,
   });
@@ -23,7 +20,7 @@ const GetOrder = (id: number) => {
 };
 
 const UpdateOrder = (id: number, data: Order, status: OrderStatus) => {
-  const orderToSend = UpdateOrderForSending(data, status);
+  const orderToSend = OrderToSend(data, status);
   return AxiosService.put(`/api/orders/${id}`, orderToSend, {
     withCredentials: true,
   });

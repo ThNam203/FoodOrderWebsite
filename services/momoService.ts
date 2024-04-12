@@ -2,9 +2,9 @@ import AxiosService from "./axiosService";
 
 const MakePayment = (data: any) => {
   return AxiosService.post(
-    "https://test-payment.momo.vn/v2/gateway/api/pos",
+    "https://test-payment.momo.vn/v2/gateway/api/create",
     data,
-    { withCredentials: true }
+    { headers: { "Content-Type": "application/json", Accept: "*/*" } }
   );
 };
 
