@@ -30,6 +30,7 @@ import { error } from "console";
 import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
 import { Input } from "../input";
+import { showErrorToast } from "../toast";
 
 export type FoodFormData = {
   name: string;
@@ -484,11 +485,11 @@ const CategoryInput = ({
               })
             );
             if (imageFile) dataForm.append("files", imageFile);
-            await FoodService.createNewCategory(dataForm)
+            return await FoodService.createNewCategory(dataForm)
               .then((newCat) => {
                 dispatch(addFoodCategory(newCat.data));
               })
-              .catch((errr) => console.log(errr));
+              .catch((errr) => showErrorToast(errr));
           }}
         />
       </div>

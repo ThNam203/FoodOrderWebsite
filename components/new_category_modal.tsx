@@ -1,17 +1,29 @@
 "use client";
-import { useState } from "react";
-import LoadingCircle from "./LoadingCircle/loading_circle";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Modal,
-  ModalContent,
-  ModalHeader,
   ModalBody,
+  ModalContent,
   ModalFooter,
-  Button,
+  ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
 import Image from "next/image";
-import { useAppSelector } from "@/redux/hooks";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { ZodType, z } from "zod";
+import LoadingCircle from "./LoadingCircle/loading_circle";
+import { TextButton } from "./buttons";
+import { Input } from "./input";
+import { showErrorToast } from "./toast";
+
+export type NewCategoryFormData = {
+  name: string;
+};
+
+const schema: ZodType<NewCategoryFormData> = z.object({
+  name: z.string().min(1),
+});
 
 const NewCategoryModal = ({
   onAddClick,
@@ -19,12 +31,42 @@ const NewCategoryModal = ({
   onAddClick: (value: string, image: File | null) => Promise<any>;
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [value, setValue] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const form = useForm<NewCategoryFormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { name: undefined },
+  });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = form;
+
+  const handleFormSubmit = async (data: NewCategoryFormData) => {
+    console.log("submit");
+    setIsLoading(true);
+    await onAddClick(data.name, image)
+      .then(() => {
+        reset();
+        onOpenChange();
+      })
+      .catch((e) => {
+        showErrorToast(e.message);
+      })
+      .finally(() => setIsLoading(false));
+  };
+
+  const resetValues = () => {
+    reset();
+    setImage(null);
+  };
+
   return (
-    <>
+    <form>
       <div>
         <svg
           className="mx-2 hover:cursor-pointer"
@@ -43,7 +85,7 @@ const NewCategoryModal = ({
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        className="text-black rounded-md"
+        className="text-black rounded-md font-sans"
       >
         <ModalContent>
           {(onClose) => {
@@ -53,57 +95,54 @@ const NewCategoryModal = ({
                   New category
                 </ModalHeader>
                 <ModalBody>
-                  <div className="flex justify-between">
+                  <div className="flex flex-row gap-4">
                     <ChooseImageButton onFileChosen={setImage} />
-                    <div className="!my-4 flex flex-col gap-3 text-sm">
-                      <label
-                        htmlFor="alert_input"
-                        className="w-36 font-semibold"
-                      >
-                        New category name
-                      </label>
-                      <input
-                        id="alert_input"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
+                    <div className="!my-4 w-full flex flex-col gap-3 text-sm">
+                      <Input
+                        id="category_name"
+                        label="Category name"
+                        placeholder="Category name"
+                        errorMessages={
+                          errors.name ? errors.name.message?.toString() : ""
+                        }
+                        {...register("name")}
                         className="flex-1 rounded-sm border p-1"
                       />
                     </div>
                   </div>
                 </ModalBody>
                 <ModalFooter>
-                  <button
-                    onClick={async (e) => {
-                      setIsLoading(true);
-                      try {
-                        await onAddClick(value, image);
-                        onClose();
-                      } catch (e) {}
-
-                      setIsLoading(false);
+                  <TextButton
+                    type="button"
+                    onClick={() => {
+                      handleSubmit(handleFormSubmit)();
                     }}
-                    className="!h-[35px] w-[100px] bg-green-400 text-white hover:bg-green-500 rounded-sm hover:text-white"
+                    className="!h-[35px] w-[100px] bg-green-400 text-white hover:bg-green-500 disabled:bg-green-400/60 rounded hover:text-white"
                     disabled={isLoading}
-                  >
-                    ADD
-                    {isLoading ? <LoadingCircle /> : null}
-                  </button>
-                  <button
+                    content="Add"
+                    iconAfter={isLoading ? <LoadingCircle /> : null}
+                  />
+                  <TextButton
+                    type="button"
                     className={
-                      "!h-[35px] w-[100px] border-none bg-red-400 text-white hover:bg-red-500 rounded-sm px-2 hover:text-white"
+                      "!h-[35px] w-[100px] border-none bg-red-400 disabled:bg-red-400/60 text-white hover:bg-red-500 rounded px-2 hover:text-white"
                     }
                     disabled={isLoading}
-                    onClick={onClose}
-                  >
-                    CANCEL
-                  </button>
+                    onClick={() => {
+                      reset();
+                      setImage(null);
+                      console.log("reset");
+                      // onClose();
+                    }}
+                    content="Cancel"
+                  />
                 </ModalFooter>
               </>
             );
           }}
         </ModalContent>
       </Modal>
-    </>
+    </form>
   );
 };
 
@@ -115,7 +154,7 @@ export const ChooseImageButton = ({
   const [fileUrl, setFileUrl] = useState<string | null>(null);
 
   return (
-    <div className="w-[100px] h-[80px] relative border rounded-sm">
+    <div className="w-[100px] h-[80px] relative border rounded-sm shrink-0">
       {!fileUrl || fileUrl.length === 0 ? (
         <>
           <label
