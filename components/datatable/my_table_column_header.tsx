@@ -53,21 +53,21 @@ function DataTableColumnHeader<TData, TValue>({
           )}
         >
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
             onClick={() => column.toggleSorting(false)}
           >
             <ArrowUpIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Asc
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
             onClick={() => column.toggleSorting(true)}
           >
             <ArrowDownIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Desc
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
             onClick={() => column.clearSorting()}
           >
             <Ban className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
@@ -75,7 +75,7 @@ function DataTableColumnHeader<TData, TValue>({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
             onClick={() => column.toggleVisibility(false)}
           >
             <EyeOff className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />

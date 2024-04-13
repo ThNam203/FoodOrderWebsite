@@ -8,6 +8,7 @@ import {
 import { Food, FoodCategory } from "@/models/Food";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
+import default_food_image from "@/public/images/default_food.jpg";
 
 export const menuColumnTitles = {
   id: "Food ID",
@@ -33,6 +34,7 @@ function imageColumn(accessorKey: string, title: string): ColumnDef<Food> {
     ),
     cell: ({ row }) => {
       const values: string[] = row.getValue(accessorKey);
+      let imageSrc = values.length > 0 ? values[0] : default_food_image;
 
       return (
         <div className="w-fit px-2">
@@ -40,7 +42,7 @@ function imageColumn(accessorKey: string, title: string): ColumnDef<Food> {
             alt="food image"
             width={30}
             height={30}
-            src={values[0] || "/default_food.jpg"}
+            src={imageSrc}
             className="mx-auto object-contain"
           />
         </div>

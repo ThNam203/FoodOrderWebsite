@@ -4,7 +4,7 @@ import { NewFoodForm } from "@/components/NewFoodForm/new_food_form";
 import { TextButton } from "@/components/buttons";
 import { CustomDatatable } from "@/components/datatable/custom_datatable";
 import { Food } from "@/models/Food";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setFoods } from "@/redux/slices/food";
 import FoodService from "@/services/foodService";
 import { PageWithFilters } from "@/utils/ui";
@@ -16,21 +16,32 @@ import {
   menuDefaultVisibilityState,
   menuTableColumns,
 } from "./table_columns";
+import { setFoodCategories } from "@/redux/slices/category";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
+import { showErrorToast } from "@/components/toast";
 
 export default function DashboardMenu() {
   const dispatch = useAppDispatch();
   const [data, setData] = useState<Food[]>([]);
+  const categories = useAppSelector((state: any) => state.foodCategory.value);
 
   useEffect(() => {
     const fetchData = async () => {
+      dispatch(showPreloader());
       await FoodService.getAllFood()
         .then((res) => {
           setData(res.data);
           dispatch(setFoods(res.data));
         })
         .catch((err) => {
-          console.log(err);
+          showErrorToast(err.message);
         });
+      await FoodService.getCategories()
+        .then((data) => dispatch(setFoodCategories(data.data)))
+        .catch((err) => {
+          showErrorToast(err.message);
+        });
+      dispatch(disablePreloader());
     };
     fetchData();
   }, []);
@@ -72,6 +83,7 @@ export default function DashboardMenu() {
         />
         {openNewFoodForm && (
           <NewFoodForm
+            categories={categories}
             closeForm={() => setOpenNewFoodForm(false)}
             onNewFoodSubmit={(food: Food) => setData([...data, food])}
           />
