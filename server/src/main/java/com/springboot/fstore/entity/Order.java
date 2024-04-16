@@ -20,6 +20,7 @@ public class Order extends BaseEntity {
     private int id;
     private Double total;
     private String status;
+    private String paymentMethod;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Cart> items;
