@@ -18,8 +18,19 @@ import {
   AccordionTrigger,
 } from "../shadcn_components/accordion";
 import { ChooseImageButton } from "./choose_image_button";
-import { FoodFormDataToFood, FoodToSend } from "@/convertor/foodConvertor";
+import {
+  FoodFormDataToFood,
+  FoodToReceive,
+  FoodToSend,
+} from "@/convertor/foodConvertor";
 import { X } from "lucide-react";
+import { Food, FoodCategory } from "@/models/Food";
+import { TextButton } from "../buttons";
+import { error } from "console";
+import { ClassValue } from "clsx";
+import { cn } from "@/utils/cn";
+import { Input } from "../input";
+import { showErrorToast } from "../toast";
 
 export type FoodFormData = {
   name: string;
@@ -44,7 +55,10 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
     .max(100, { message: "Name must be at most 100 characters!" }),
   status: z.string(),
   category: z.string(),
-  images: z.array(z.string().nullable()).min(0).max(5),
+  images: z
+    .array(z.string())
+    .min(1, { message: "Please add one image about this food" })
+    .max(5),
   sizes: z
     .array(
       z.object({
@@ -59,7 +73,7 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
             message: `Price must be less than ${Number.MAX_VALUE}`,
           }),
         weight: z
-          .number()
+          .number({ required_error: "Missing price!" })
           .min(0, { message: "Weight must be at least 0" })
           .max(Number.MAX_VALUE, {
             message: `Weight must be less than ${Number.MAX_VALUE}`,
@@ -67,37 +81,23 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
         note: z.string(),
       })
     )
-    .min(1),
+    .min(1, { message: "Please add at least one size" }),
   description: z.string(),
   tags: z.array(z.string()),
 });
 
-export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
+export const NewFoodForm = ({
+  closeForm,
+  onNewFoodSubmit,
+  categories,
+}: {
+  closeForm: () => any;
+  onNewFoodSubmit: (data: Food) => void;
+  categories: FoodCategory[];
+}) => {
   const dispatch = useAppDispatch();
-  const categories = useAppSelector((state: any) => state.foodCategory.value);
 
-  useEffect(() => {
-    dispatch(showPreloader());
-    const getData = async () => {
-      await FoodService.getCategories()
-        .then((data) => dispatch(setFoodCategories(data.data)))
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-
-    getData()
-      .catch((err) => console.log(err))
-      .finally(() => dispatch(disablePreloader()));
-  }, []);
-
-  const [chosenImageFiles, setChosenImageFiles] = useState<(File | null)[]>([
-    null,
-    null,
-    null,
-    null,
-    null,
-  ]);
+  const [chosenImageFiles, setChosenImageFiles] = useState<File[]>([]);
 
   const [isUploadingFood, setIsUploadingFood] = useState(false);
 
@@ -106,40 +106,37 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    resetField,
     watch,
-    control,
   } = useForm<z.infer<typeof foodSchema>>({
     resolver: zodResolver(foodSchema),
     defaultValues: {
-      name: "",
       status: "true",
-      images: [null, null, null, null, null],
-      category: "",
+      images: [],
       sizes: [
         {
-          sizeName: "Default",
+          sizeName: "",
           price: 0,
           weight: 0,
           note: "",
         },
       ],
       description: "",
+      category: undefined,
       tags: [],
     },
   });
 
   // if newFileUrl == null, it means the user removed image
   const handleImageChosen = (newFileUrl: File | null, index: number) => {
-    if (newFileUrl === null) {
-      for (let i = index; i < chosenImageFiles.length - 1; i++) {
-        chosenImageFiles[i] = chosenImageFiles[i + 1];
-      }
-      chosenImageFiles[chosenImageFiles.length - 1] = null;
-    } else chosenImageFiles[chosenImageFiles.indexOf(null)] = newFileUrl;
+    console.log(newFileUrl, " ", index);
+    if (newFileUrl === null) chosenImageFiles.splice(index, 1);
+    else chosenImageFiles.push(newFileUrl);
+    console.log(chosenImageFiles);
 
     setValue(
       "images",
-      chosenImageFiles.map((file) => (file ? URL.createObjectURL(file) : null)),
+      chosenImageFiles.map((file) => URL.createObjectURL(file)),
       { shouldValidate: true }
     );
     setChosenImageFiles(chosenImageFiles);
@@ -163,7 +160,9 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
     setIsUploadingFood(true);
     await FoodService.createNewFood(dataForm)
       .then((result) => {
-        dispatch(addFood(result.data));
+        const newFood = FoodToReceive(result.data);
+        dispatch(addFood(newFood));
+        onNewFoodSubmit(newFood);
       })
       .catch((e) => console.error(e))
       .finally(() => {
@@ -206,6 +205,7 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
               label="name"
               register={register}
               required
+              placeholder="Food name"
               error={errors.name}
             />
             <StatusInput
@@ -216,17 +216,27 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
             />
             <CategoryInput
               value={watch("category")}
-              onValueChanged={(val) => setValue("category", val ? val : "")}
+              onValueChanged={(val) => {
+                if (val) setValue("category", val);
+                else resetField("category");
+              }}
+              {...register("category", { required: true })}
               error={errors.category}
             />
             <TagsInput
               value={watch("tags")}
-              onValueChanged={(vals) => setValue("tags", vals)}
-              error={errors.category}
+              onValueChanged={(vals) => {
+                if (vals) setValue("tags", vals);
+                else resetField("tags");
+              }}
+              {...register("tags", { required: true })}
+              error={errors.tags ? errors.tags[0] : undefined}
             />
             <ImagesInput
               fileUrls={watch("images")}
               onImageChanged={handleImageChosen}
+              {...register("images", { required: true })}
+              error={errors.images as FieldError}
             />
             <DescriptionInput
               label="description"
@@ -234,105 +244,100 @@ export const NewFoodForm = ({ closeForm }: { closeForm: () => any }) => {
               required
               error={errors.description}
             />
-            <Accordion type="single" collapsible>
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="bg-gray-200 p-3 text-sm w-full">
-                  <div className="flex flex-row gap-10">
-                    <p>Food variants</p>
-                    {errors && errors.sizes ? (
-                      <p className="text-xs text-red-500">
-                        {errors.sizes.message}
-                      </p>
-                    ) : null}
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="border p-0">
-                  <div className="flex flex-col">
-                    {watch("sizes").map((value, index) => {
-                      const fieldValue = watch("sizes");
-                      return (
-                        <FoodVariantView
-                          key={index}
-                          sizeName={value.sizeName}
-                          price={value.price}
-                          weight={value.weight}
-                          note={value.note}
-                          onSizeNameChanged={(val: string) => {
-                            fieldValue[index].sizeName = val;
-                            setValue("sizes", [...fieldValue], {
-                              shouldValidate: true,
-                            });
-                          }}
-                          onPriceChanged={(val: number) => {
-                            fieldValue[index].price = val;
-                            setValue("sizes", [...fieldValue], {
-                              shouldValidate: true,
-                            });
-                          }}
-                          onWeightChanged={(val: number) => {
-                            fieldValue[index].weight = val;
-                            setValue("sizes", [...fieldValue], {
-                              shouldValidate: true,
-                            });
-                          }}
-                          onNoteChanged={(val: string) => {
-                            fieldValue[index].note = val;
-                            setValue("sizes", [...fieldValue], {
-                              shouldValidate: true,
-                            });
-                          }}
-                          onRemoveClick={() => {
-                            setValue("sizes", fieldValue.toSpliced(index, 1), {
-                              shouldValidate: false,
-                            });
-                          }}
-                        />
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    className="ml-2 my-2 h-[35px] border bg-green-500 text-white px-2 text-sm rounded-md"
-                    onClick={(e) => {
-                      e.preventDefault();
+            <div className="flex flex-col rounded overflow-hidden">
+              <div className="bg-gray-200 hover:bg-gray-100 p-3 text-sm w-full">
+                <div className="flex flex-row items-center gap-10">
+                  <p>Food variants</p>
+                  {errors && errors.sizes ? (
+                    <p className="text-xs text-red-500">
+                      {errors.sizes.message}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+              <div className="border p-4">
+                <div className="flex flex-col gap-4">
+                  {watch("sizes").map((value, index) => {
+                    const fieldValue = watch("sizes");
+                    return (
+                      <FoodVariantView
+                        key={index}
+                        sizeName={value.sizeName}
+                        price={value.price}
+                        weight={value.weight}
+                        note={value.note}
+                        onSizeNameChanged={(val: string) => {
+                          fieldValue[index].sizeName = val;
+                          setValue("sizes", [...fieldValue], {
+                            shouldValidate: true,
+                          });
+                        }}
+                        onPriceChanged={(val: number) => {
+                          fieldValue[index].price = val;
+                          setValue("sizes", [...fieldValue], {
+                            shouldValidate: true,
+                          });
+                        }}
+                        onWeightChanged={(val: number) => {
+                          fieldValue[index].weight = val;
+                          setValue("sizes", [...fieldValue], {
+                            shouldValidate: true,
+                          });
+                        }}
+                        onNoteChanged={(val: string) => {
+                          fieldValue[index].note = val;
+                          setValue("sizes", [...fieldValue], {
+                            shouldValidate: true,
+                          });
+                        }}
+                        onRemoveClick={() => {
+                          setValue("sizes", fieldValue.toSpliced(index, 1), {
+                            shouldValidate: false,
+                          });
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <TextButton
+                  type="button"
+                  className="w-auto mt-4 h-[35px] border bg-green-500 hover:bg-green-600 text-white px-2 text-sm rounded-md"
+                  onClick={(e) => {
+                    e.preventDefault();
 
-                      const newSize = {
-                        sizeName: "Default",
-                        price: 0,
-                        weight: 0,
-                        note: "",
-                      };
+                    const newSize = {
+                      sizeName: "",
+                      price: 0,
+                      weight: 0,
+                      note: "",
+                    };
 
-                      setValue("sizes", [...watch("sizes"), newSize]);
-                    }}
-                  >
-                    Add size
-                  </button>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                    setValue("sizes", [...watch("sizes"), newSize]);
+                  }}
+                  content="Add size"
+                />
+              </div>
+            </div>
           </div>
           <div className="flex flex-row gap-4 mt-4">
             <div className="flex-1" />
-            <button
+            <TextButton
               type="submit"
-              className="min-w-[150px] px-4 uppercase bg-green-600 text-white rounded-sm py-2"
+              className="w-[100px] px-4 bg-primary hover:bg-primary/60 text-white"
               disabled={isUploadingFood}
-            >
-              Save
-            </button>
-            <button
+              content="Save"
+            />
+            <TextButton
               type="button"
-              className="min-w-[150px] bg-gray-400 px-4 uppercase hover:bg-gray-500 rounded-sm"
+              className="w-[100px] bg-gray-400 px-4 hover:bg-gray-500"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
                 closeForm();
               }}
               disabled={isUploadingFood}
-            >
-              Cancel
-            </button>
+              content="Cancel"
+            />
           </div>
         </form>
       </div>
@@ -345,25 +350,51 @@ type InputProps = {
   register: UseFormRegister<z.infer<typeof foodSchema>>;
   required: boolean;
   error?: FieldError;
+  placeholder?: string;
 };
 
-const DefaultInput = ({ label, register, required, error }: InputProps) => {
+const LabelInput = ({
+  label,
+  error,
+  className,
+}: {
+  label: string;
+  error?: FieldError;
+  className?: ClassValue;
+}) => {
+  return (
+    <div className={cn("w-[150px] shrink-0", className)}>
+      <label htmlFor={label} className="w-[150px] text-sm font-medium">
+        {label.length > 0
+          ? label[0].toUpperCase() + label.slice(1, label.length)
+          : ""}
+      </label>
+      <ErrorMessage error={error} />
+    </div>
+  );
+};
+
+const ErrorMessage = ({ error }: { error?: FieldError }) => {
+  return error && error.message ? (
+    <p className="text-xs text-red-500">{error.message}</p>
+  ) : null;
+};
+
+const DefaultInput = ({
+  label,
+  register,
+  required,
+  error,
+  placeholder,
+}: InputProps) => {
   const id = useId();
   return (
     <div className="flex flex-row w-full items-center h-10">
-      <div className="w-[150px]">
-        <label htmlFor={id} className="w-[150px] text-sm font-medium">
-          {label.length > 0
-            ? label[0].toUpperCase() + label.slice(1, label.length)
-            : ""}
-        </label>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
-      <input
+      <LabelInput label={label} error={error} />
+      <Input
         id={id}
-        className="flex-1 h-10 border rounded-md px-2"
+        className="flex h-10 outline-1 rounded-md px-2"
+        placeholder={placeholder}
         {...register(label, { required })}
       />
     </div>
@@ -377,13 +408,11 @@ const DescriptionInput = ({ label, register, required, error }: InputProps) => {
       <textarea
         id={id}
         {...register(label, { required })}
-        className="resize-none w-full border rounded-md p-2 placeholder:text-sm text-sm"
+        className="resize-none w-full border border-borderColor focus:border-primary outline-none rounded-md p-2 placeholder:text-sm text-sm"
         rows={3}
         placeholder="Description"
       />
-      {error && error.message ? (
-        <p className="text-xs text-red-500">{error.message}</p>
-      ) : null}
+      <ErrorMessage error={error} />
     </>
   );
 };
@@ -394,16 +423,7 @@ const StatusInput = ({ label, register, required, error }: InputProps) => {
 
   return (
     <div className="flex flex-row w-full items-center h-10">
-      <div className="w-[150px]">
-        <p className="w-[150px] text-sm font-medium">
-          {label.length > 0
-            ? label[0].toUpperCase() + label.slice(1, label.length)
-            : ""}
-        </p>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
+      <LabelInput label={label} error={error} />
       <input
         id={id1}
         {...register(label, {
@@ -444,13 +464,8 @@ const CategoryInput = ({
 
   return (
     <div className="flex flex-row items-baseline">
-      <div className="w-[150px]">
-        <h5 className="text-sm">Category</h5>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
-      <div className="!m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
+      <LabelInput label="Category" error={error} />
+      <div className="relative !m-0 flex min-h-[40px] flex-1 flex-row items-center rounded-md border border-input">
         <div className="h-full w-full flex-1">
           <SearchAndChooseButton
             value={value}
@@ -470,11 +485,11 @@ const CategoryInput = ({
               })
             );
             if (imageFile) dataForm.append("files", imageFile);
-            await FoodService.createNewCategory(dataForm)
+            return await FoodService.createNewCategory(dataForm)
               .then((newCat) => {
                 dispatch(addFoodCategory(newCat.data));
               })
-              .catch((errr) => console.log(errr));
+              .catch((errr) => showErrorToast(errr));
           }}
         />
       </div>
@@ -494,13 +509,8 @@ const TagsInput = ({
 
   return (
     <div className="flex flex-row items-baseline">
-      <div className="w-[150px]">
-        <h5 className="text-sm">Tags</h5>
-        {error && error.message ? (
-          <p className="text-xs text-red-500">{error.message}</p>
-        ) : null}
-      </div>
-      <div className="!m-0 p-1 min-h-[40px] rounded-md border border-input flex flex-1 flex-row flex-wrap items-center gap-1">
+      <LabelInput label="Tags" error={error} />
+      <div className="!m-0 py-1 px-2 min-h-[40px] rounded-md border flex flex-1 flex-row flex-wrap items-center gap-2 border-borderColor focus-within:border-primary">
         {value.map((keyVal, keyIdx) => (
           <div
             key={keyIdx}
@@ -535,19 +545,32 @@ const TagsInput = ({
 const ImagesInput = ({
   fileUrls,
   onImageChanged,
+  error,
 }: {
   fileUrls: (string | null)[];
   onImageChanged: (file: File | null, index: number) => void;
+  error?: FieldError;
 }) => {
+  let displayFileUrls: (string | null)[] = [null, null, null, null, null];
+  fileUrls.forEach((fileUrl, index) => {
+    displayFileUrls[index] = fileUrl;
+  });
   return (
-    <div className="flex flex-row w-full items-center h-20 justify-between">
-      {fileUrls.map((fileUrl, index) => (
-        <ChooseImageButton
-          key={index}
-          fileUrl={fileUrl}
-          onImageChanged={(imageFile) => onImageChanged(imageFile, index)}
-        />
-      ))}
+    <div className="flex flex-col gap-2">
+      <LabelInput label="Images" error={error} className="w-full" />
+      <div className="flex flex-row w-full items-center h-20 justify-between">
+        {displayFileUrls.map((fileUrl, index) => (
+          <ChooseImageButton
+            key={index}
+            fileUrl={fileUrl}
+            onImageChanged={(imageFile) => {
+              console.log(imageFile, " ", index);
+              onImageChanged(imageFile, index);
+            }}
+            className="rounded-md"
+          />
+        ))}
+      </div>
     </div>
   );
 };
@@ -574,15 +597,17 @@ const FoodVariantView = ({
   onRemoveClick: () => void;
 }) => {
   return (
-    <div className="relative mb-2 px-2 text-[0.85rem] m-2 p-2 rounded-md bg-slate-300">
+    <div className="relative px-2 text-[0.85rem] py-4 rounded-md bg-white shadow-lg">
       <div className="flex flex-row gap-4">
         <div className="flex flex-col gap-4 justify-between">
           <div className="flex flex-row items-baseline">
             <p className="w-[80px] font-semibold">Size name</p>
             <input
+              type="text"
               value={sizeName}
               onChange={(e) => onSizeNameChanged(e.target.value)}
-              className="border-b border-slate-400 p-1 pb-0 max-w-44 bg-inherit flex-1 text-right"
+              placeholder="Size name"
+              className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
           </div>
           <div className="flex flex-row items-baseline">
@@ -590,19 +615,21 @@ const FoodVariantView = ({
             <input
               type="number"
               min={0}
-              value={price}
+              value={price === 0 ? undefined : price}
+              placeholder="0"
               onChange={(e) => onPriceChanged(e.target.valueAsNumber)}
-              className="border-b border-slate-400 p-1 pb-0 text-end max-w-44 bg-inherit flex-1"
+              className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
           </div>
           <div className="flex flex-row items-baseline">
             <p className="w-[80px] font-semibold">Weight</p>
             <input
-              value={weight}
+              value={weight === 0 ? undefined : weight}
               type="number"
               min={0}
+              placeholder="0"
               onChange={(e) => onWeightChanged(e.target.valueAsNumber)}
-              className="border-b border-slate-400 p-1 pb-0 text-end max-w-44 bg-inherit flex-1"
+              className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
           </div>
         </div>
@@ -610,7 +637,7 @@ const FoodVariantView = ({
           placeholder="Note"
           value={note}
           onChange={(e) => onNoteChanged(e.target.value)}
-          className="border-slate-400 rounded-md p-1 resize-none flex-1 min-h-full border bg-inherit scrollbar small-scrollbar"
+          className="border-slate-400 rounded-md p-1 resize-none flex-1 min-h-full border bg-inherit scrollbar small-scrollbar outline-none focus:border-primary"
         />
       </div>
       <svg
@@ -618,7 +645,7 @@ const FoodVariantView = ({
         width="1rem"
         height="1rem"
         viewBox="0 0 24 24"
-        className="absolute right-[0.125rem] top-[0.125rem] rounded-full translate-x-1/2 -translate-y-1/2 bg-slate-300 hover:bg-slate-400 hover:cursor-pointer"
+        className="absolute right-[0.125rem] top-[0.125rem] rounded-full translate-x-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 hover:cursor-pointer"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

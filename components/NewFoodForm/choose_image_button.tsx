@@ -2,13 +2,17 @@
 import Image from "next/image";
 import { ChangeEvent, useState } from "react";
 import { nanoid } from "nanoid";
+import { ClassValue } from "clsx";
+import { cn } from "@/utils/cn";
 
 export const ChooseImageButton = ({
   fileUrl,
   onImageChanged,
+  className,
 }: {
   fileUrl: string | null;
   onImageChanged: (file: File | null) => void;
+  className?: ClassValue;
 }) => {
   const id = nanoid();
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -17,7 +21,12 @@ export const ChooseImageButton = ({
   }
 
   return (
-    <div className="w-[100px] h-[80px] relative border rounded-sm">
+    <div
+      className={cn(
+        "w-[100px] h-[80px] relative border rounded-sm select-none",
+        className
+      )}
+    >
       {!fileUrl || fileUrl.length === 0 ? (
         <>
           <label

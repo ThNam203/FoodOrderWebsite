@@ -11,9 +11,14 @@ const GetCart = () => {
   return AxiosService.get("/api/cart", { withCredentials: true });
 };
 
+const DeleteCart = (id: number) => {
+  return AxiosService.delete(`/api/cart/${id}`, { withCredentials: true });
+};
+
 const CartService = {
   AddCart,
   GetCart,
+  DeleteCart,
 };
 
 export default CartService;

@@ -13,6 +13,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
+import { ClassValue } from "clsx";
 import { ShoppingCart } from "lucide-react";
 import { useState } from "react";
 
@@ -27,6 +28,7 @@ export const FoodDetail = ({
   isFavorite = false,
   onFavoriteChange,
   onAddToCart,
+  className,
 }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -38,21 +40,25 @@ export const FoodDetail = ({
   isFavorite?: boolean;
   onFavoriteChange?: (isFavorite: boolean) => void;
   onAddToCart?: () => void;
+  className?: ClassValue;
 }) => {
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={() => onOpenChange(!isOpen)}
-      className="text-primaryWord rounded-lg overflow-hidden"
+      className={cn(
+        "h-5/6 w-screen text-primaryWord rounded-lg overflow-hidden",
+        className
+      )}
       hideCloseButton
-      size="xl"
+      size="5xl"
     >
       <ModalContent>
         {(onClose) => (
           <>
-            <div className="w-full h-40 overflow-hidden">
+            <div className="w-full h-72 overflow-hidden">
               <div
-                className="object-center hover:scale-125 h-40 ease-linear transition-all duration-300"
+                className="hover:scale-125 h-72 ease-linear transition-all duration-300"
                 style={{
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -105,8 +111,9 @@ export const FoodDetail = ({
                   );
                 })}
               </div>
-              <div className="flex items-center">
-                <FoodRating rating={food.rating} className="mt-2" />
+              <div className="font-normal text-base">{selectedSize.note}</div>
+              <div className="flex flex-row items-center">
+                <FoodRating rating={food.rating} />
                 {food.tags.map((tag) => {
                   return <Tag key={tag} name={tag} />;
                 })}

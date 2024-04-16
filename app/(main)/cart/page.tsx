@@ -1,27 +1,35 @@
 "use client";
-import { IconButton, TextButton } from "@/components/buttons";
+import { IconButton, PayMethodButton, TextButton } from "@/components/buttons";
 import { Input, NumberInput, TextArea } from "@/components/input";
 import { Separate } from "@/components/separate";
-import { cn } from "@/utils/cn";
-import { ClassValue } from "clsx";
-import React, { useEffect, useRef, useState } from "react";
-import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
-import { fakeCartData } from "../../../fakedata/cartData";
-import { CartContent, CartTab } from "./cart_tab";
 import { TabContent } from "@/components/tab";
-import { useRouter } from "next/navigation";
-import { CookieValueTypes, getCookie, setCookie } from "cookies-next";
-import Image from "next/image";
-import { showDefaultToast, showErrorToast } from "@/components/toast";
-import { Checkbox } from "@nextui-org/react";
-import { Food } from "@/models/Food";
+import {
+  showDefaultToast,
+  showErrorToast,
+  showSuccessToast,
+} from "@/components/toast";
 import { Cart } from "@/models/Cart";
-import { fakeFoodItems } from "@/fakedata/foodData";
+import { Food } from "@/models/Food";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import CartService from "@/services/cartService";
 import { deleteCartItem, setCartItems } from "@/redux/slices/cart";
-import FoodService from "@/services/foodService";
 import { setFoods } from "@/redux/slices/food";
+import CartService from "@/services/cartService";
+import FoodService from "@/services/foodService";
+import { cn } from "@/utils/cn";
+import { Checkbox } from "@nextui-org/react";
+import { ClassValue } from "clsx";
+import { getCookie, setCookie } from "cookies-next";
+import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { CartContent, CartTab } from "./cart_tab";
+import OrderService from "@/services/orderService";
+import { OrderStatus } from "@/models/Order";
+import LoadingCircle from "@/components/LoadingCircle/loading_circle";
+import { LoadingIcon } from "@/components/icons";
+import { CreateDataForPayment } from "@/convertor/momoConvertor";
+import MomoService from "@/services/momoService";
 const Title = ({
   className,
   content,
@@ -52,7 +60,6 @@ const TitleBar = ({
   selectedItems: number[];
   setSelectedItems: (selectedItems: number[]) => void;
 }) => {
-  console.log(cartData.length, " ", selectedItems.length);
   let isSelected = true;
   cartData.forEach((cart) => {
     if (!selectedItems.includes(cart.id)) {
@@ -135,7 +142,7 @@ const CartItem = ({
     <div
       ref={cartRef}
       className={cn(
-        "w-full group text-primaryWord rounded-md bg-slate-50 flex flex-row items-center p-2"
+        "w-full group text-primaryWord rounded-md bg-slate-50 flex flex-row items-center p-2 cursor-pointer"
       )}
     >
       <Checkbox isSelected={isSelected} className="mr-2" onClick={onSelected} />
@@ -161,13 +168,12 @@ const CartItem = ({
       <span className="w-[150px] text-center">
         {(foodPrice * foodQuantity).toFixed(0) + "đ"}
       </span>
+
       <X
         className="w-[50px] text-center opacity-0 text-red-500 group-hover:opacity-100 ease-linear duration-100 cursor-pointer"
         onClick={() => {
+          setTimeout(() => onDelete(), 200);
           addAnimation();
-          setTimeout(() => {
-            onDelete();
-          }, 200);
         }}
       />
     </div>
@@ -178,10 +184,12 @@ const PaymenBar = ({
   className,
   selectedTab,
   setSelectedTab,
+  hasCompletedOrder = false,
 }: {
   className?: ClassValue;
   selectedTab: string;
   setSelectedTab: (selectedTab: string) => void;
+  hasCompletedOrder?: boolean;
 }) => {
   return (
     <div
@@ -209,6 +217,7 @@ const PaymenBar = ({
         tabName="Order Complete"
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
+        disabled={!hasCompletedOrder}
       />
     </div>
   );
@@ -247,9 +256,17 @@ const CartPage = () => {
   const router = useRouter();
   const [cartData, setCartData] = useState<Cart[]>([]);
   const [foodData, setFoodData] = useState<Food[]>([]);
-  const [selectedCardIds, setSelectedCartIds] = useState<number[]>(
-    getCookieSelectedCardIds() || []
+  const [selectedCardIds, setSelectedCartIds] = useState<number[]>([]);
+  const [selectedPayMethod, setSelectedPayMethod] = useState("");
+  const [subtotal, setSubtotal] = useState(0);
+  const rightColRef = useRef<HTMLDivElement>(null);
+  const [selectedTab, setSelectedTab] = useState(
+    getCookie("redirect") === "/cart" ? "Checkout Details" : "Shopping Cart"
   );
+  const [isOrdering, setIsOrdering] = useState(false);
+  const [hasCompletedOrder, setHasCompletedOrder] = useState(false);
+  const thisUser = useAppSelector((state) => state.profile.value);
+
   const handleSelectedCardIdsChange = (id: number) => {
     if (selectedCardIds.includes(id)) {
       setSelectedCartIds(selectedCardIds.filter((i) => i !== id));
@@ -257,13 +274,10 @@ const CartPage = () => {
       setSelectedCartIds([...selectedCardIds, id]);
     }
   };
-  const [subtotal, setSubtotal] = useState(0);
-  const rightColRef = useRef<HTMLDivElement>(null);
-  const [selectedTab, setSelectedTab] = useState(
-    getCookie("redirect") === "/cart" ? "Checkout Details" : "Shopping Cart"
-  );
-  setCookie("redirect", "");
-
+  const handlePayMethodChange = (method: string) => {
+    if (selectedPayMethod === method) setSelectedPayMethod("");
+    else setSelectedPayMethod(method);
+  };
   const handleSelectedTabChange = (nextTab: string) => {
     if (nextTab === selectedTab) return;
     if (cartData.length === 0 && nextTab === "Order Complete") {
@@ -275,6 +289,12 @@ const CartPage = () => {
     }
     if (selectedTab === "Order Complete") {
       appearRightColumn();
+    }
+    if (nextTab === "Checkout Details") {
+      if (selectedCardIds.length === 0) {
+        showDefaultToast("Please select at least one item");
+        return;
+      }
     }
     setSelectedTab(nextTab);
   };
@@ -292,6 +312,12 @@ const CartPage = () => {
       rightColRef.current.classList.add("w-[400px]");
       rightColRef.current.classList.add("p-8");
     }
+  };
+  const updateSelectedCardIdsCookie = (cardIds: number[]) => {
+    setCookie(
+      "selectedCardIds",
+      cardIds.length > 0 ? JSON.stringify(cardIds.join(",")) : ""
+    );
   };
 
   useEffect(() => {
@@ -314,6 +340,8 @@ const CartPage = () => {
         });
     };
     fetchData();
+    setCookie("redirect", "");
+    setSelectedCartIds(getCookieSelectedCardIds() || []);
   }, []);
 
   useEffect(() => {
@@ -335,7 +363,7 @@ const CartPage = () => {
       tempSubtotal += foodSize.price * cart.quantity;
     });
     setSubtotal(tempSubtotal);
-    setCookie("selectedCardIds", JSON.stringify(selectedCardIds.join(",")));
+    updateSelectedCardIdsCookie(selectedCardIds);
   }, [selectedCardIds, cartData, foodData]);
 
   return (
@@ -346,6 +374,7 @@ const CartPage = () => {
           <PaymenBar
             selectedTab={selectedTab}
             setSelectedTab={handleSelectedTabChange}
+            hasCompletedOrder={hasCompletedOrder}
           />
         </div>
 
@@ -376,16 +405,23 @@ const CartPage = () => {
                     );
                   };
                   const onDelete = async (id: number) => {
-                    // await CartService.
-                    dispatch(deleteCartItem(id));
-                    setCartData(cartData.filter((i) => i.id !== id));
+                    await CartService.DeleteCart(id)
+                      .then(() => {
+                        dispatch(deleteCartItem(id));
+                        setCartData(cartData.filter((i) => i.id !== id));
+                        setSelectedCartIds(
+                          selectedCardIds.filter((i) => i !== id)
+                        );
+                      })
+                      .catch((err) => {
+                        showErrorToast(
+                          "Failed to delete cart item with error:" + err
+                        );
+                      });
                   };
                   const food = foodData.find(
                     (food) => food.id === cart.food.id
                   );
-                  console.log(cart);
-                  console.log(foodData);
-                  console.log(food);
                   if (!food) return null;
                   const foodSize = food.foodSizes.find(
                     (size) => size.id === cart.foodSize.id
@@ -416,49 +452,40 @@ const CartPage = () => {
           content={
             <div className="h-full px-2 flex flex-col gap-8">
               <div className="w-full flex flex-col gap-2">
-                <div className="w-full flex flex-row items-center justify-between">
-                  <span className="text-lg font-semibold">
-                    Your profile information
-                  </span>
-                  <IconButton
-                    icon={<Pen className="w-4 h-4" strokeWidth={2} />}
-                    className="bg-gray-50 shadow-primaryShadow text-primary hover:bg-primary hover:text-white ease-linear duration-100"
-                    onClick={() => {
-                      setCookie("redirect", "/cart");
-                      router.push("/user-setting");
-                    }}
-                  />
-                </div>
+                <IconButton
+                  icon={<Pen className="w-4 h-4" strokeWidth={2} />}
+                  className="self-end bg-gray-50 shadow-primaryShadow text-primary hover:bg-primary hover:text-white ease-linear duration-100"
+                  onClick={() => {
+                    setCookie("redirect", "/cart");
+                    router.push("/user-setting");
+                  }}
+                />
                 <Separate classname="h-[1.5px]" />
-
-                <div className="w-full flex flex-col gap-2">
-                  <Input
-                    id="full-name"
-                    label="Full name"
-                    placeholder="John Doe"
-                    labelColor="text-secondaryWord"
-                    className="text-primaryWord"
-                    disabled
-                  />
-                  <Input
-                    id="address"
-                    label="Address"
-                    placeholder="25/21 Phan Boi Chau Street, Dong Tan, Di An, Binh Duong"
-                    labelColor="text-secondaryWord"
-                    className="text-primaryWord"
-                    disabled
-                  />
-                  <Input
-                    id="phone-number"
-                    label="Phone number"
-                    placeholder="091xxxxxxx"
-                    labelColor="text-secondaryWord"
-                    disabled
-                  />
-                </div>
+                <Input
+                  id="full-name"
+                  label="Full name"
+                  placeholder="John Doe"
+                  labelColor="text-secondaryWord"
+                  className="text-primaryWord"
+                  disabled
+                />
+                <Input
+                  id="address"
+                  label="Address"
+                  placeholder="25/21 Phan Boi Chau Street, Dong Tan, Di An, Binh Duong"
+                  labelColor="text-secondaryWord"
+                  className="text-primaryWord"
+                  disabled
+                />
+                <Input
+                  id="phone-number"
+                  label="Phone number"
+                  placeholder="091xxxxxxx"
+                  labelColor="text-secondaryWord"
+                  disabled
+                />
               </div>
               <div className="w-full flex flex-col gap-2">
-                <h1 className="text-lg font-semibold">More</h1>
                 <Separate classname="h-[1.5px]" />
                 <Input
                   id="discount"
@@ -473,6 +500,42 @@ const CartPage = () => {
                   labelColor="text-primaryWord"
                   className="resize-none h-24"
                 />
+              </div>
+              <div className="w-full flex flex-col gap-2">
+                <Separate classname="h-[1.5px]" />
+                <div className="font-bold">Pay method</div>
+                <div className="w-full flex flex-row items-center justify-start gap-2">
+                  <PayMethodButton
+                    content="Pay with Momo wallet"
+                    icon={
+                      <Image
+                        src="/images/momo_logo.svg"
+                        alt="momo"
+                        className="rounded-lg"
+                        width={40}
+                        height={40}
+                      />
+                    }
+                    selectedButton={selectedPayMethod}
+                    onClick={() =>
+                      handlePayMethodChange("Pay with Momo wallet")
+                    }
+                  />
+                  <PayMethodButton
+                    content="Pay by cash"
+                    icon={
+                      <Image
+                        src="/images/pay_by_cash.png"
+                        alt="momo"
+                        className="rounded-lg"
+                        width={40}
+                        height={40}
+                      />
+                    }
+                    selectedButton={selectedPayMethod}
+                    onClick={() => handlePayMethodChange("Pay by cash")}
+                  />
+                </div>
               </div>
             </div>
           }
@@ -533,7 +596,9 @@ const CartPage = () => {
               <TextButton
                 content="Make payment"
                 className="absolute bottom-0 bg-[#12192c] hover:bg-[#12192c]/90"
-                onClick={() => handleSelectedTabChange("Checkout Details")}
+                onClick={() => {
+                  handleSelectedTabChange("Checkout Details");
+                }}
               />
             </div>
           }
@@ -550,6 +615,7 @@ const CartPage = () => {
                   .filter((cart) => selectedCardIds.includes(cart.id))
                   .sort()
                   .map((cart) => {
+                    if (cart.quantity === 0) return null;
                     const food = foodData.find(
                       (food) => food.id === cart.food.id
                     );
@@ -576,9 +642,39 @@ const CartPage = () => {
                 <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
-                content="Order"
+                iconBefore={isOrdering ? <LoadingIcon /> : null}
+                content={isOrdering ? "" : "Order"}
                 className="absolute bottom-0 bg-[#12192c] hover:bg-[#12192c]/90"
-                onClick={() => handleSelectedTabChange("Order Complete")}
+                onClick={async () => {
+                  if (!thisUser) {
+                    router.push("/login");
+                    return;
+                  }
+                  const cartList = cartData.filter((cart) =>
+                    selectedCardIds.includes(cart.id)
+                  );
+                  setIsOrdering(true);
+                  const totalPrice = subtotal + subtotal * 0.1;
+
+                  await MomoService.MakePayment(
+                    CreateDataForPayment(totalPrice)
+                  )
+                    .then((res) => {
+                      console.log("momo res: ", res);
+                    })
+                    .catch((err) => {
+                      console.log("momo err: ", err);
+                    });
+                  await OrderService.AddOrder(cartList, OrderStatus.PENDING)
+                    .then(() => {
+                      handleSelectedTabChange("Order Complete");
+                      setHasCompletedOrder(true);
+                    })
+                    .catch((err) =>
+                      showErrorToast("Failed to order with error: " + err)
+                    )
+                    .finally(() => setIsOrdering(false));
+                }}
               />
             </div>
           }

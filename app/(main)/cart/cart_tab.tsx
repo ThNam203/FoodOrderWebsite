@@ -10,6 +10,7 @@ const CartTab = ({
   selectedTab,
   setSelectedTab,
   onClick,
+  disabled = false,
 }: {
   className?: ClassValue;
   tabNum: number;
@@ -17,13 +18,20 @@ const CartTab = ({
   selectedTab: string;
   setSelectedTab: (selectedTab: string) => void;
   onClick?: () => void;
+  disabled?: boolean;
 }) => {
   const currentNumStyle = "bg-primary";
   const currentStepStyle = "text-primaryWord";
   const defaultNumStyle = "bg-disableColor";
   const defaultStepStyle = "text-secondaryWord";
   return (
-    <div className="flex flex-row items-center gap-2 select-none">
+    <div
+      className={cn(
+        "flex flex-row items-center gap-2 select-none",
+        disabled ? "select-none" : "",
+        className
+      )}
+    >
       <div
         className={cn(
           "w-6 h-6 flex items-center justify-center font-bold text-white rounded-full",
@@ -34,10 +42,12 @@ const CartTab = ({
       </div>
       <span
         className={cn(
-          "hover:text-primaryWord cursor-pointer font-semibold text-lg",
+          "cursor-pointer font-semibold text-lg",
+          disabled ? "cursor-default" : "hover:text-primaryWord",
           selectedTab === tabName ? currentStepStyle : defaultStepStyle
         )}
         onClick={() => {
+          if (disabled) return;
           setSelectedTab(tabName);
           if (onClick) onClick();
         }}

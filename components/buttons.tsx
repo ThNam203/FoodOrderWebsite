@@ -4,6 +4,7 @@ import { ClassValue } from "clsx";
 import Image from "next/image";
 import React, { ReactNode } from "react";
 import img from "../public/images/bg-login-page.jpg";
+import { Checkbox } from "@nextui-org/react";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
@@ -24,6 +25,16 @@ export interface TagButtonProps extends ButtonProps {
 
 export interface RoundedIconButtonProps extends ButtonProps {
   icon: ReactNode;
+}
+
+export interface PayMethodButtonProps extends ButtonProps {
+  icon: ReactNode;
+  selectedButton?: string;
+  content: string;
+}
+
+export interface CollumnHeaderButtonProps extends TextButtonProps {
+  canSort?: boolean;
 }
 
 export interface RoundedImageButtonProps extends ButtonProps {}
@@ -52,7 +63,7 @@ const TextButton = React.forwardRef<HTMLButtonElement, TextButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "w-full px-2 py-3 bg-primary text-white hover:bg-primary/60 disabled:bg-primary/60 rounded-md text-md font-bold flex flex-row items-center justify-center cursor-pointer disabled:cursor-default",
+          "w-full px-2 py-2 bg-primary text-white hover:bg-primary/60 disabled:bg-primary/60 rounded-md text-md font-bold flex flex-row items-center justify-center cursor-pointer disabled:cursor-default ease-linear duration-100",
           className
         )}
         {...props}
@@ -118,9 +129,64 @@ const RoundedImageButton = ({ className }: { className?: ClassValue }) => {
   );
 };
 
-const OtherButtons = () => {
-  return <button></button>;
-};
+const PayMethodButton = React.forwardRef<
+  HTMLButtonElement,
+  PayMethodButtonProps
+>(({ className, content, selectedButton, icon, onClick, ...props }, ref) => {
+  const selectedStyle = "bg-momoBgColor border-momoBorderColor";
+  const defaultStyle = "bg-white border-borderColor";
+  return (
+    <button
+      ref={ref}
+      className={cn(
+        "min-w-60 w-auto flex flex-row items-center justify-between px-4 py-2 gap-4 ease-linear duration-200 text-primaryWord border rounded-2xl text-md font-bold cursor-pointer disabled:cursor-default",
+        selectedButton === content ? selectedStyle : defaultStyle,
+        className
+      )}
+      onClick={onClick}
+      {...props}
+    >
+      <div className="flex flex-row items-center gap-2">
+        {icon}
+        {content}
+      </div>
+      <Checkbox
+        radius="full"
+        color="danger"
+        size="sm"
+        isSelected={selectedButton === content}
+      />
+    </button>
+  );
+});
+PayMethodButton.displayName = "PayMethodButton";
+
+const CollumnHeaderButton = React.forwardRef<
+  HTMLButtonElement,
+  CollumnHeaderButtonProps
+>(
+  (
+    { className, content, iconBefore, iconAfter, canSort = true, ...props },
+    ref
+  ) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          "w-fit px-2 py-2 gap-2 outline-none border-0 whitespace-nowrap text-secondaryWord bg-white ease-linear duration-100 disabled:bg-gray-100/60 rounded-md flex flex-row items-center justify-center cursor-pointer disabled:cursor-default font-semibold",
+          canSort ? "hover:bg-gray-100 select-none" : "",
+          className
+        )}
+        {...props}
+      >
+        {iconBefore}
+        {content}
+        {iconAfter}
+      </button>
+    );
+  }
+);
+CollumnHeaderButton.displayName = "CollumnHeaderButton";
 
 export {
   IconButton,
@@ -128,4 +194,6 @@ export {
   RoundedImageButton,
   TagButton,
   TextButton,
+  PayMethodButton,
+  CollumnHeaderButton,
 };

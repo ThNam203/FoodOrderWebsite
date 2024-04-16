@@ -71,7 +71,7 @@ export default function SearchAndChooseButton({
   }
 
   return (
-    <div className="relative text-sm">
+    <div className="text-sm w-full">
       <div
         className="h-full min-h-[40px] w-full flex items-center hover:cursor-pointer"
         onClick={() => setIsPopoverOpen((prev) => !prev)}
@@ -81,11 +81,11 @@ export default function SearchAndChooseButton({
         </p>
       </div>
       {isPopoverOpen && (
-        <div className="absolute max-h-[200px] top-full left-0 right-0 overflow-y-auto !rounded-none bg-white z-[1000] shadow-sm shadow-gray-600 scrollbar small-scrollbar">
-          <div className="flex flex-col">
+        <div className="absolute max-h-[200px] w-full top-full left-0 right-0 overflow-y-auto !rounded-none bg-white z-[1000] shadow-sm shadow-gray-600 scrollbar small-scrollbar">
+          <div className="flex flex-col w-full">
             <input
               className={cn(
-                "!m-0 pl-2 h-10 w-full !rounded-none border-0 placeholder:text-xs",
+                "!m-0 pl-2 h-10 w-full !rounded-none border-0 placeholder:text-xs outline-none",
                 results.length === 0 ? "hidden" : ""
               )}
               value={searchInput}
@@ -97,7 +97,7 @@ export default function SearchAndChooseButton({
                 results
               ) : (
                 <li
-                  className="flex flex-row items-center bg-white p-2"
+                  className="w-full flex flex-row items-center bg-white p-2"
                   onMouseDown={(e) => {
                     e.preventDefault();
                   }}

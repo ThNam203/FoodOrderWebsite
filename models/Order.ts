@@ -1,15 +1,18 @@
+import { Cart } from "./Cart";
+import { Food, FoodSize } from "./Food";
+
 export type Order = {
   id: number;
   total: number;
-  status: string;
-  userId: number;
+  status: OrderStatus;
+  items: Cart[];
+  createdAt: Date;
 };
 
-export type OrderDetail = {
-  id: number;
-  quantity: number;
-  price: number;
-  orderId: number;
-  foodId: number;
-  foodSizeId: number;
-};
+export enum OrderStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+}

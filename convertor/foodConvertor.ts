@@ -1,7 +1,5 @@
 import { FoodFormData } from "@/components/NewFoodForm/new_food_form";
-import { Cart } from "@/models/Cart";
 import { Food, FoodCategory } from "@/models/Food";
-import { useAppSelector } from "@/redux/hooks";
 
 const FoodToSend = (food: Food) => {
   const toSend = {
@@ -25,6 +23,7 @@ const FoodToSend = (food: Food) => {
 };
 
 const FoodFormDataToFood = (formData: FoodFormData, category: FoodCategory) => {
+  console.log(category);
   const food: Food = {
     id: 0,
     name: formData.name,
@@ -66,4 +65,4 @@ const FoodToReceive = (data: any): Food => {
   return foodReceived;
 };
 
-export { FoodToSend, FoodToReceive, FoodFormDataToFood };
+export { FoodFormDataToFood, FoodToReceive, FoodToSend };
