@@ -25,7 +25,7 @@ export const menuDefaultVisibilityState = {
   images: true,
   category: true,
   description: true,
-  createdAt: false,
+  createdAt: true,
 };
 
 function imageColumn(accessorKey: string, title: string): ColumnDef<Food> {

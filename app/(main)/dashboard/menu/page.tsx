@@ -18,7 +18,7 @@ import {
 import { setFoodCategories } from "@/redux/slices/category";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import { showErrorToast } from "@/components/toast";
-import { handleFilterCollumn } from "@/utils/func";
+import { handleFilterColumn } from "@/utils/func";
 import { Row } from "@tanstack/react-table";
 import { FoodToReceive } from "@/convertor/foodConvertor";
 
@@ -63,15 +63,20 @@ export default function DashboardMenu() {
     dispatch(setFoods(newData));
   };
 
-  const objectCol: { col: string; keyOfCol: string }[] = [
-    {
-      col: "category",
-      keyOfCol: "name",
-    },
-  ];
+  const handleFilterCategory = (filterInput: string, data: Food[]) => {
+    const filteredData = data.filter((food) =>
+      food.category.name.toLowerCase().includes(filterInput.toLowerCase())
+    );
+    return filteredData;
+  };
   const handleFilterChange = (filterInput: string, col: string) => {
     console.log(filterInput, col);
-    const filteredData = handleFilterCollumn(filterInput, col, data, objectCol);
+    let filteredData = [];
+
+    //special col that cannot filter as default
+    if (col === "category")
+      filteredData = handleFilterCategory(filterInput, data);
+    else filteredData = handleFilterColumn(filterInput, col, data);
     setFilteredData(filteredData);
   };
 

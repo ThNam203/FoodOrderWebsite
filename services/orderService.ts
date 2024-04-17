@@ -1,11 +1,20 @@
 import { CartToSend } from "@/convertor/cartConvertor";
 import { Cart } from "@/models/Cart";
 import AxiosService from "./axiosService";
-import { Order, OrderStatus } from "@/models/Order";
+import { Order, OrderStatus, PaymentMethod } from "@/models/Order";
 import { CartsToOrder, OrderToSend } from "@/convertor/orderConvertor";
+import { User } from "@/models/User";
 
-const AddOrder = (data: Cart[], status: OrderStatus) => {
-  const orderToSend = OrderToSend(CartsToOrder(data), status);
+const AddOrder = (
+  data: Cart[],
+  status: OrderStatus,
+  paymentMethod: PaymentMethod,
+  user: User
+) => {
+  const orderToSend = OrderToSend(
+    CartsToOrder(data, paymentMethod, user),
+    status
+  );
   return AxiosService.post("/api/orders", orderToSend, {
     withCredentials: true,
   });

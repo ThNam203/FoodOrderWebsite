@@ -18,7 +18,7 @@ import {
 import { setFoodCategories } from "@/redux/slices/category";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import { showErrorToast } from "@/components/toast";
-import { handleFilterCollumn } from "@/utils/func";
+import { handleFilterColumn } from "@/utils/func";
 import { Row } from "@tanstack/react-table";
 import { FoodToReceive } from "@/convertor/foodConvertor";
 import { Order, OrderStatus } from "@/models/Order";
@@ -55,16 +55,9 @@ export default function OrderManagement() {
     setFilteredData(data);
   }, [data]);
 
-  const [openNewFoodForm, setOpenNewFoodForm] = useState(false);
-  const objectCol: { col: string; keyOfCol: string }[] = [
-    {
-      col: "items",
-      keyOfCol: "",
-    },
-  ];
   const handleFilterChange = (filterInput: string, col: string) => {
     console.log(filterInput, col);
-    const filteredData = handleFilterCollumn(filterInput, col, data, objectCol);
+    const filteredData = handleFilterColumn(filterInput, col, data);
     setFilteredData(filteredData);
   };
 
@@ -95,14 +88,14 @@ export default function OrderManagement() {
         data={filteredData}
         columns={orderTableColumns(rowUpdating, onStatusChange)}
         columnTitles={orderColumnTitles}
-        // infoTabs={[
-        //   {
-        //     render(row, setShowTabs) {
-        //       return <FoodDetailTab row={row} setShowTabs={setShowTabs} />;
-        //     },
-        //     tabName: "Food details",
-        //   },
-        // ]}
+        infoTabs={[
+          {
+            render(row, setShowTabs) {
+              return <OrderDetailTab row={row} setShowTabs={setShowTabs} />;
+            },
+            tabName: "Order details",
+          },
+        ]}
         config={{
           defaultVisibilityState: orderDefaultVisibilityState,
           showFilterButton: true,
@@ -122,17 +115,17 @@ export default function OrderManagement() {
   );
 }
 
-const FoodDetailTab = ({
+const OrderDetailTab = ({
   row,
   setShowTabs,
 }: {
-  row: Row<Food>;
+  row: Row<Order>;
   setShowTabs: (value: boolean) => any;
 }) => {
-  const food = row.original;
+  const order = row.original;
   return (
     <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">
-      Food detail
+      Order detail
     </div>
   );
 };

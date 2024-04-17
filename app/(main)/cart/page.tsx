@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CartContent, CartTab } from "./cart_tab";
 import OrderService from "@/services/orderService";
-import { OrderStatus } from "@/models/Order";
+import { OrderStatus, PaymentMethod } from "@/models/Order";
 import LoadingCircle from "@/components/LoadingCircle/loading_circle";
 import { LoadingIcon } from "@/components/icons";
 import { CreateDataForPayment } from "@/convertor/momoConvertor";
@@ -237,21 +237,15 @@ const EmptyCart = () => {
   );
 };
 
-const getCookieSelectedCardIds = () => {
-  const cookieRes = getCookie("selectedCardIds");
-  if (!cookieRes) return null;
-  return (JSON.parse(cookieRes as string) as string)
-    .split(",")
-    .map((strNum) => Number.parseInt(strNum));
-};
-
 const CartPage = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [cartData, setCartData] = useState<Cart[]>([]);
   const [foodData, setFoodData] = useState<Food[]>([]);
   const [selectedCardIds, setSelectedCartIds] = useState<number[]>([]);
-  const [selectedPayMethod, setSelectedPayMethod] = useState("");
+  const [selectedPayMethod, setSelectedPayMethod] = useState<PaymentMethod>(
+    PaymentMethod.MOMO
+  );
   const [subtotal, setSubtotal] = useState(0);
   const rightColRef = useRef<HTMLDivElement>(null);
   const [selectedTab, setSelectedTab] = useState(
@@ -268,8 +262,8 @@ const CartPage = () => {
       setSelectedCartIds([...selectedCardIds, id]);
     }
   };
-  const handlePayMethodChange = (method: string) => {
-    if (selectedPayMethod === method) setSelectedPayMethod("");
+  const handlePayMethodChange = (method: PaymentMethod) => {
+    if (selectedPayMethod === method) return;
     else setSelectedPayMethod(method);
   };
   const handleSelectedTabChange = (nextTab: string) => {
@@ -307,10 +301,6 @@ const CartPage = () => {
       rightColRef.current.classList.add("p-8");
     }
   };
-  const updateSelectedCardIdsCookie = (cardIds: number[]) => {
-    if (cardIds.length === 0) setCookie("selectedCardIds", "");
-    else setCookie("selectedCardIds", JSON.stringify(cardIds.join(",")));
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -333,7 +323,6 @@ const CartPage = () => {
     };
     fetchData();
     setCookie("redirect", "");
-    setSelectedCartIds(getCookieSelectedCardIds() || []);
   }, []);
 
   //use to calculate subtotal
@@ -357,11 +346,6 @@ const CartPage = () => {
     });
     setSubtotal(tempSubtotal);
   }, [selectedCardIds, cartData, foodData]);
-
-  //use to update selectedCardIds cookie
-  useEffect(() => {
-    updateSelectedCardIdsCookie(selectedCardIds);
-  }, [selectedCardIds]);
 
   return (
     <div className="w-full font-sans flex flex-row">
@@ -500,10 +484,10 @@ const CartPage = () => {
               </div>
               <div className="w-full flex flex-col gap-2">
                 <Separate classname="h-[1.5px]" />
-                <div className="font-bold">Pay method</div>
+                <div className="font-bold">Payment method</div>
                 <div className="w-full flex flex-row items-center justify-start gap-2">
                   <PayMethodButton
-                    content="Pay with Momo wallet"
+                    content={PaymentMethod.MOMO}
                     icon={
                       <Image
                         src="/images/momo_logo.svg"
@@ -514,12 +498,10 @@ const CartPage = () => {
                       />
                     }
                     selectedButton={selectedPayMethod}
-                    onClick={() =>
-                      handlePayMethodChange("Pay with Momo wallet")
-                    }
+                    onClick={() => handlePayMethodChange(PaymentMethod.MOMO)}
                   />
                   <PayMethodButton
-                    content="Pay by cash"
+                    content={PaymentMethod.CASH}
                     icon={
                       <Image
                         src="/images/pay_by_cash.png"
@@ -530,7 +512,7 @@ const CartPage = () => {
                       />
                     }
                     selectedButton={selectedPayMethod}
-                    onClick={() => handlePayMethodChange("Pay by cash")}
+                    onClick={() => handlePayMethodChange(PaymentMethod.CASH)}
                   />
                 </div>
               </div>
@@ -662,10 +644,21 @@ const CartPage = () => {
                   //   .catch((err) => {
                   //     console.log("momo err: ", err);
                   //   });
-                  await OrderService.AddOrder(cartList, OrderStatus.PENDING)
+                  await OrderService.AddOrder(
+                    cartList,
+                    OrderStatus.PENDING,
+                    selectedPayMethod,
+                    thisUser
+                  )
                     .then(() => {
                       handleSelectedTabChange("Order Complete");
                       setHasCompletedOrder(true);
+                      setCartData(
+                        cartData.filter(
+                          (cart) => !selectedCardIds.includes(cart.id)
+                        )
+                      );
+                      setSelectedCartIds([]);
                     })
                     .catch((err) =>
                       showErrorToast("Failed to order with error: " + err)

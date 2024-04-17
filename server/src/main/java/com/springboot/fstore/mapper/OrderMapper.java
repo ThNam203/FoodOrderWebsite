@@ -11,7 +11,7 @@ public class OrderMapper {
                 .status(order.getStatus())
                 .paymentMethod(order.getPaymentMethod())
                 .items(order.getItems() != null ? order.getItems().stream().map(CartMapper::toCartDTO).toList() : null)
-                .userId(order.getUser() != null ? order.getUser().getId() : null)
+                .user(order.getUser() != null ? order.getUser() : null)
                 .createdAt(order.getCreatedAt())
                 .build();
     }

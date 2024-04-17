@@ -25,19 +25,24 @@ import { showErrorToast } from "@/components/toast";
 import { LoadingIcon } from "@/components/icons";
 import { useForceUpdate } from "framer-motion";
 import { setOrders } from "@/redux/slices/order";
+import { User } from "@/models/User";
 
 export const orderColumnTitles = {
   id: "Order ID",
+  user: "Customer",
   total: "Total",
   status: "Status",
-  createdAt: "Created Date",
+  paymentMethod: "Payment method",
+  createdAt: "Order date",
 };
 
 export const orderDefaultVisibilityState = {
   id: true,
+  user: true,
   total: true,
   status: true,
-  createdAt: false,
+  paymentMethod: true,
+  createdAt: true,
 };
 
 // function imageColumn(accessorKey: string, title: string): ColumnDef<Food> {
@@ -156,6 +161,40 @@ const statusColumn = (
   return col;
 };
 
+const userColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
+  const col: ColumnDef<Order> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
+    cell: ({ row }) => {
+      let value: User = row.getValue(accessorKey);
+      console.log(value);
+
+      return <p className="px-2">{value.name}</p>;
+    },
+    enableSorting: true,
+  };
+  return col;
+};
+
+const totalColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
+  const col: ColumnDef<Order> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
+    cell: ({ row }) => {
+      let value: number = row.getValue(accessorKey);
+      console.log(value);
+
+      return <p className="px-2">{value + "đ"}</p>;
+    },
+    enableSorting: true,
+  };
+  return col;
+};
+
 export const orderTableColumns = (
   rowUpdating: number[],
   onStatusChange: (id: number, status: OrderStatus) => Promise<void>
@@ -171,6 +210,8 @@ export const orderTableColumns = (
         rowUpdating,
         onStatusChange
       );
+    else if (key === "user") col = userColumn(key, orderColumnTitles[key]);
+    else if (key === "total") col = totalColumn(key, orderColumnTitles[key]);
     else col = defaultColumn<Order>(key, orderColumnTitles);
     columns.push(col);
   }

@@ -31,6 +31,7 @@ import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
 import { Input } from "../input";
 import { showErrorToast } from "../toast";
+import { formatNumberInput, formatPrice } from "@/utils/func";
 
 export type FoodFormData = {
   name: string;
@@ -323,13 +324,13 @@ export const NewFoodForm = ({
             <div className="flex-1" />
             <TextButton
               type="submit"
-              className="w-[100px] px-4 bg-primary hover:bg-primary/60 text-white"
+              className="w-[100px] px-4 text-white"
               disabled={isUploadingFood}
               content="Save"
             />
             <TextButton
               type="button"
-              className="w-[100px] bg-gray-400 px-4 hover:bg-gray-500"
+              className="w-[100px] bg-gray-400 px-4 hover:bg-gray-500 disabled:bg-gray-400/60"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -617,7 +618,9 @@ const FoodVariantView = ({
               min={0}
               value={price === 0 ? undefined : price}
               placeholder="0"
-              onChange={(e) => onPriceChanged(e.target.valueAsNumber)}
+              onChange={(e) => {
+                onPriceChanged(e.target.valueAsNumber);
+              }}
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
           </div>
