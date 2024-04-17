@@ -16,6 +16,8 @@ public class OrderDTO {
     private int id;
     private Double total;
     private String status;
+    private String paymentMethod;
     private List<CartDTO> items;
     private LocalDateTime createdAt;
+    private Integer userId;
 }

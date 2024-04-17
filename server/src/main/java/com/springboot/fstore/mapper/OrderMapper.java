@@ -9,7 +9,9 @@ public class OrderMapper {
                 .id(order.getId())
                 .total(order.getTotal())
                 .status(order.getStatus())
+                .paymentMethod(order.getPaymentMethod())
                 .items(order.getItems() != null ? order.getItems().stream().map(CartMapper::toCartDTO).toList() : null)
+                .userId(order.getUser() != null ? order.getUser().getId() : null)
                 .createdAt(order.getCreatedAt())
                 .build();
     }
@@ -17,6 +19,7 @@ public class OrderMapper {
         return Order.builder()
                 .total(orderDTO.getTotal())
                 .status(orderDTO.getStatus())
+                .paymentMethod(orderDTO.getPaymentMethod())
                 .build();
     }
 }
