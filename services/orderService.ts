@@ -19,9 +19,9 @@ const GetOrder = (id: number) => {
   return AxiosService.get(`/api/orders/${id}`, { withCredentials: true });
 };
 
-const UpdateOrder = (id: number, data: Order, status: OrderStatus) => {
-  const orderToSend = OrderToSend(data, status);
-  return AxiosService.put(`/api/orders/${id}`, orderToSend, {
+const UpdateOrder = (id: number, status: OrderStatus) => {
+  const statusToSend = { status: status };
+  return AxiosService.put(`/api/orders/${id}`, statusToSend, {
     withCredentials: true,
   });
 };

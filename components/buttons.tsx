@@ -63,7 +63,7 @@ const TextButton = React.forwardRef<HTMLButtonElement, TextButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "w-full px-2 py-2 bg-primary text-white hover:bg-primary/60 disabled:bg-primary/60 rounded-md text-md font-bold flex flex-row items-center justify-center cursor-pointer disabled:cursor-default ease-linear duration-100",
+          "w-fit px-2 py-2 bg-primary text-white hover:bg-primary/60 disabled:bg-primary/60 rounded-md text-md font-bold flex flex-row items-center justify-center cursor-pointer disabled:cursor-default ease-linear duration-100",
           className
         )}
         {...props}

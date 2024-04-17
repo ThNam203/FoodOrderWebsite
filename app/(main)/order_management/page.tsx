@@ -11,9 +11,9 @@ import { use, useEffect, useState } from "react";
 
 import { cn } from "@/utils/cn";
 import {
-  menuColumnTitles,
-  menuDefaultVisibilityState,
-  menuTableColumns,
+  orderColumnTitles,
+  orderDefaultVisibilityState,
+  orderTableColumns,
 } from "./table_columns";
 import { setFoodCategories } from "@/redux/slices/category";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
@@ -21,30 +21,28 @@ import { showErrorToast } from "@/components/toast";
 import { handleFilterCollumn } from "@/utils/func";
 import { Row } from "@tanstack/react-table";
 import { FoodToReceive } from "@/convertor/foodConvertor";
+import { Order, OrderStatus } from "@/models/Order";
+import OrderService from "@/services/orderService";
+import { OrderToReceive } from "@/convertor/orderConvertor";
+import { setOrders } from "@/redux/slices/order";
 
-export default function DashboardMenu() {
+export default function OrderManagement() {
   const dispatch = useAppDispatch();
-  const [data, setData] = useState<Food[]>([]);
-  const [filteredData, setFilteredData] = useState<Food[]>(data);
-  const categories = useAppSelector((state: any) => state.foodCategory.value);
-  const filterOptionKeys = Object.keys(menuColumnTitles)
+  const data: Order[] = useAppSelector((state) => state.order.orders);
+  const [rowUpdating, setRowUpdating] = useState<number[]>([]);
+  const [filteredData, setFilteredData] = useState<Order[]>(data);
+  const filterOptionKeys = Object.keys(orderColumnTitles)
     .filter((key) => key !== "images")
     .map((key) => key);
 
   useEffect(() => {
     const fetchData = async () => {
       dispatch(showPreloader());
-      await FoodService.getAllFood()
+      await OrderService.GetAllOrders()
         .then((res) => {
-          const data = res.data.map((food) => FoodToReceive(food));
-          setData(data);
-          dispatch(setFoods(data));
+          const data = res.data.map((order: any) => OrderToReceive(order));
+          dispatch(setOrders(data));
         })
-        .catch((err) => {
-          showErrorToast(err.message);
-        });
-      await FoodService.getCategories()
-        .then((data) => dispatch(setFoodCategories(data.data)))
         .catch((err) => {
           showErrorToast(err.message);
         });
@@ -58,15 +56,10 @@ export default function DashboardMenu() {
   }, [data]);
 
   const [openNewFoodForm, setOpenNewFoodForm] = useState(false);
-  const onDeleteClick = (id: number) => {
-    const newData = data.filter((f) => f.id !== id);
-    dispatch(setFoods(newData));
-  };
-
   const objectCol: { col: string; keyOfCol: string }[] = [
     {
-      col: "category",
-      keyOfCol: "name",
+      col: "items",
+      keyOfCol: "",
     },
   ];
   const handleFilterChange = (filterInput: string, col: string) => {
@@ -75,47 +68,56 @@ export default function DashboardMenu() {
     setFilteredData(filteredData);
   };
 
+  const onStatusChange = async (id: number, status: OrderStatus) => {
+    setRowUpdating([...rowUpdating, id]);
+    await OrderService.UpdateOrder(id, status)
+      .then((res) => {
+        const updatedOrder = OrderToReceive(res.data);
+        const newData = data.map((order) =>
+          order.id === updatedOrder.id ? updatedOrder : order
+        );
+        dispatch(setOrders(newData));
+      })
+      .catch((err) => {
+        showErrorToast(err.message);
+      })
+      .finally(() => {
+        setRowUpdating(rowUpdating.filter((rowId) => rowId !== id));
+      });
+  };
+
   return (
     <div className="flex flex-col p-8 text-primaryWord">
       <div className="flex flex-row justify-between mb-4">
-        <h1 className="text-4xl font-bold text-primary">Menu</h1>
+        <h1 className="text-4xl font-bold text-primary">Order management</h1>
       </div>
       <CustomDatatable
         data={filteredData}
-        columns={menuTableColumns()}
-        columnTitles={menuColumnTitles}
-        buttons={[
-          <div key={1} className="flex flex-row items-center justify-end gap-2">
-            <TextButton
-              content="Add new food"
-              className="w-fit whitespace-nowrap py-2"
-              onClick={() => setOpenNewFoodForm(true)}
-            />
-          </div>,
-        ]}
-        infoTabs={[
-          {
-            render(row, setShowTabs) {
-              return <FoodDetailTab row={row} setShowTabs={setShowTabs} />;
-            },
-            tabName: "Food details",
-          },
-        ]}
+        columns={orderTableColumns(rowUpdating, onStatusChange)}
+        columnTitles={orderColumnTitles}
+        // infoTabs={[
+        //   {
+        //     render(row, setShowTabs) {
+        //       return <FoodDetailTab row={row} setShowTabs={setShowTabs} />;
+        //     },
+        //     tabName: "Food details",
+        //   },
+        // ]}
         config={{
-          defaultVisibilityState: menuDefaultVisibilityState,
+          defaultVisibilityState: orderDefaultVisibilityState,
           showFilterButton: true,
           filterOptionKeys: filterOptionKeys,
           showDataTableViewOptions: true,
           onFilterChange: handleFilterChange,
         }}
       />
-      {openNewFoodForm && (
+      {/* {openNewFoodForm && (
         <NewFoodForm
           categories={categories}
           closeForm={() => setOpenNewFoodForm(false)}
           onNewFoodSubmit={(food: Food) => setData([...data, food])}
         />
-      )}
+      )} */}
     </div>
   );
 }

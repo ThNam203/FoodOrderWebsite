@@ -237,12 +237,6 @@ const EmptyCart = () => {
   );
 };
 
-const getCookieCartData = () => {
-  const cookieRes = getCookie("cartData");
-  if (!cookieRes) return null;
-  return JSON.parse(cookieRes as string) as Cart[];
-};
-
 const getCookieSelectedCardIds = () => {
   const cookieRes = getCookie("selectedCardIds");
   if (!cookieRes) return null;
@@ -314,10 +308,8 @@ const CartPage = () => {
     }
   };
   const updateSelectedCardIdsCookie = (cardIds: number[]) => {
-    setCookie(
-      "selectedCardIds",
-      cardIds.length > 0 ? JSON.stringify(cardIds.join(",")) : ""
-    );
+    if (cardIds.length === 0) setCookie("selectedCardIds", "");
+    else setCookie("selectedCardIds", JSON.stringify(cardIds.join(",")));
   };
 
   useEffect(() => {
@@ -344,6 +336,7 @@ const CartPage = () => {
     setSelectedCartIds(getCookieSelectedCardIds() || []);
   }, []);
 
+  //use to calculate subtotal
   useEffect(() => {
     let tempSubtotal = 0;
     const selectedCarts = cartData.filter((cart) =>
@@ -363,8 +356,12 @@ const CartPage = () => {
       tempSubtotal += foodSize.price * cart.quantity;
     });
     setSubtotal(tempSubtotal);
-    updateSelectedCardIdsCookie(selectedCardIds);
   }, [selectedCardIds, cartData, foodData]);
+
+  //use to update selectedCardIds cookie
+  useEffect(() => {
+    updateSelectedCardIdsCookie(selectedCardIds);
+  }, [selectedCardIds]);
 
   return (
     <div className="w-full font-sans flex flex-row">
@@ -563,12 +560,12 @@ const CartPage = () => {
               <div className="w-1/2 flex flex-row items-center justify-between gap-4 mt-8">
                 <TextButton
                   content="View order"
-                  className="bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord"
+                  className="w-1/2 bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord"
                   onClick={() => router.push("/")}
                 />
                 <TextButton
                   content="Continue shopping"
-                  className="text-nowrap"
+                  className="w-1/2 text-nowrap"
                   onClick={() => router.push("/browse")}
                 />
               </div>
@@ -595,7 +592,7 @@ const CartPage = () => {
               </div>
               <TextButton
                 content="Make payment"
-                className="absolute bottom-0 bg-[#12192c] hover:bg-[#12192c]/90"
+                className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={() => {
                   handleSelectedTabChange("Checkout Details");
                 }}
@@ -644,7 +641,7 @@ const CartPage = () => {
               <TextButton
                 iconBefore={isOrdering ? <LoadingIcon /> : null}
                 content={isOrdering ? "" : "Order"}
-                className="absolute bottom-0 bg-[#12192c] hover:bg-[#12192c]/90"
+                className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={async () => {
                   if (!thisUser) {
                     router.push("/login");
@@ -656,15 +653,15 @@ const CartPage = () => {
                   setIsOrdering(true);
                   const totalPrice = subtotal + subtotal * 0.1;
 
-                  await MomoService.MakePayment(
-                    CreateDataForPayment(totalPrice)
-                  )
-                    .then((res) => {
-                      console.log("momo res: ", res);
-                    })
-                    .catch((err) => {
-                      console.log("momo err: ", err);
-                    });
+                  // await MomoService.MakePayment(
+                  //   CreateDataForPayment(totalPrice)
+                  // )
+                  //   .then((res) => {
+                  //     console.log("momo res: ", res);
+                  //   })
+                  //   .catch((err) => {
+                  //     console.log("momo err: ", err);
+                  //   });
                   await OrderService.AddOrder(cartList, OrderStatus.PENDING)
                     .then(() => {
                       handleSelectedTabChange("Order Complete");

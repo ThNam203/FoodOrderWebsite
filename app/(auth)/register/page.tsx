@@ -101,7 +101,7 @@ export default function RegisterPage() {
             type="submit"
             iconBefore={isSigningUp ? <LoadingIcon /> : null}
             content={isSigningUp ? "" : "Sign Up"}
-            className="mt-10 text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
+            className="w-full mt-10 text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
             disabled={isSigningUp}
           />
 

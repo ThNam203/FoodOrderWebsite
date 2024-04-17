@@ -24,7 +24,7 @@ function DataTableColumnHeader<TData, TValue>({
   return (
     <div
       className={cn(
-        "font-sans w-min flex items-center space-x-2 text-primaryWord",
+        "font-sans w-min flex items-center space-x-2 text-primaryWord justify-stretch",
         className
       )}
     >
@@ -42,7 +42,7 @@ function DataTableColumnHeader<TData, TValue>({
             }
             canSort={column.getCanSort()}
             content={title}
-            className="data-[state=open]:bg-accent text-left justify-self-stretch"
+            className="data-[state=open]:bg-accent text-left"
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent

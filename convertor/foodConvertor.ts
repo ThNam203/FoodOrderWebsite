@@ -43,7 +43,7 @@ const FoodFormDataToFood = (formData: FoodFormData, category: FoodCategory) => {
     rating: 0,
     tags: [],
     status: formData.status,
-    createdDate: new Date().toString(),
+    createdAt: new Date().toString(),
   };
   return food;
 };
@@ -60,7 +60,7 @@ const FoodToReceive = (data: any): Food => {
     rating: data.rating,
     tags: data.tags,
     status: data.status,
-    createdDate: data.createdDate,
+    createdAt: data.createdAt,
   };
   return foodReceived;
 };

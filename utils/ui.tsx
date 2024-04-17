@@ -1,73 +1,44 @@
 import { useEffect, useState } from "react";
 import { cn } from "./cn";
-import { Filter } from "lucide-react";
+import { CalendarDays, Filter } from "lucide-react";
 import { ScrollArea } from "@/components/scroll-area";
 import { TextButton } from "@/components/buttons";
+import { format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
+import { TimerFilterRangePicker } from "@/components/filter";
 
-const PageWithFilters = ({
-  title,
-  filters,
-  headerButtons,
-  children,
+function MyDateRangePicker({
+  rangeTimeValue = { startDate: new Date(), endDate: new Date() },
+  onRangeTimeFilterChanged,
 }: {
-  title: string;
-  filters: React.JSX.Element[];
-  headerButtons?: React.JSX.Element[];
-  children: React.ReactNode;
-}) => {
-  const [openFilter, setOpenFilter] = useState(false);
-
-  useEffect(() => {
-    const screenObserver = (e: MediaQueryListEvent) => {
-      if (e.matches) setOpenFilter(false);
-    };
-
-    const mql = window.matchMedia("(min-width: 768px)");
-    mql.addEventListener("change", screenObserver);
-    return () => {
-      mql.removeEventListener("change", screenObserver);
-    };
-  }, []);
-
+  rangeTimeValue?: { startDate: Date; endDate: Date };
+  onRangeTimeFilterChanged?: (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => void;
+}) {
+  const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
   return (
-    <>
-      <div
-        className={cn(
-          "flex min-h-screen min-w-0 flex-1 flex-col rounded-sm bg-white px-4 pb-2 md:mr-[200px] lg:mr-[260px]"
-        )}
-      >
-        {openFilter ? null : children}
-      </div>
-      <div
-        className={cn(
-          "fixed top-2 h-full overflow-hidden",
-          openFilter
-            ? "left-0 top-0 z-[50] w-full bg-slate-400 p-3"
-            : "max-md:hidden md:right-2 md:w-[200px] lg:w-[260px]"
-        )}
-      >
-        <div className="flex flex-col">
-          <ScrollArea
-            className={cn("rounded-md", openFilter ? "pr-[1px]" : "")}
-          >
-            <div className={openFilter ? "h-[calc(96vh-40px)]" : "h-[96vh]"}>
-              {...filters}
-            </div>
-          </ScrollArea>
-          {openFilter ? (
-            <TextButton
-              className="mt-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenFilter(false);
-              }}
-              content="Close Filters"
-            />
-          ) : null}
-        </div>
-      </div>
-    </>
+    <div className="h-10 px-4 flex flex-row items-center bg-white rounded-md border gap-2">
+      <label className="text-[0.8rem] flex-1 hover:cursor-pointer font-normal">
+        {format(rangeTimeValue.startDate, "dd/MM/yyyy") +
+          " - " +
+          format(rangeTimeValue.endDate, "dd/MM/yyyy")}
+      </label>
+      <Popover isOpen={isRangeFilterOpen} onOpenChange={setIsRangeFilterOpen}>
+        <PopoverTrigger>
+          <CalendarDays size={16} />
+        </PopoverTrigger>
+        <PopoverContent className="w-auto -translate-x-4 flex flex-col">
+          <TimerFilterRangePicker
+            defaultValue={rangeTimeValue}
+            onValueChange={onRangeTimeFilterChanged}
+            setIsRangeFilterOpen={setIsRangeFilterOpen}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
   );
-};
+}
 
-export { PageWithFilters };
+export { MyDateRangePicker };

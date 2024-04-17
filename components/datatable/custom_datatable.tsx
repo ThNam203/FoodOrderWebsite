@@ -13,23 +13,33 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { FileDown, FileUp } from "lucide-react";
-import { useRef, useState } from "react";
+import { FileDown, FileUp, Filter } from "lucide-react";
+import { Key, useEffect, useMemo, useRef, useState } from "react";
 import { TextButton } from "../buttons";
 import { LoadingIcon } from "../icons";
 import { Input } from "../input";
 import CustomDataTableContent from "./custom_datatable_content";
 import { TabProps } from "./custom_datatable_row";
 import { DataTableViewOptions } from "./my_table_column_visibility_toggle";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 
 export type DatatableConfig<TData> = {
   showDefaultSearchInput?: boolean;
+  showFilterButton?: boolean;
   alternativeSearchInput?: JSX.Element;
   showDataTableViewOptions?: boolean;
   showRowSelectedCounter?: boolean;
   onDeleteRowsBtnClick?: (dataToDelete: TData[]) => Promise<any>; // if null, remove button
   onExportExcelBtnClick?: (table: ReactTable<TData>) => void; // if null, remove button
   onImportExcelBtnClick?: (table: ReactTable<TData>) => void; // if null, remove button
+  filterOptionKeys?: string[];
+  onFilterChange?: (filterInput: string, col: string) => void;
   defaultVisibilityState?: {
     [key: string]: boolean;
   };
@@ -38,6 +48,7 @@ export type DatatableConfig<TData> = {
 
 const defaultConfig: DatatableConfig<any> = {
   showDefaultSearchInput: true,
+  showFilterButton: true,
   alternativeSearchInput: undefined,
   showDataTableViewOptions: true,
   showRowSelectedCounter: true,
@@ -45,6 +56,7 @@ const defaultConfig: DatatableConfig<any> = {
   onDeleteRowsBtnClick: undefined,
   onExportExcelBtnClick: undefined,
   onImportExcelBtnClick: undefined,
+  filterOptionKeys: [],
   className: "",
 };
 
@@ -79,6 +91,8 @@ export function CustomDatatable<TData>({
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [filterInput, setFilterInput] = useState("");
+  const [filterKeys, setFilterKeys] = useState(config.filterOptionKeys ?? []);
+  const [selectedFilterKey, setSelectedFilterKey] = useState("");
 
   const table = useReactTable<TData>({
     data,
@@ -104,6 +118,11 @@ export function CustomDatatable<TData>({
 
   const [isDeletingCodes, setIsDeletingCodes] = useState(false);
 
+  const handleFilterChange = (filterInput: string, col: string) => {
+    setSelectedFilterKey(col);
+    if (config.onFilterChange) config.onFilterChange(filterInput, col);
+  };
+
   return (
     <div ref={tableContainerRef} className="w-full space-y-2">
       <div
@@ -112,15 +131,57 @@ export function CustomDatatable<TData>({
           config.className
         )}
       >
-        {!config.showDefaultSearchInput ||
-        config.alternativeSearchInput ? null : (
-          <Input
-            placeholder="Search anything..."
-            value={filterInput}
-            onChange={(event) => setFilterInput(event.target.value)}
-            className="max-w-sm"
-          />
-        )}
+        <div className="flex flex-row items-center justify-stretch gap-2">
+          {!config.showDefaultSearchInput ||
+          config.alternativeSearchInput ? null : (
+            <Input
+              placeholder="Search anything..."
+              value={filterInput}
+              onChange={(event) => {
+                setFilterInput(event.target.value);
+                if (selectedFilterKey !== "")
+                  handleFilterChange(event.target.value, selectedFilterKey);
+              }}
+              className="max-w-sm shrink-0 w-[300px] py-2"
+            />
+          )}
+          {!config.showFilterButton ? null : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <TextButton
+                  iconBefore={<Filter className="h-4 w-4" />}
+                  content={columnTitles[selectedFilterKey] || "Filter"}
+                  className="gap-2 whitespace-nowrap text-secondaryWord bg-gray-100 hover:bg-gray-200 ease-linear duration-100 py-2 rounded-md cursor-pointer outline-none select-none"
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="font-sans bg-white text-secondaryWord">
+                <DropdownMenuCheckboxItem
+                  key="all"
+                  checked={selectedFilterKey === ""}
+                  onClick={(checked) => {
+                    handleFilterChange(filterInput, "");
+                  }}
+                  className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
+                >
+                  All columns
+                </DropdownMenuCheckboxItem>
+                {filterKeys.map((key) => (
+                  <DropdownMenuCheckboxItem
+                    key={key}
+                    checked={selectedFilterKey === key}
+                    onClick={(checked) => {
+                      handleFilterChange(filterInput, key);
+                    }}
+                    className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
+                  >
+                    {columnTitles[key]}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+
         {config.alternativeSearchInput}
         <div className="flex flex-row items-center gap-2">
           {config.onDeleteRowsBtnClick !== undefined &&
