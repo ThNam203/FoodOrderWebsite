@@ -7,6 +7,7 @@ public class UserMapper {
     public static UserDTO toUserDTO(User user) {
         return UserDTO.builder()
                 .id(user.getId())
+                .name(user.getName())
                 .email(user.getEmail())
                 .address(user.getAddress())
                 .phoneNumber(user.getPhoneNumber())
@@ -19,6 +20,7 @@ public class UserMapper {
 
     public static User toUser(UserDTO userDTO) {
         return User.builder()
+                .name(userDTO.getName())
                 .email(userDTO.getEmail())
                 .address(userDTO.getAddress())
                 .phoneNumber(userDTO.getPhoneNumber())

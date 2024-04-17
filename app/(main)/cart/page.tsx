@@ -30,6 +30,7 @@ import LoadingCircle from "@/components/LoadingCircle/loading_circle";
 import { LoadingIcon } from "@/components/icons";
 import { CreateDataForPayment } from "@/convertor/momoConvertor";
 import MomoService from "@/services/momoService";
+import { isValidInfomation } from "@/utils/func";
 const Title = ({
   className,
   content,
@@ -273,16 +274,14 @@ const CartPage = () => {
       return;
     }
     if (nextTab === "Order Complete") {
+      if (selectedCardIds.length === 0) {
+        showDefaultToast("Please select at least one item in your cart");
+        return;
+      }
       collapseRightColumn();
     }
     if (selectedTab === "Order Complete") {
       appearRightColumn();
-    }
-    if (nextTab === "Checkout Details") {
-      if (selectedCardIds.length === 0) {
-        showDefaultToast("Please select at least one item");
-        return;
-      }
     }
     setSelectedTab(nextTab);
   };
@@ -445,15 +444,18 @@ const CartPage = () => {
                 <Input
                   id="full-name"
                   label="Full name"
-                  placeholder="John Doe"
+                  placeholder={thisUser ? thisUser.name : ""}
                   labelColor="text-secondaryWord"
                   className="text-primaryWord"
+                  onClick={() => {
+                    console.log("click", thisUser);
+                  }}
                   disabled
                 />
                 <Input
                   id="address"
                   label="Address"
-                  placeholder="25/21 Phan Boi Chau Street, Dong Tan, Di An, Binh Duong"
+                  placeholder={thisUser ? thisUser.address : ""}
                   labelColor="text-secondaryWord"
                   className="text-primaryWord"
                   disabled
@@ -461,7 +463,7 @@ const CartPage = () => {
                 <Input
                   id="phone-number"
                   label="Phone number"
-                  placeholder="091xxxxxxx"
+                  placeholder={thisUser ? thisUser.phoneNumber : ""}
                   labelColor="text-secondaryWord"
                   disabled
                 />
@@ -627,6 +629,15 @@ const CartPage = () => {
                 onClick={async () => {
                   if (!thisUser) {
                     router.push("/login");
+                    return;
+                  }
+                  if (
+                    !isValidInfomation(thisUser.phoneNumber) ||
+                    !isValidInfomation(thisUser.address)
+                  ) {
+                    showDefaultToast(
+                      "Please fill in your address and phone number in your profile"
+                    );
                     return;
                   }
                   const cartList = cartData.filter((cart) =>

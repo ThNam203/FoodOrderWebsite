@@ -13,8 +13,10 @@ const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     const getGlobalData = async () => {
-      const profile = await UserService.getProfile();
-      dispatch(setProfile(profile.data));
+      await UserService.getProfile().then((res) => {
+        const profile = res.data;
+        dispatch(setProfile(res.data));
+      });
     };
 
     getGlobalData()

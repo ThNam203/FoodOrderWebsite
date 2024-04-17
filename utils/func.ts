@@ -50,4 +50,15 @@ function handleFilterColumn<T>(
   return filterList;
 }
 
-export { formatNumberInput, formatPrice, formatDate, handleFilterColumn };
+const isValidInfomation = (info: string | null | undefined) => {
+  if (info === null || info === undefined || info === "") return false;
+  return true;
+};
+
+export {
+  formatNumberInput,
+  formatPrice,
+  formatDate,
+  handleFilterColumn,
+  isValidInfomation,
+};

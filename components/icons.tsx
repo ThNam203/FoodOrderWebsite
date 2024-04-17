@@ -156,8 +156,8 @@ export const LoadingIcon = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="1em"
-      height="1em"
+      width="20px"
+      height="20px"
       viewBox="0 0 24 24"
     >
       <circle cx="12" cy="2" r="0" fill="#ffffff">

@@ -104,13 +104,6 @@ export default function OrderManagement() {
           onFilterChange: handleFilterChange,
         }}
       />
-      {/* {openNewFoodForm && (
-        <NewFoodForm
-          categories={categories}
-          closeForm={() => setOpenNewFoodForm(false)}
-          onNewFoodSubmit={(food: Food) => setData([...data, food])}
-        />
-      )} */}
     </div>
   );
 }
