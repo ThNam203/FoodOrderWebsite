@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new CustomException("Old password is incorrect", HttpStatus.BAD_REQUEST);
         }
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
