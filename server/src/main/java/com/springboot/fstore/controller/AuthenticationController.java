@@ -33,6 +33,7 @@ public class AuthenticationController {
             @RequestBody AccountDTO request,
             HttpServletResponse response
     ) {
+        System.out.println("request: " + request.getPassword());
         return ResponseEntity.ok().body(service.authenticate(request, response));
     }
 }

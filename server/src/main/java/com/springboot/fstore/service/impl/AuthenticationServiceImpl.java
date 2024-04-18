@@ -58,7 +58,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public UserDTO authenticate(AccountDTO request, HttpServletResponse response) {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException("Invalid username/password supplied", HttpStatus.BAD_REQUEST));
-
+        System.out.println("user password: ");
+        System.out.println("user: " + user.getPassword());
+        System.out.println("request: " + request.getPassword());
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException("Invalid username/password supplied", HttpStatus.BAD_REQUEST);
         }

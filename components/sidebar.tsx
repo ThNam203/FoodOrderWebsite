@@ -9,8 +9,10 @@ import {
   FavouriteIcon,
   HistoryIcon,
   IntroIcon,
+  LoadingIcon,
   LoginIcon,
   LogoutIcon,
+  OrderIcon,
   SettingIcon,
 } from "./icons";
 import { getCookie, getCookies, setCookie } from "cookies-next";
@@ -20,6 +22,8 @@ import { ClassValue } from "clsx";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { usePathname } from "next/navigation";
+import AuthService from "@/services/authService";
+import { showErrorToast, showSuccessToast } from "./toast";
 
 const CustomLink = ({
   className,
@@ -27,12 +31,14 @@ const CustomLink = ({
   icon,
   content,
   selectedLink,
+  onClick,
 }: {
   className?: ClassValue;
   href?: string;
   content: string;
   selectedLink: string;
   icon?: ReactNode;
+  onClick?: () => void;
 }) => {
   return (
     <Link
@@ -42,6 +48,7 @@ const CustomLink = ({
         selectedLink === href ? style["active"] : "",
         className
       )}
+      onClick={onClick}
     >
       {icon}
       <span className={style["nav__name"]}>{content}</span>
@@ -58,6 +65,19 @@ export default function Sidebar({
 }) {
   const isLogin = useAppSelector((state) => state.profile.isLogin);
   const selectedLink = usePathname();
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await AuthService.logOut()
+      .then(() => {
+        showSuccessToast("Logout successfully");
+      })
+      .catch((err) => showErrorToast(err.message))
+      .finally(() => {
+        setIsLoggingOut(false);
+      });
+  };
 
   return (
     <div
@@ -133,6 +153,12 @@ export default function Sidebar({
               selectedLink={selectedLink}
             />
             <CustomLink
+              href="/order_management"
+              content="Orders"
+              icon={<OrderIcon />}
+              selectedLink={selectedLink}
+            />
+            <CustomLink
               href="/history"
               content="History"
               icon={<HistoryIcon />}
@@ -151,9 +177,11 @@ export default function Sidebar({
             />
             <CustomLink
               content="Log out"
-              icon={<LogoutIcon />}
+              href="/login"
+              icon={isLoggingOut ? <LoadingIcon /> : <LogoutIcon />}
               selectedLink={selectedLink}
               className={cn("hover:bg-red-400")}
+              onClick={handleLogout}
             />
           </div>
         )}

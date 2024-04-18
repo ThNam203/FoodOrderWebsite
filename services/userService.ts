@@ -12,9 +12,17 @@ const updateProfile = (data: any) => {
   });
 };
 
+const changePassword = (data: any) => {
+  return AxiosService.post<User>("/api/user/me/change-password", data, {
+    headers: { "Content-Type": "multipart/form-data" },
+    withCredentials: true,
+  });
+};
+
 const UserService = {
   getProfile,
   updateProfile,
+  changePassword,
 };
 
 export default UserService;

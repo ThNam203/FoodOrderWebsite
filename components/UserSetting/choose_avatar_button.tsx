@@ -31,7 +31,7 @@ export const ChooseAvatarButton = ({
   return (
     <div
       className={cn(
-        "w-[100px] h-[100px] relative border-none select-none flex items-center justify-center rounded-full overflow-hidden",
+        "w-[120px] h-[120px] relative border-none select-none flex items-center justify-center rounded-full overflow-hidden",
         className
       )}
     >

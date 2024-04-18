@@ -22,7 +22,7 @@ public class UserController {
 
     @Operation(summary = "Change password")
     @PostMapping("/me/change-password")
-    public ResponseEntity<?> changePassword(@RequestParam String oldPassword, @RequestParam String newPassword) {
+    public ResponseEntity<?> changePassword(@RequestPart(value = "oldPassword") String oldPassword, @RequestPart(value = "newPassword")  String newPassword) {
         userService.changePassword(oldPassword, newPassword);
         return ResponseEntity.status(204).build();
     }

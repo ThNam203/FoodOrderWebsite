@@ -36,22 +36,31 @@ export type UserSettingFormData = {
   district: string;
   province: string;
   email: string;
-  password?: string | null;
+  oldPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
 };
 
-const schema: ZodType<UserSettingFormData> = z.object({
-  name: z.string().min(2, "Username must be at least 2 characters"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .nullable(),
-  email: z.string().email(),
-  phonenumber: z.string().min(10, "Phone number must have 10 characters"),
-  houseNumber: z.string().min(1, "House number is empty"),
-  street: z.string().min(1, "Street is empty"),
-  district: z.string().min(1, "District is empty"),
-  province: z.string().min(1, "Province is empty"),
-});
+const schema: ZodType<UserSettingFormData> = z
+  .object({
+    name: z.string().min(2, "Username must be at least 2 characters"),
+    oldPassword: z.string().optional(),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .optional(),
+    confirmPassword: z.string().optional(),
+    email: z.string().email(),
+    phonenumber: z.string().min(10, "Phone number must have 10 characters"),
+    houseNumber: z.string().min(1, "House number is empty"),
+    street: z.string().min(1, "Street is empty"),
+    district: z.string().min(1, "District is empty"),
+    province: z.string().min(1, "Province is empty"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export default function UserSettingPage() {
   const dispatch = useAppDispatch();
@@ -118,7 +127,16 @@ export default function UserSettingPage() {
 
     setIsSaving(true);
     // Update password
-    if (data.password && data.password.length > 0) {
+    if (data.newPassword && data.newPassword.length > 0) {
+      const changePassFormData = new FormData();
+      changePassFormData.append("oldPassword", data.oldPassword ?? "");
+      changePassFormData.append("newPassword", data.newPassword ?? "");
+
+      await UserService.changePassword(changePassFormData)
+        .then(() => {
+          showSuccessToast("Change password successfully");
+        })
+        .catch((e) => showErrorToast(e.message));
     }
 
     await UserService.updateProfile(dataForm)
@@ -150,7 +168,6 @@ export default function UserSettingPage() {
   }, []);
 
   const handleImageChosen = (newFileUrl: File | null) => {
-    console.log(newFileUrl);
     setChosenImage(newFileUrl);
     if (newFileUrl) setChosenImageUrl(URL.createObjectURL(newFileUrl));
     else setChosenImageUrl(null);
@@ -204,159 +221,210 @@ export default function UserSettingPage() {
             contentFor="General"
             content={
               <div className="h-full flex flex-col items-center justify-between">
-                <div className="w-full flex flex-col items-center gap-8 p-1 overflow-y-scroll">
-                  <div className="w-full flex flex-col items-center gap-4">
-                    <div className="w-full flex flex-col font-bold text-lg">
-                      Your profile
-                      <Separate classname="h-[1.5px]" />
-                    </div>
-                    <ChooseAvatarButton
-                      fileUrl={chosenImageUrl}
-                      onImageChanged={handleImageChosen}
-                    />
-                    <div className="w-full flex flex-row items-center gap-6">
-                      <Input
-                        id="username"
-                        label="Name"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord"
-                        errorMessages={errors.name ? errors.name.message : ""}
-                        {...register("name")}
-                      />
-                      <Input
-                        id="phonenumber"
-                        label="Phonenumber"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord"
-                        type="tel"
-                        errorMessages={
-                          errors.phonenumber ? errors.phonenumber.message : ""
-                        }
-                        {...register("phonenumber")}
+                <div className="w-full flex flex-col items-center p-1 overflow-y-scroll">
+                  <p className="w-full font-bold text-lg mb-2">Your profile</p>
+
+                  <div className="w-full flex flex-row items-stretch gap-8 rounded-md border-2 border-borderColor py-4 px-6">
+                    <div className="w-[120px]">
+                      <ChooseAvatarButton
+                        fileUrl={chosenImageUrl}
+                        onImageChanged={handleImageChosen}
                       />
                     </div>
-                  </div>
-                  <div className="w-full flex flex-col items-center gap-6">
-                    <div className="w-full flex flex-col font-bold text-lg">
-                      Your address
-                      <Separate classname="h-[1.5px]" />
-                    </div>
-                    <div className="w-full flex flex-row gap-6">
-                      <Input
-                        id="house-number"
-                        label="House number"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord"
-                        errorMessages={
-                          errors.houseNumber ? errors.houseNumber.message : ""
-                        }
-                        {...register("houseNumber")}
-                      />
-                      <Input
-                        id="street"
-                        label="Street"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord"
-                        errorMessages={
-                          errors.street ? errors.street.message : ""
-                        }
-                        {...register("street")}
-                      />
-                      <Dropdown placement="bottom-start" className="font-sans">
-                        <DropdownTrigger>
-                          <Input
-                            id="district"
-                            label="District"
-                            labelColor="text-secondaryWord"
-                            className="text-secondaryWord text-left cursor-pointer"
-                            {...register("district")}
-                            errorMessages={
-                              errors.district ? errors.district.message : ""
-                            }
-                            onClick={() => {
-                              if (districtNameList.length === 0) {
-                                showDefaultToast(
-                                  "Please select a province first"
-                                );
-                              }
-                            }}
-                          />
-                        </DropdownTrigger>
-                        <DropdownMenu>
-                          {districtNameList.map((districtName) => (
-                            <DropdownItem
-                              key={districtName}
-                              onClick={() =>
-                                form.setValue("district", districtName)
-                              }
-                            >
-                              <div className="text-primaryWord bg-transparent">
-                                {districtName}
-                              </div>
-                            </DropdownItem>
-                          ))}
-                        </DropdownMenu>
-                      </Dropdown>
-                      <Dropdown placement="bottom-start" className="font-sans">
-                        <DropdownTrigger>
-                          <Input
-                            id="province"
-                            label="Province/City"
-                            labelColor="text-secondaryWord"
-                            className="text-secondaryWord text-left cursor-pointer"
-                            errorMessages={
-                              errors.province ? errors.province.message : ""
-                            }
-                            {...register("province")}
-                          />
-                        </DropdownTrigger>
-                        <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll">
-                          {provinceNameList.map((provinceName) => (
-                            <DropdownItem
-                              key={provinceName}
-                              onClick={() => handleProvinceChange(provinceName)}
-                            >
-                              <div className="text-primaryWord bg-transparent">
-                                {provinceName}
-                              </div>
-                            </DropdownItem>
-                          ))}
-                        </DropdownMenu>
-                      </Dropdown>
+                    <div className="w-full flex flex-row gap-4">
+                      <div className="w-1/2 flex flex-col gap-4">
+                        <Input
+                          id="username"
+                          label="Name"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          errorMessages={errors.name ? errors.name.message : ""}
+                          {...register("name")}
+                        />
+                        <Input
+                          id="email"
+                          label="Email"
+                          placeholder="demo@gmail.com"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          errorMessages={
+                            errors.email ? errors.email.message : ""
+                          }
+                          {...register("email")}
+                          disabled
+                        />
+                      </div>
+                      <div className="w-1/2">
+                        <Input
+                          id="phonenumber"
+                          label="Phonenumber"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          type="tel"
+                          errorMessages={
+                            errors.phonenumber ? errors.phonenumber.message : ""
+                          }
+                          {...register("phonenumber")}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="w-full flex flex-col items-center gap-6">
-                    <div className="w-full flex flex-col font-bold text-lg">
-                      Your account
-                      <Separate classname="h-[1.5px]" />
+
+                  <div className="w-full flex flex-row justify-between gap-4 mt-4">
+                    <div className="w-1/2 flex flex-col gap-2">
+                      <p className="w-full font-bold text-lg">Your address</p>
+                      <div className="w-full flex flex-col gap-4 rounded-md border-2 border-borderColor py-6 px-8">
+                        <Dropdown
+                          placement="bottom-start"
+                          className="font-sans"
+                        >
+                          <DropdownTrigger>
+                            <Input
+                              id="province"
+                              label="Province/City"
+                              labelColor="text-secondaryWord"
+                              className="text-secondaryWord text-left cursor-pointer"
+                              errorMessages={
+                                errors.province ? errors.province.message : ""
+                              }
+                              {...register("province")}
+                            />
+                          </DropdownTrigger>
+                          <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll">
+                            {provinceNameList.map((provinceName) => (
+                              <DropdownItem
+                                key={provinceName}
+                                onClick={() =>
+                                  handleProvinceChange(provinceName)
+                                }
+                              >
+                                <div className="text-primaryWord bg-transparent">
+                                  {provinceName}
+                                </div>
+                              </DropdownItem>
+                            ))}
+                          </DropdownMenu>
+                        </Dropdown>
+                        <Dropdown
+                          placement="bottom-start"
+                          className="font-sans"
+                        >
+                          <DropdownTrigger>
+                            <Input
+                              id="district"
+                              label="District"
+                              labelColor="text-secondaryWord"
+                              className="text-secondaryWord text-left cursor-pointer"
+                              {...register("district")}
+                              errorMessages={
+                                errors.district ? errors.district.message : ""
+                              }
+                              onClick={() => {
+                                if (districtNameList.length === 0) {
+                                  showDefaultToast(
+                                    "Please select a province first"
+                                  );
+                                }
+                              }}
+                            />
+                          </DropdownTrigger>
+                          <DropdownMenu>
+                            {districtNameList.map((districtName) => (
+                              <DropdownItem
+                                key={districtName}
+                                onClick={() =>
+                                  form.setValue("district", districtName)
+                                }
+                              >
+                                <div className="text-primaryWord bg-transparent">
+                                  {districtName}
+                                </div>
+                              </DropdownItem>
+                            ))}
+                          </DropdownMenu>
+                        </Dropdown>
+                        <Input
+                          id="street"
+                          label="Street"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          errorMessages={
+                            errors.street ? errors.street.message : ""
+                          }
+                          {...register("street")}
+                        />
+                        <Input
+                          id="house-number"
+                          label="House number"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          errorMessages={
+                            errors.houseNumber ? errors.houseNumber.message : ""
+                          }
+                          {...register("houseNumber")}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full flex flex-row items-center gap-6">
-                      <Input
-                        id="email"
-                        label="Email"
-                        placeholder="demo@gmail.com"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord"
-                        errorMessages={errors.email ? errors.email.message : ""}
-                        {...register("email")}
-                        disabled
-                      />
-                      <Input
-                        id="password"
-                        label="Change password"
-                        labelColor="text-secondaryWord"
-                        className="text-secondaryWord"
-                        errorMessages={
-                          errors.password ? errors.password.message : ""
-                        }
-                        type="password"
-                        value={watch("password") ?? ""}
-                        onChange={(e) => {
-                          const password = e.target.value;
-                          if (password === "") form.setValue("password", null);
-                          else form.setValue("password", e.target.value);
-                        }}
-                      />
+                    <div className="w-1/2 flex flex-col gap-2">
+                      <p className="w-full font-bold text-lg">
+                        Change your password
+                      </p>
+                      <div className="w-full h-full flex flex-col gap-4 rounded-md border-2 border-borderColor py-6 px-8">
+                        <Input
+                          id="old-password"
+                          label="Old password"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          errorMessages={
+                            errors.oldPassword ? errors.oldPassword.message : ""
+                          }
+                          type="password"
+                          value={watch("oldPassword") ?? ""}
+                          onChange={(e) => {
+                            const password = e.target.value;
+                            if (password === "")
+                              form.setValue("oldPassword", undefined);
+                            else form.setValue("oldPassword", e.target.value);
+                          }}
+                        />
+                        <Input
+                          id="new-password"
+                          label="New password"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          errorMessages={
+                            errors.newPassword ? errors.newPassword.message : ""
+                          }
+                          type="password"
+                          value={watch("newPassword") ?? ""}
+                          onChange={(e) => {
+                            const newPassword = e.target.value;
+                            if (newPassword === "")
+                              form.setValue("newPassword", undefined);
+                            else form.setValue("newPassword", e.target.value);
+                          }}
+                        />
+                        <Input
+                          id="confirm-password"
+                          label="Confirm password"
+                          labelColor="text-secondaryWord"
+                          className="text-secondaryWord"
+                          errorMessages={
+                            errors.confirmPassword
+                              ? errors.confirmPassword.message
+                              : ""
+                          }
+                          type="password"
+                          value={watch("confirmPassword") ?? ""}
+                          onChange={(e) => {
+                            const confirmPassword = e.target.value;
+                            if (confirmPassword === "")
+                              form.setValue("confirmPassword", undefined);
+                            else
+                              form.setValue("confirmPassword", e.target.value);
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -366,7 +434,7 @@ export default function UserSettingPage() {
                     content="Cancel"
                     className="w-[100px] self-end text-sm font-extrabold text-white bg-gray-400 hover:bg-gray-300/80 disabled:bg-gray-300/60"
                     onClick={() => {
-                      handleImageChosen(null);
+                      if (thisUser) setChosenImageUrl(thisUser.profileImage);
                     }}
                   />
                   <TextButton
