@@ -412,9 +412,9 @@ export const OrderIcon = () => {
       height="24"
       viewBox="0 0 24 24"
     >
-      <g fill="none" stroke="white" stroke-width="2">
+      <g fill="none" stroke="white" strokeWidth="2">
         <rect width="14" height="17" x="5" y="4" rx="2" />
-        <path stroke-linecap="round" d="M9 9h6m-6 4h6m-6 4h4" />
+        <path strokeLinecap="round" d="M9 9h6m-6 4h6m-6 4h4" />
       </g>
     </svg>
   );

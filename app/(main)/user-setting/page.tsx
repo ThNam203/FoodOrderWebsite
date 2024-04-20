@@ -9,7 +9,7 @@ import {
   showSuccessToast,
 } from "@/components/toast";
 import AddressService from "@/services/addressService";
-import { useEffect, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 
 import { ChooseAvatarButton } from "@/components/UserSetting/choose_avatar_button";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -36,7 +36,7 @@ export type UserSettingFormData = {
   district: string;
   province: string;
   email: string;
-  oldPassword?: string;
+  currentPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
 };
@@ -44,7 +44,10 @@ export type UserSettingFormData = {
 const schema: ZodType<UserSettingFormData> = z
   .object({
     name: z.string().min(2, "Username must be at least 2 characters"),
-    oldPassword: z.string().optional(),
+    currentPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .optional(),
     newPassword: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -61,6 +64,11 @@ const schema: ZodType<UserSettingFormData> = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+const splitAddress = (address: string) => {
+  const [houseNumber, street, district, province] = address.split(", ");
+  return { houseNumber, street, district, province };
+};
 
 export default function UserSettingPage() {
   const dispatch = useAppDispatch();
@@ -81,14 +89,10 @@ export default function UserSettingPage() {
     register,
     handleSubmit,
     watch,
+    resetField,
     formState: { errors },
   } = form;
   const thisUser = useAppSelector((state) => state.profile.value);
-
-  const splitAddress = (address: string) => {
-    const [houseNumber, street, district, province] = address.split(", ");
-    return { houseNumber, street, district, province };
-  };
 
   const setInitialValues = () => {
     if (!thisUser) return;
@@ -108,8 +112,36 @@ export default function UserSettingPage() {
     form.setValue("email", thisUser.email);
   };
 
+  const resetPasswordFields = () => {
+    form.setValue("currentPassword", undefined);
+    form.setValue("newPassword", undefined);
+    form.setValue("confirmPassword", undefined);
+  };
+
+  const isFormValuesChange = useMemo(() => {
+    if (!thisUser) return false;
+    const { name, email, phoneNumber, address } = thisUser;
+    const { houseNumber, street, district, province } = splitAddress(address);
+    return (
+      name !== watch("name") ||
+      email !== watch("email") ||
+      phoneNumber !== watch("phonenumber") ||
+      houseNumber !== watch("houseNumber") ||
+      street !== watch("street") ||
+      district !== watch("district") ||
+      province !== watch("province") ||
+      watch("currentPassword") ||
+      watch("newPassword") ||
+      watch("confirmPassword")
+    );
+  }, [thisUser, form.getValues()]);
+
   const handleFormSubmit = async (data: UserSettingFormData) => {
     if (!thisUser) return;
+    if (!isFormValuesChange) {
+      showDefaultToast("Nothing to change");
+      return;
+    }
 
     const dataForm: any = new FormData();
     const updatedProfile = UserToUpdate(
@@ -127,22 +159,26 @@ export default function UserSettingPage() {
 
     setIsSaving(true);
     // Update password
-    if (data.newPassword && data.newPassword.length > 0) {
+    if (data.currentPassword && data.newPassword && data.confirmPassword) {
       const changePassFormData = new FormData();
-      changePassFormData.append("oldPassword", data.oldPassword ?? "");
+      changePassFormData.append("oldPassword", data.currentPassword ?? "");
       changePassFormData.append("newPassword", data.newPassword ?? "");
 
       await UserService.changePassword(changePassFormData)
         .then(() => {
           showSuccessToast("Change password successfully");
+          resetField("currentPassword");
+          resetField("newPassword");
+          resetField("confirmPassword");
         })
-        .catch((e) => showErrorToast(e.message));
+        .catch((e) => showErrorToast("Wrong password"));
     }
 
     await UserService.updateProfile(dataForm)
       .then(() => {
         dispatch(setProfile(updatedProfile));
-        showSuccessToast("Update profile successfully");
+        showSuccessToast("Change your profile successfully");
+        resetPasswordFields();
       })
       .catch((e) => showErrorToast(e.message))
       .finally(() => {
@@ -371,20 +407,23 @@ export default function UserSettingPage() {
                       </p>
                       <div className="w-full h-full flex flex-col gap-4 rounded-md border-2 border-borderColor py-6 px-8">
                         <Input
-                          id="old-password"
-                          label="Old password"
+                          id="current-password"
+                          label="Current password"
                           labelColor="text-secondaryWord"
                           className="text-secondaryWord"
                           errorMessages={
-                            errors.oldPassword ? errors.oldPassword.message : ""
+                            errors.currentPassword
+                              ? errors.currentPassword.message
+                              : ""
                           }
                           type="password"
-                          value={watch("oldPassword") ?? ""}
+                          value={watch("currentPassword") ?? ""}
                           onChange={(e) => {
                             const password = e.target.value;
                             if (password === "")
-                              form.setValue("oldPassword", undefined);
-                            else form.setValue("oldPassword", e.target.value);
+                              form.setValue("currentPassword", undefined);
+                            else
+                              form.setValue("currentPassword", e.target.value);
                           }}
                         />
                         <Input
@@ -436,15 +475,14 @@ export default function UserSettingPage() {
                     onClick={() => {
                       if (thisUser) setChosenImageUrl(thisUser.profileImage);
                     }}
+                    disabled={isSaving}
                   />
                   <TextButton
                     type="submit"
                     content={isSaving ? "" : "Save"}
                     className="w-[100px] text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
                     iconAfter={isSaving ? <LoadingIcon /> : null}
-                    onClick={() => {
-                      console.log("submit", errors);
-                    }}
+                    disabled={isSaving}
                   />
                 </div>
               </div>

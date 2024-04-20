@@ -1,30 +1,30 @@
 "use client";
-import MenuTable from "@/components/MenuTable/menu_table";
-import { NewFoodForm } from "@/components/NewFoodForm/new_food_form";
 import { TextButton } from "@/components/buttons";
 import { CustomDatatable } from "@/components/datatable/custom_datatable";
 import { Food } from "@/models/Food";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { setFoods } from "@/redux/slices/food";
-import FoodService from "@/services/foodService";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
+import CustomCarousel, {
+  CarouselItem,
+} from "@/components/CustomCarousel/custom_carousel";
+import { showErrorToast } from "@/components/toast";
+import { OrderToReceive } from "@/convertor/orderConvertor";
+import { Cart } from "@/models/Cart";
+import { Order, OrderStatus } from "@/models/Order";
+import { setOrders } from "@/redux/slices/order";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
+import OrderService from "@/services/orderService";
 import { cn } from "@/utils/cn";
+import { formatDate, handleFilterColumn } from "@/utils/func";
+import { Row } from "@tanstack/react-table";
+import { ClassValue } from "clsx";
+import { ChevronRight } from "lucide-react";
 import {
   orderColumnTitles,
   orderDefaultVisibilityState,
   orderTableColumns,
 } from "./table_columns";
-import { setFoodCategories } from "@/redux/slices/category";
-import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
-import { showErrorToast } from "@/components/toast";
-import { handleFilterColumn } from "@/utils/func";
-import { Row } from "@tanstack/react-table";
-import { FoodToReceive } from "@/convertor/foodConvertor";
-import { Order, OrderStatus } from "@/models/Order";
-import OrderService from "@/services/orderService";
-import { OrderToReceive } from "@/convertor/orderConvertor";
-import { setOrders } from "@/redux/slices/order";
 
 export default function OrderManagement() {
   const dispatch = useAppDispatch();
@@ -54,11 +54,61 @@ export default function OrderManagement() {
   useEffect(() => {
     setFilteredData(data);
   }, [data]);
-
+  const handleCustomerFilter = (filterInput: string, data: Order[]) => {
+    const filteredData = data.filter((order) =>
+      order.user.name.toString().includes(filterInput.toString())
+    );
+    return filteredData;
+  };
+  const handleContactFilter = (filterInput: string, data: Order[]) => {
+    const filteredData = data.filter((order) =>
+      order.user.phoneNumber.toString().includes(filterInput.toString())
+    );
+    return filteredData;
+  };
+  const handleEmailFilter = (filterInput: string, data: Order[]) => {
+    const filteredData = data.filter((order) =>
+      order.user.email.toString().includes(filterInput.toString())
+    );
+    return filteredData;
+  };
+  const handleAddressFilter = (filterInput: string, data: Order[]) => {
+    const filteredData = data.filter((order) =>
+      order.user.address.toString().includes(filterInput.toString())
+    );
+    return filteredData;
+  };
+  const handleCreatedDateFilter = (filterInput: string, data: Order[]) => {
+    const filteredData = data.filter((order) =>
+      formatDate(order.createdAt).includes(filterInput.toString())
+    );
+    return filteredData;
+  };
   const handleFilterChange = (filterInput: string, col: string) => {
     console.log(filterInput, col);
-    const filteredData = handleFilterColumn(filterInput, col, data);
+    let filteredData: Order[] = [];
+    if (col === "") filteredData = getFilterAllTableData(filterInput);
+    else filteredData = getDataFilter(filterInput, col);
     setFilteredData(filteredData);
+  };
+  const getDataFilter = (filterInput: string, col: string) => {
+    //special col that cannot filter as default
+    if (col === "user") return handleCustomerFilter(filterInput, data);
+    else if (col === "contact") return handleContactFilter(filterInput, data);
+    else if (col === "email") return handleEmailFilter(filterInput, data);
+    else if (col === "address") return handleAddressFilter(filterInput, data);
+    else if (col === "createdAt")
+      return handleCreatedDateFilter(filterInput, data);
+    return handleFilterColumn(filterInput, col, data);
+  };
+  const getFilterAllTableData = (filterInput: string) => {
+    let filteredAllTableData: Set<Order> = new Set();
+    Object.keys(orderColumnTitles).forEach((col) => {
+      const filteredData = getDataFilter(filterInput, col);
+      filteredData.forEach((order) => filteredAllTableData.add(order));
+    });
+    const filteredData = Array.from(filteredAllTableData);
+    return filteredData;
   };
 
   const onStatusChange = async (id: number, status: OrderStatus) => {
@@ -102,6 +152,19 @@ export default function OrderManagement() {
           filterOptionKeys: filterOptionKeys,
           showDataTableViewOptions: true,
           onFilterChange: handleFilterChange,
+          rowColorDependence: {
+            key: "status",
+            condition: [
+              { value: OrderStatus.PENDING, borderColor: "border-yellow-400" },
+              { value: OrderStatus.ACCEPTED, borderColor: "border-green-400" },
+              { value: OrderStatus.DELIVERED, borderColor: "border-blue-400" },
+              { value: OrderStatus.REJECTED, borderColor: "border-red-400" },
+              {
+                value: OrderStatus.CANCELLED,
+                borderColor: "border-orange-400",
+              },
+            ],
+          },
         }}
       />
     </div>
@@ -116,9 +179,166 @@ const OrderDetailTab = ({
   setShowTabs: (value: boolean) => any;
 }) => {
   const order = row.original;
+  const [selectFoodItemTab, setSelectFoodItemTab] = useState<string>(""); //use food name as tab name
+  const [selectedFood, setSelectedFood] = useState<Food | undefined>();
+
+  const handleSelectedFoodItemTabChange = (tab: string) => {
+    setSelectFoodItemTab(tab);
+    const selectedFood = order.items.find((cart) => cart.food.name === tab);
+    setSelectedFood(selectedFood?.food);
+  };
   return (
-    <div className="flex h-[300px] flex-col justify-between gap-4 py-2 pl-8 pr-4">
-      Order detail
+    <div className="flex h-fit flex-col gap-4 px-4 py-2">
+      <div className="flex flex-row">
+        <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
+          <div className="flex flex-1 flex-col">
+            <RowInfo label="Order ID:" value={order.id.toString()} />
+            <RowInfo label="Customer:" value={order.user.name} />
+            <RowInfo label="Contact:" value={order.user.phoneNumber} />
+            <RowInfo label="Email:" value={order.user.email} />
+            <RowInfo label="Address:" value={order.user.address} />
+          </div>
+          <div className="flex flex-1 flex-col">
+            <RowInfo label="Total:" value={order.total.toString() + "đ"} />
+            <RowInfo label="Order date:" value={formatDate(order.createdAt)} />
+            <RowInfo label="Payment method:" value={order.paymentMethod} />
+            <RowInfo label="Status:" value={order.status} />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-row gap-2 items-center">
+            <TextButton
+              className={cn(
+                "text-sm rounded-md py-1",
+                selectFoodItemTab === ""
+                  ? "bg-primary text-white"
+                  : "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord"
+              )}
+              content="Food items"
+              onClick={() => handleSelectedFoodItemTabChange("")}
+            />
+            <ChevronRight className="w-5 h-5 text-secondaryWord" />
+          </div>
+          <div className="flex flex-row gap-4">
+            {order.items.map((cart) => (
+              <FoodItemTab
+                key={cart.food.id}
+                cart={cart}
+                selectedTab={selectFoodItemTab}
+                setSelectedTab={handleSelectedFoodItemTabChange}
+              />
+            ))}
+          </div>
+        </div>
+        <FoodItemContent food={selectedFood} />
+      </div>
+    </div>
+  );
+};
+
+const RowInfo = ({
+  label,
+  value,
+  showTextArea = false,
+}: {
+  label: string;
+  value: string;
+  showTextArea?: boolean;
+}) => {
+  return (
+    <div
+      className={cn(
+        "mb-2 text-md",
+        showTextArea ? "" : "flex flex-row border-b"
+      )}
+    >
+      <p className="w-[150px] font-semibold">{label}</p>
+      {showTextArea ? (
+        <textarea
+          readOnly
+          disabled
+          className={cn("h-[80px] w-full resize-none border-2 p-1")}
+          defaultValue={value}
+        ></textarea>
+      ) : (
+        <p className="max-w-[300px] whitespace-nowrap text-ellipsis">{value}</p>
+      )}
+    </div>
+  );
+};
+
+const FoodItemTab = ({
+  className,
+  cart,
+  selectedTab,
+  setSelectedTab,
+  onClick,
+  disabled = false,
+}: {
+  className?: ClassValue;
+  cart: Cart;
+  selectedTab: string;
+  setSelectedTab: (selectedTab: string) => void;
+  onClick?: () => void;
+  disabled?: boolean;
+}) => {
+  const selectedStyle = "bg-primary text-white";
+  const defaultStyle =
+    "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord";
+  return (
+    <TextButton
+      className={cn(
+        "text-sm rounded-md py-1",
+        selectedTab === cart.food.name ? selectedStyle : defaultStyle
+      )}
+      content={cart.food.name + " x " + cart.quantity.toString()}
+      onClick={() => {
+        setSelectedTab(cart.food.name);
+        if (onClick) onClick();
+      }}
+    />
+  );
+};
+
+const FoodItemContent = ({ food }: { food: Food | undefined }) => {
+  if (!food) return <></>;
+
+  const carouselItems: CarouselItem[] = food.images.map((image) => {
+    return {
+      image: image,
+    };
+  });
+
+  return (
+    <div className="flex h-fit flex-col gap-4">
+      <div className="flex flex-row gap-4">
+        <div
+          className={cn("w-[250px] max-h-[200px] rounded-sm overflow-hidden")}
+        >
+          <CustomCarousel carouselItems={carouselItems} />
+        </div>
+        <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
+          <div className="flex flex-1 flex-col">
+            <RowInfo label="Food ID:" value={food.id.toString()} />
+            <RowInfo label="Food name:" value={food.name} />
+            <RowInfo
+              label="Status:"
+              value={food.status ? "Active" : "Disable"}
+            />
+            <RowInfo label="Category:" value={food.category.name} />
+            <RowInfo label="Tags:" value={food.tags.join(", ")} />
+          </div>
+          <div className="flex flex-1 flex-col">
+            <RowInfo
+              label="Description:"
+              value={food.description}
+              showTextArea
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

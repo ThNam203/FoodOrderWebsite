@@ -12,6 +12,11 @@ export type FoodCategory = {
   image: string;
 };
 
+export enum FoodStatus {
+  ACTIVE = "Active",
+  DISABLE = "Disable",
+}
+
 export type Food = {
   id: number;
   name: string;
@@ -22,6 +27,6 @@ export type Food = {
   category: FoodCategory;
   rating: number;
   tags: string[];
-  status: string;
-  createdAt: string;
+  status: FoodStatus;
+  createdAt: Date;
 };

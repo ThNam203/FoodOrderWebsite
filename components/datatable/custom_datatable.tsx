@@ -44,6 +44,10 @@ export type DatatableConfig<TData> = {
     [key: string]: boolean;
   };
   className?: string;
+  rowColorDependence?: {
+    key: string;
+    condition: { value: string; borderColor: string }[];
+  };
 };
 
 const defaultConfig: DatatableConfig<any> = {
@@ -58,6 +62,7 @@ const defaultConfig: DatatableConfig<any> = {
   onImportExcelBtnClick: undefined,
   filterOptionKeys: [],
   className: "",
+  rowColorDependence: undefined,
 };
 
 export type CustomDatatableProps<TData> = {
@@ -90,7 +95,7 @@ export function CustomDatatable<TData>({
     config?.defaultVisibilityState ?? {}
   );
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [filterInput, setFilterInput] = useState("");
+  const [colFilterInput, setColFilterInput] = useState("");
   const [filterKeys, setFilterKeys] = useState(config.filterOptionKeys ?? []);
   const [selectedFilterKey, setSelectedFilterKey] = useState("");
 
@@ -105,13 +110,11 @@ export function CustomDatatable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    onGlobalFilterChange: setFilterInput,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
-      globalFilter: filterInput,
     },
     meta: meta,
   });
@@ -136,11 +139,10 @@ export function CustomDatatable<TData>({
           config.alternativeSearchInput ? null : (
             <Input
               placeholder="Search anything..."
-              value={filterInput}
+              value={colFilterInput}
               onChange={(event) => {
-                setFilterInput(event.target.value);
-                if (selectedFilterKey !== "")
-                  handleFilterChange(event.target.value, selectedFilterKey);
+                setColFilterInput(event.target.value);
+                handleFilterChange(event.target.value, selectedFilterKey);
               }}
               className="max-w-sm shrink-0 w-[300px] py-2"
             />
@@ -159,7 +161,7 @@ export function CustomDatatable<TData>({
                   key="all"
                   checked={selectedFilterKey === ""}
                   onClick={(checked) => {
-                    handleFilterChange(filterInput, "");
+                    handleFilterChange(colFilterInput, "");
                   }}
                   className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
                 >
@@ -170,7 +172,7 @@ export function CustomDatatable<TData>({
                     key={key}
                     checked={selectedFilterKey === key}
                     onClick={(checked) => {
-                      handleFilterChange(filterInput, key);
+                      handleFilterChange(colFilterInput, key);
                     }}
                     className="cursor-pointer hover:bg-gray-100 ease-linear duration-100"
                   >
@@ -241,6 +243,7 @@ export function CustomDatatable<TData>({
         tableContainerRef={tableContainerRef}
         infoTabs={infoTabs}
         showRowSelectedCounter={!!config.showRowSelectedCounter}
+        rowColorDependence={config.rowColorDependence}
       />
     </div>
   );

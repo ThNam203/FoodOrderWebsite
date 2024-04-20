@@ -2,6 +2,8 @@ import { Row, flexRender } from "@tanstack/react-table";
 import React, { RefObject } from "react";
 import { cn } from "@/utils/cn";
 import { TableCell, TableRow } from "./table";
+import { TextButton } from "../buttons";
+import { ClassValue } from "clsx";
 
 export interface TabProps<TData> {
   render: (
@@ -13,12 +15,14 @@ export interface TabProps<TData> {
 
 export interface CustomeDatatableRowProps<TData, TValue> {
   row: Row<TData>;
+  rowBorderColor?: ClassValue;
   containerRef: RefObject<HTMLDivElement>;
   tabs?: TabProps<TData>[];
 }
 
 export default function CustomDatatableRow<TData, TValue>({
   row,
+  rowBorderColor,
   containerRef,
   tabs,
 }: CustomeDatatableRowProps<TData, TValue>) {
@@ -49,7 +53,7 @@ export default function CustomDatatableRow<TData, TValue>({
             key={cell.id}
             className={cn(
               "whitespace-nowrap",
-              showInfoRow && tabs ? "bg-green-200 font-semibold" : ""
+              showInfoRow && tabs ? "font-semibold" : ""
             )}
           >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -58,7 +62,8 @@ export default function CustomDatatableRow<TData, TValue>({
         <td
           className={cn(
             "absolute bottom-0 left-0 right-0 top-0",
-            showInfoRow && tabs ? "border-t-2 border-green-400" : "hidden"
+            rowBorderColor ? rowBorderColor : "border-primary",
+            showInfoRow && tabs ? "border-t-2" : "hidden"
           )}
         ></td>
       </TableRow>
@@ -68,33 +73,34 @@ export default function CustomDatatableRow<TData, TValue>({
           {/* maintain odd - even row */}
           <tr>
             <td colSpan={row.getVisibleCells().length} className="p-0">
-              <div className={cn("border-b-2 border-t-0 border-green-400")}>
-                <div
-                  style={{
-                    width: borderWidth,
-                  }}
-                >
-                  <div className="flex w-full flex-row gap-2 bg-green-200 px-2">
-                    {tabs.map((tab, tabIdx) => (
-                      <div
-                        key={tabIdx}
-                        className={cn(
-                          "flex h-full flex-row items-center justify-center rounded-t-sm p-2 px-4 duration-200 ease-linear hover:cursor-pointer",
-                          showTabIndex === tabIdx
-                            ? "bg-white font-semibold text-black"
-                            : ""
-                        )}
-                        onClick={(e) => setShowTabIndex(tabIdx)}
-                      >
-                        <p className="flex-1 text-sm">{tab.tabName}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex flex-col gap-4 p-2 pt-0">
-                    {tabs.length > showTabIndex
-                      ? tabs[showTabIndex].render(row, setShowInfoRow)
-                      : null}
-                  </div>
+              <div
+                style={{
+                  width: borderWidth,
+                }}
+              >
+                <div className="flex w-fit flex-row gap-2 px-2">
+                  {tabs.map((tab, tabIdx) => (
+                    <div
+                      key={tabIdx}
+                      className={cn(
+                        "flex h-full flex-row items-center justify-center rounded-t-sm p-2 px-4 duration-200 ease-linear hover:cursor-pointer",
+                        showTabIndex === tabIdx
+                          ? "bg-white font-semibold text-black"
+                          : ""
+                      )}
+                      onClick={(e) => setShowTabIndex(tabIdx)}
+                    >
+                      <TextButton
+                        className="flex-1 text-sm rounded-xl py-1 bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord"
+                        content={tab.tabName}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-col gap-4 p-2 pt-0">
+                  {tabs.length > showTabIndex
+                    ? tabs[showTabIndex].render(row, setShowInfoRow)
+                    : null}
                 </div>
               </div>
             </td>

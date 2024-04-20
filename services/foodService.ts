@@ -22,16 +22,8 @@ const createNewFood = (data: any) => {
   });
 };
 
-const updateFood = (foodData: any, imageFiles: File[] | null) => {
-  const formData = new FormData();
-  formData.append(
-    "data",
-    new Blob([JSON.stringify(foodData)], { type: "application/json" })
-  );
-  if (imageFiles && imageFiles.length > 0)
-    imageFiles.forEach((imageFile) => formData.append("files", imageFile));
-
-  return AxiosService.put<Food>(`/api/foods/${foodData.id}`, formData, {
+const updateFood = (id: number, data: any) => {
+  return AxiosService.put<Food>(`/api/foods/${id}`, data, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };

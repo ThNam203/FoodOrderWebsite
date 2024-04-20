@@ -1,5 +1,5 @@
-import { FoodFormData } from "@/components/NewFoodForm/new_food_form";
-import { Food, FoodCategory } from "@/models/Food";
+import { FoodFormData } from "@/components/NewFoodForm/food_form";
+import { Food, FoodCategory, FoodStatus } from "@/models/Food";
 
 const FoodToSend = (food: Food) => {
   const toSend = {
@@ -8,6 +8,7 @@ const FoodToSend = (food: Food) => {
     category: {
       id: food.category.id,
     },
+    images: food.images,
     tags: food.tags,
     status: food.status,
     foodSizes: food.foodSizes.map((size) => {
@@ -18,17 +19,23 @@ const FoodToSend = (food: Food) => {
         note: size.note,
       };
     }),
+    createAt: food.createdAt.toISOString(),
   };
   return toSend;
 };
 
 const FoodFormDataToFood = (formData: FoodFormData, category: FoodCategory) => {
   console.log(category);
+  const images: string[] = [];
+  formData.images.forEach((image) => {
+    if (image === null) return;
+    images.push(image);
+  });
   const food: Food = {
     id: 0,
     name: formData.name,
     description: formData.description,
-    images: [],
+    images: images,
     isDeleted: false,
     foodSizes: formData.sizes.map((size) => {
       return {
@@ -41,9 +48,9 @@ const FoodFormDataToFood = (formData: FoodFormData, category: FoodCategory) => {
     }),
     category: category,
     rating: 0,
-    tags: [],
-    status: formData.status,
-    createdAt: new Date().toString(),
+    tags: formData.tags,
+    status: formData.status as FoodStatus,
+    createdAt: new Date(),
   };
   return food;
 };
@@ -60,7 +67,7 @@ const FoodToReceive = (data: any): Food => {
     rating: data.rating,
     tags: data.tags,
     status: data.status,
-    createdAt: data.createdAt,
+    createdAt: new Date(data.createdAt),
   };
   return foodReceived;
 };

@@ -32,6 +32,7 @@ const OrderToSend = (
   const orderToSend = {
     ...order,
     status: status,
+    createAt: order.createdAt.toISOString(),
   };
   return orderToSend;
 };
@@ -42,7 +43,7 @@ const OrderToReceive = (data: any): Order => {
     total: data.total,
     status: data.status,
     items: data.items,
-    createdAt: data.createdAt,
+    createdAt: new Date(data.createdAt),
     paymentMethod: data.paymentMethod,
     user: data.user,
   };

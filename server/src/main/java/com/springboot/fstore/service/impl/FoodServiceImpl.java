@@ -90,8 +90,19 @@ public class FoodServiceImpl implements FoodService {
         food.setDescription(foodDTO.getDescription());
         food.setStatus(foodDTO.getStatus());
 
-        food.getImages().clear();
         food.getTags().clear();
+
+        //check if user remove some images
+        List<String> currentImages = food.getImages().stream().map(Image::getUrl).toList();
+        List <String> uploadedImages = foodDTO.getImages();
+        List<String> intersec = new ArrayList<>();
+        // get intersec of currentImages and uploadedImages
+        for(String image : uploadedImages) {
+            if (currentImages.contains(image)) {
+                intersec.add(image);
+            }
+        }
+        food.getImages().removeIf(image -> !intersec.contains(image.getUrl()));
 
         if (files != null) {
             List<Image> images = new ArrayList<>();
@@ -103,6 +114,7 @@ public class FoodServiceImpl implements FoodService {
                         .build();
                 images.add(image);
             }
+
             if (!images.isEmpty()) {
                 food.getImages().addAll(images);
             }
@@ -128,7 +140,7 @@ public class FoodServiceImpl implements FoodService {
         }
 
         if (foodDTO.getFoodSizes() != null) {
-            food.getFoodSizes().clear();
+//            food.getFoodSizes().clear(); // bug here
             food.getFoodSizes().addAll(foodDTO.getFoodSizes()
                     .stream()
                     .map(foodSizeDTO -> {
@@ -138,6 +150,7 @@ public class FoodServiceImpl implements FoodService {
                     })
                     .toList());
         }
+        System.out.println(foodDTO.getFoodSizes());
         Food newFood = foodRepository.save(food);
         return FoodMapper.toFoodDTO(newFood);
     }

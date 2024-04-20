@@ -29,6 +29,9 @@ module.exports = {
       boxShadow: {
         primaryShadow: "0 0 45px -15px rgba(0,0,0,0.3)",
       },
+      flex: {
+        "0_0_100": "0 0 100%",
+      },
       keyframes: {
         move_to_left: {
           "0%": { transform: "translateX(0)", width: "0px", opacity: 1 },

@@ -13,12 +13,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className="w-screen overflow-x-hidden">
-        {children}
-        <Toast />
-      </body>
-    </html>
-  );
+  return <div className="w-screen overflow-x-hidden">{children}</div>;
 }

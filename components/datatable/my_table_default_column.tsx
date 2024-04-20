@@ -48,7 +48,7 @@ function defaultColumn<T>(
         formatedValue = formatPrice(value);
       else formatedValue = value;
 
-      return <p className="px-2">{formatedValue}</p>;
+      return <p className="w-fit px-2">{formatedValue}</p>;
     },
   };
   return col;

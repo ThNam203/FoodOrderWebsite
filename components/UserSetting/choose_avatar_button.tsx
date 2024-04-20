@@ -17,7 +17,7 @@ export const ChooseAvatarButton = ({
   className?: ClassValue;
 }) => {
   const id = nanoid();
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0)
       onImageChanged(e.target.files[0]);
   }

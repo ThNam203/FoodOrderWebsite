@@ -3,7 +3,9 @@ import React from "react";
 import GoogleMapReact from "google-map-react";
 
 const Marker = ({ lat, lng }: { lat: number; lng: number }) => (
-  <div className="bg-primary rounded-lg w-[50px] text-center py-1 text-white">FFOOD</div>
+  <div className="bg-primary rounded-lg w-[50px] text-center py-1 text-white">
+    FFOOD
+  </div>
 );
 
 export default function CurrentLocationMap() {

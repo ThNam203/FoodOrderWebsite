@@ -1,37 +1,28 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addFoodCategory, setFoodCategories } from "@/redux/slices/category";
-import { addFood } from "@/redux/slices/food";
-import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
-import FoodService from "@/services/foodService";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useId, useState } from "react";
-import { FieldError, Path, UseFormRegister, useForm } from "react-hook-form";
-import * as z from "zod";
-import NewCategoryModal from "../new_category_modal";
-import SearchAndChooseButton from "../search_and_choose_button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../shadcn_components/accordion";
-import { ChooseImageButton } from "./choose_image_button";
 import {
   FoodFormDataToFood,
   FoodToReceive,
   FoodToSend,
 } from "@/convertor/foodConvertor";
-import { X } from "lucide-react";
-import { Food, FoodCategory } from "@/models/Food";
-import { TextButton } from "../buttons";
-import { error } from "console";
-import { ClassValue } from "clsx";
+import { Food, FoodCategory, FoodStatus } from "@/models/Food";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { addFoodCategory } from "@/redux/slices/category";
+import { addFood, updateFood } from "@/redux/slices/food";
+import FoodService from "@/services/foodService";
 import { cn } from "@/utils/cn";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ClassValue } from "clsx";
+import { X } from "lucide-react";
+import { useEffect, useId, useState } from "react";
+import { FieldError, Path, UseFormRegister, useForm } from "react-hook-form";
+import * as z from "zod";
+import { TextButton } from "../buttons";
 import { Input } from "../input";
-import { showErrorToast } from "../toast";
-import { formatNumberInput, formatPrice } from "@/utils/func";
+import NewCategoryModal from "../new_category_modal";
+import SearchAndChooseButton from "../search_and_choose_button";
+import { showErrorToast, showSuccessToast } from "../toast";
+import { ChooseImageButton } from "./choose_image_button";
 
 export type FoodFormData = {
   name: string;
@@ -87,13 +78,13 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
   tags: z.array(z.string()),
 });
 
-export const NewFoodForm = ({
+export const FoodForm = ({
   closeForm,
-  onNewFoodSubmit,
   categories,
+  food,
 }: {
+  food?: Food;
   closeForm: () => any;
-  onNewFoodSubmit: (data: Food) => void;
   categories: FoodCategory[];
 }) => {
   const dispatch = useAppDispatch();
@@ -128,22 +119,53 @@ export const NewFoodForm = ({
     },
   });
 
-  // if newFileUrl == null, it means the user removed image
-  const handleImageChosen = (newFileUrl: File | null, index: number) => {
-    console.log(newFileUrl, " ", index);
-    if (newFileUrl === null) chosenImageFiles.splice(index, 1);
-    else chosenImageFiles.push(newFileUrl);
-    console.log(chosenImageFiles);
-
-    setValue(
-      "images",
-      chosenImageFiles.map((file) => URL.createObjectURL(file)),
-      { shouldValidate: true }
-    );
-    setChosenImageFiles(chosenImageFiles);
+  const setInitialValues = () => {
+    if (food) {
+      setValue("name", food.name);
+      setValue("status", food.status ? "true" : "false");
+      setValue("category", food.category.name);
+      setValue("images", food.images);
+      setValue(
+        "sizes",
+        food.foodSizes.map((size) => {
+          return {
+            sizeName: size.name,
+            price: size.price,
+            weight: size.weight,
+            note: size.note,
+          };
+        })
+      );
+      setValue("description", food.description);
+      setValue("tags", food.tags);
+    }
   };
 
+  useEffect(() => {
+    if (food) setInitialValues();
+  }, []);
+
+  // if newFileUrl == null, it means the user removed image
+  const handleImageChosen = (newFileUrl: File | null, index: number) => {
+    if (newFileUrl === null) chosenImageFiles.splice(index, 1);
+    else chosenImageFiles.push(newFileUrl);
+    setChosenImageFiles(chosenImageFiles);
+
+    const newImages = [...watch("images")];
+    console.log("before", newImages);
+    if (newFileUrl) newImages[index] = URL.createObjectURL(newFileUrl);
+    else newImages.splice(index, 1);
+    console.log("after", newImages);
+
+    setValue("images", newImages);
+  };
+
+  useEffect(() => {
+    console.log("images changed: ", watch("images"));
+  }, [watch("images")]);
+
   const onSubmit = async (values: FoodFormData) => {
+    console.log(values);
     const selectedCategory = categories.find(
       (cat: any) => cat.name === values.category
     );
@@ -159,17 +181,32 @@ export const NewFoodForm = ({
       .filter((file) => file != null)
       .forEach((imageFile) => dataForm.append("files", imageFile));
     setIsUploadingFood(true);
-    await FoodService.createNewFood(dataForm)
-      .then((result) => {
-        const newFood = FoodToReceive(result.data);
-        dispatch(addFood(newFood));
-        onNewFoodSubmit(newFood);
-      })
-      .catch((e) => console.error(e))
-      .finally(() => {
-        setIsUploadingFood(false);
-        closeForm();
-      });
+
+    if (food) {
+      await FoodService.updateFood(food.id, dataForm)
+        .then((result) => {
+          const updatedFood = FoodToReceive(result.data);
+          dispatch(updateFood(updatedFood));
+          showSuccessToast("Food updated successfully");
+        })
+        .catch((e) => console.error(e))
+        .finally(() => {
+          setIsUploadingFood(false);
+          closeForm();
+        });
+    } else {
+      await FoodService.createNewFood(dataForm)
+        .then((result) => {
+          const newFood = FoodToReceive(result.data);
+          dispatch(addFood(newFood));
+          showSuccessToast("New food added successfully");
+        })
+        .catch((e) => console.error(e))
+        .finally(() => {
+          setIsUploadingFood(false);
+          closeForm();
+        });
+    }
   };
 
   return (
@@ -180,7 +217,9 @@ export const NewFoodForm = ({
         }
       >
         <div className="mb-4 flex flex-row items-center justify-between">
-          <h3 className="text-base font-semibold">Add new food</h3>
+          <h3 className="text-base font-semibold">
+            {food ? "Update food" : "Add new food"}
+          </h3>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="1.25rem"
@@ -230,7 +269,6 @@ export const NewFoodForm = ({
                 if (vals) setValue("tags", vals);
                 else resetField("tags");
               }}
-              {...register("tags", { required: true })}
               error={errors.tags ? errors.tags[0] : undefined}
             />
             <ImagesInput
@@ -326,7 +364,7 @@ export const NewFoodForm = ({
               type="submit"
               className="w-[100px] px-4 text-white"
               disabled={isUploadingFood}
-              content="Save"
+              content={food ? "Update" : "Add"}
             />
             <TextButton
               type="button"
@@ -435,7 +473,7 @@ const StatusInput = ({ label, register, required, error }: InputProps) => {
         name={label}
         className="mr-2"
       />
-      <label htmlFor={id1}>Active</label>
+      <label htmlFor={id1}>{FoodStatus.ACTIVE}</label>
       <input
         id={id2}
         {...register(label, {
@@ -446,7 +484,7 @@ const StatusInput = ({ label, register, required, error }: InputProps) => {
         name={label}
         className="ml-4 mr-2"
       />
-      <label htmlFor={id2}>Disable</label>
+      <label htmlFor={id2}>{FoodStatus.DISABLE}</label>
     </div>
   );
 };
@@ -552,10 +590,20 @@ const ImagesInput = ({
   onImageChanged: (file: File | null, index: number) => void;
   error?: FieldError;
 }) => {
-  let displayFileUrls: (string | null)[] = [null, null, null, null, null];
-  fileUrls.forEach((fileUrl, index) => {
-    displayFileUrls[index] = fileUrl;
-  });
+  const [displayFileUrls, setDisplayFileUrls] = useState<(string | null)[]>([
+    null,
+    null,
+    null,
+    null,
+    null,
+  ]);
+  useEffect(() => {
+    let temp: (string | null)[] = [null, null, null, null, null];
+    fileUrls.forEach((fileUrl, index) => {
+      temp[index] = fileUrl;
+    });
+    setDisplayFileUrls(temp);
+  }, [fileUrls]);
   return (
     <div className="flex flex-col gap-2">
       <LabelInput label="Images" error={error} className="w-full" />

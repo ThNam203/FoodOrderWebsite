@@ -30,6 +30,8 @@ import { User } from "@/models/User";
 export const orderColumnTitles = {
   id: "Order ID",
   user: "Customer",
+  contact: "Contact",
+  email: "Email",
   address: "Address",
   total: "Total",
   paymentMethod: "Payment method",
@@ -40,9 +42,11 @@ export const orderColumnTitles = {
 export const orderDefaultVisibilityState = {
   id: true,
   user: true,
+  phoneNumber: true,
+  email: false,
   address: true,
   total: true,
-  paymentMethod: true,
+  paymentMethod: false,
   createdAt: true,
   status: true,
 };
@@ -179,6 +183,41 @@ const userColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
   return col;
 };
 
+const contactColumn = (
+  accessorKey: string,
+  title: string
+): ColumnDef<Order> => {
+  const col: ColumnDef<Order> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
+    cell: ({ row }) => {
+      let value: User = row.getValue("user");
+
+      return <p className="px-2">{value.phoneNumber}</p>;
+    },
+    enableSorting: true,
+  };
+  return col;
+};
+
+const emailColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
+  const col: ColumnDef<Order> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
+    cell: ({ row }) => {
+      let value: User = row.getValue("user");
+
+      return <p className="px-2">{value.email}</p>;
+    },
+    enableSorting: true,
+  };
+  return col;
+};
+
 const addressColumn = (
   accessorKey: string,
   title: string
@@ -190,9 +229,8 @@ const addressColumn = (
     ),
     cell: ({ row }) => {
       let value: User = row.getValue("user");
-      console.log(value);
 
-      return <p className="px-2">{value.address}</p>;
+      return <p className="w-[200px] px-2 truncate">{value.address}</p>;
     },
     enableSorting: true,
   };
@@ -207,7 +245,6 @@ const totalColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
     ),
     cell: ({ row }) => {
       let value: number = row.getValue(accessorKey);
-      console.log(value);
 
       return <p className="px-2">{value + "đ"}</p>;
     },
@@ -232,6 +269,9 @@ export const orderTableColumns = (
         onStatusChange
       );
     else if (key === "user") col = userColumn(key, orderColumnTitles[key]);
+    else if (key === "contact")
+      col = contactColumn(key, orderColumnTitles[key]);
+    else if (key === "email") col = emailColumn(key, orderColumnTitles[key]);
     else if (key === "address")
       col = addressColumn(key, orderColumnTitles[key]);
     else if (key === "total") col = totalColumn(key, orderColumnTitles[key]);

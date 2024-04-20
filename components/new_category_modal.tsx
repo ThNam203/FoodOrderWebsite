@@ -33,6 +33,7 @@ const NewCategoryModal = ({
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
 
   const form = useForm<NewCategoryFormData>({
     resolver: zodResolver(schema),
@@ -43,6 +44,7 @@ const NewCategoryModal = ({
     handleSubmit,
     watch,
     reset,
+    resetField,
     formState: { errors },
   } = form;
 
@@ -61,8 +63,9 @@ const NewCategoryModal = ({
   };
 
   const resetValues = () => {
-    reset();
+    resetField("name");
     setImage(null);
+    setFileUrl(null);
   };
 
   return (
@@ -96,7 +99,11 @@ const NewCategoryModal = ({
                 </ModalHeader>
                 <ModalBody>
                   <div className="flex flex-row gap-4">
-                    <ChooseImageButton onFileChosen={setImage} />
+                    <ChooseImageButton
+                      fileUrl={fileUrl}
+                      setFileUrl={setFileUrl}
+                      onFileChosen={setImage}
+                    />
                     <div className="!my-4 w-full flex flex-col gap-3 text-sm">
                       <Input
                         id="category_name"
@@ -129,10 +136,8 @@ const NewCategoryModal = ({
                     }
                     disabled={isLoading}
                     onClick={() => {
-                      reset();
-                      setImage(null);
-                      console.log("reset");
-                      // onClose();
+                      resetValues();
+                      onClose();
                     }}
                     content="Cancel"
                   />
@@ -147,11 +152,20 @@ const NewCategoryModal = ({
 };
 
 export const ChooseImageButton = ({
+  fileUrl,
+  setFileUrl,
   onFileChosen,
 }: {
+  fileUrl: string | null;
+  setFileUrl: (url: string | null) => void;
   onFileChosen: (file: File | null) => void;
 }) => {
-  const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFileUrl(URL.createObjectURL(e.target.files[0]));
+      onFileChosen(e.target.files[0]);
+    }
+  };
 
   return (
     <div className="w-[100px] h-[80px] relative border rounded-sm shrink-0">
@@ -166,12 +180,7 @@ export const ChooseImageButton = ({
           <input
             id={"new_category_image"}
             type="file"
-            onChange={(e) => {
-              if (e.target.files && e.target.files.length > 0) {
-                setFileUrl(URL.createObjectURL(e.target.files[0]));
-                onFileChosen(e.target.files[0]);
-              }
-            }}
+            onChange={handleFileChange}
             className="hidden"
             accept="image/*"
           />
