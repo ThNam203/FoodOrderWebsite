@@ -32,6 +32,7 @@ import FoodService from "@/services/foodService";
 import { setFoods } from "@/redux/slices/food";
 import Image from "next/image";
 import default_user_image from "@/public/images/default_user.png";
+import { FoodToReceive } from "@/convertor/foodConvertor";
 
 var data: any = {
   categories: [
@@ -165,9 +166,7 @@ export default function Home() {
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setOpen] = useState(false);
   const router = useRouter();
-  const [food, setFood] = useState<Food[]>(
-    useAppSelector((state) => state.food.activeFood)
-  );
+  const food = useAppSelector((state) => state.food.activeFood);
   const thisUser = useAppSelector((state) => state.profile.value);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
@@ -179,8 +178,8 @@ export default function Home() {
     const fetchData = async () => {
       await FoodService.getAllFood()
         .then((res) => {
-          setFood(res.data);
-          dispatch(setFoods(res.data));
+          const data = res.data.map((food) => FoodToReceive(food));
+          dispatch(setFoods(data));
         })
         .catch((err) => {
           showErrorToast("Failed to fetch data");
