@@ -19,6 +19,7 @@ public class FoodSize extends BaseEntity {
     private Double price;
     private Double weight;
     private String note;
+    private boolean deleted;
 
     @ManyToOne
     @JoinColumn(name = "food_id")

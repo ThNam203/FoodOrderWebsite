@@ -16,7 +16,7 @@ public class FoodMapper {
                 .status(food.getStatus())
                 .isDeleted(food.getIsDeleted())
                 .createdAt(food.getCreatedAt())
-                .foodSizes(food.getFoodSizes() != null ? food.getFoodSizes().stream().map(FoodSizeMapper::toFoodSizeDTO).toList() : null)
+                .foodSizes(food.getFoodSizes() != null ? food.getFoodSizes().stream().filter(foodSize -> !foodSize.isDeleted()).map(FoodSizeMapper::toFoodSizeDTO).toList(): null)
                 .category(food.getCategory() != null ? CategoryMapper.toCategoryDTO(food.getCategory()) : null)
                 .images(food.getImages() != null ? food.getImages().stream().map(Image::getUrl).toList() : null)
                 .tags(food.getTags() != null ? food.getTags().stream().map(Tag::getName).toList() : null)

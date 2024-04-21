@@ -26,7 +26,7 @@ public class Food extends BaseEntity {
     private String status;
     private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FoodSize> foodSizes;
 
     @ManyToOne

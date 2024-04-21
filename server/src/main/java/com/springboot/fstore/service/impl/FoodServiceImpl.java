@@ -139,8 +139,13 @@ public class FoodServiceImpl implements FoodService {
             }
         }
 
+        if (food.getFoodSizes() != null) {
+            for (FoodSize foodSize : food.getFoodSizes()) {
+                foodSize.setDeleted(true);
+            }
+        }
+
         if (foodDTO.getFoodSizes() != null) {
-//            food.getFoodSizes().clear(); // bug here
             food.getFoodSizes().addAll(foodDTO.getFoodSizes()
                     .stream()
                     .map(foodSizeDTO -> {
