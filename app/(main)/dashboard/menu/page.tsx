@@ -170,8 +170,10 @@ export default function DashboardMenu() {
         <FoodForm
           food={selectedFood}
           categories={categories}
-          closeForm={() => setOpenNewFoodForm(false)}
-          onNewFoodSubmit={(food: Food) => dispatch(setFoods([...data, food]))}
+          closeForm={() => {
+            setSelectedFood(undefined);
+            setOpenNewFoodForm(false);
+          }}
         />
       )}
     </div>

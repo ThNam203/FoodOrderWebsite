@@ -42,8 +42,8 @@ export const foodSlice = createSlice({
       state.activeFood = getActiveFood(state.allFood);
     },
     updateFood: (state, action: PayloadAction<Food>) => {
-      state.allFood = state.allFood.map((product) =>
-        product.id === action.payload.id ? action.payload : product
+      state.allFood = state.allFood.map((food) =>
+        food.id === action.payload.id ? action.payload : food
       );
       state.activeFood = getActiveFood(state.allFood);
     },
