@@ -238,7 +238,7 @@ export default function UserSettingPage() {
               setSelectedTab={setSelectedTab}
               selectedTab={selectedTab}
             />
-            <Tab
+            {/* <Tab
               className="w-[200px]"
               content="Billing"
               setSelectedTab={setSelectedTab}
@@ -249,7 +249,7 @@ export default function UserSettingPage() {
               content="Notification"
               setSelectedTab={setSelectedTab}
               selectedTab={selectedTab}
-            />
+            /> */}
           </div>
           <TabContent
             className="w-5/6"

@@ -30,6 +30,8 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addCartItem } from "@/redux/slices/cart";
 import FoodService from "@/services/foodService";
 import { setFoods } from "@/redux/slices/food";
+import Image from "next/image";
+import default_user_image from "@/public/images/default_user.png";
 
 var data: any = {
   categories: [
@@ -166,6 +168,7 @@ export default function Home() {
   const [food, setFood] = useState<Food[]>(
     useAppSelector((state) => state.food.activeFood)
   );
+  const thisUser = useAppSelector((state) => state.profile.value);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
@@ -217,16 +220,22 @@ export default function Home() {
               />
             </div>
             <div
-              className="flex flex-row items-center gap-2 hover:cursor-pointer"
+              className="flex flex-row items-center gap-4 cursor-pointer hover:bg-gray-50/20 rounded-md px-4 py-1 ease-linear duration-200"
               onClick={() => {
                 router.push("/user-setting");
               }}
             >
-              <img
-                src="https://scontent.fsgn19-1.fna.fbcdn.net/v/t1.6435-1/89355819_802321806918041_2820306896441835520_n.jpg?stp=dst-jpg_p240x240&_nc_cat=106&ccb=1-7&_nc_sid=2b6aad&_nc_ohc=mGJ07GAwJPIAX-HmCpl&_nc_ht=scontent.fsgn19-1.fna&oh=00_AfDzBpS8oC1vm-lKKyG65r9dHO5IqZrn36HGZ17stH9nXg&oe=6606CBD4"
-                className="w-10 h-10 rounded-full"
+              <p className="text-sm text-white font-semibold">
+                {thisUser ? thisUser.name : ""}
+              </p>
+              <Image
+                width={500}
+                height={400}
+                sizes="100vw"
+                src={thisUser ? thisUser.profileImage : default_user_image}
+                alt="image"
+                className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer"
               />
-              <p className="text-sm text-white font-semibold">Huynh Nam</p>
             </div>
           </div>
           <div className="grid grid-cols-6 grid-rows-2 mt-12 rounded-lg gap-1">
