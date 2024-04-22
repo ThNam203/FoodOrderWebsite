@@ -66,6 +66,8 @@ const schema: ZodType<UserSettingFormData> = z
   });
 
 const splitAddress = (address: string) => {
+  if (address === null || address === undefined)
+    return { houseNumber: "", street: "", district: "", province: "" };
   const [houseNumber, street, district, province] = address.split(", ");
   return { houseNumber, street, district, province };
 };
@@ -101,7 +103,7 @@ export default function UserSettingPage() {
     form.setValue("phonenumber", thisUser.phoneNumber);
 
     const address = thisUser.address;
-    if (address) {
+    if (address !== null && address !== undefined) {
       const { houseNumber, street, district, province } = splitAddress(address);
       form.setValue("houseNumber", houseNumber);
       form.setValue("street", street);
