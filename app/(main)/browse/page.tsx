@@ -1,38 +1,25 @@
 "use client";
 
-import MainPageItem from "@/components/main_page_item";
-import { ReactNode, use, useEffect, useRef, useState } from "react";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
-import emblaStyle from "@/styles/embla_carousel.module.css";
-import { twMerge } from "tailwind-merge";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@nextui-org/react";
-import { cn } from "@/utils/cn";
-import { IconButton, TextButton } from "@/components/buttons";
-import { Heart, ShoppingCart } from "lucide-react";
-import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
-import { NumberInput } from "@/components/input";
-import { useRouter } from "next/navigation";
-import { Food, FoodSize } from "@/models/Food";
 import { FoodDetail } from "@/components/food_detail";
-import { Cart } from "@/models/Cart";
-import CartService from "@/services/cartService";
+import MainPageItem from "@/components/main_page_item";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
+import { FoodToReceive } from "@/convertor/foodConvertor";
 import { fakeFoodItems } from "@/fakedata/foodData";
-import { setCookie } from "cookies-next";
+import { Cart } from "@/models/Cart";
+import { Food, FoodSize } from "@/models/Food";
+import default_user_image from "@/public/images/default_user.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addCartItem } from "@/redux/slices/cart";
-import FoodService from "@/services/foodService";
 import { setFoods } from "@/redux/slices/food";
+import CartService from "@/services/cartService";
+import FoodService from "@/services/foodService";
+import emblaStyle from "@/styles/embla_carousel.module.css";
+import { cn } from "@/utils/cn";
+import Autoplay from "embla-carousel-autoplay";
+import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import default_user_image from "@/public/images/default_user.png";
-import { FoodToReceive } from "@/convertor/foodConvertor";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 var data: any = {
   categories: [
@@ -231,7 +218,11 @@ export default function Home() {
                 width={500}
                 height={400}
                 sizes="100vw"
-                src={thisUser ? thisUser.profileImage : default_user_image}
+                src={
+                  thisUser && thisUser.profileImage
+                    ? thisUser.profileImage
+                    : default_user_image
+                }
                 alt="image"
                 className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer"
               />
