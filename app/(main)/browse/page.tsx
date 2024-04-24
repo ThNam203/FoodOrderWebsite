@@ -15,6 +15,7 @@ import CartService from "@/services/cartService";
 import FoodService from "@/services/foodService";
 import emblaStyle from "@/styles/embla_carousel.module.css";
 import { cn } from "@/utils/cn";
+import { he, is } from "date-fns/locale";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
@@ -155,6 +156,7 @@ export default function Home() {
   const router = useRouter();
   const food = useAppSelector((state) => state.food.activeFood);
   const thisUser = useAppSelector((state) => state.profile.value);
+  const [favoriteFoodList, setFavoriteFoodList] = useState<number[]>([]);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
@@ -174,6 +176,33 @@ export default function Home() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    setFavoriteFoodList(
+      thisUser && thisUser.listFavorite ? thisUser.listFavorite : []
+    );
+  }, [thisUser]);
+
+  const handleFavoriteFoodIdsChange = async (id: number) => {
+    await FoodService.addFavouriteFood(id)
+      .then(() => {
+        onFavoriteFoodIdsChange(id);
+      })
+      .catch((err) => {
+        showErrorToast("Failed to add to favorite");
+      });
+  };
+
+  const onFavoriteFoodIdsChange = (id: number) => {
+    if (favoriteFoodList.includes(id)) {
+      const newFavoriteFoodList = favoriteFoodList.filter((foodId) => {
+        return foodId !== id;
+      });
+      setFavoriteFoodList(newFavoriteFoodList);
+    } else {
+      setFavoriteFoodList([...favoriteFoodList, id]);
+    }
+  };
 
   return (
     <>
@@ -248,16 +277,28 @@ export default function Home() {
           <section>
             <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
 
-            <FoodListComponent foods={food} />
+            <FoodListComponent
+              foods={food}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">On sale</h3>
 
-            <FoodListComponent foods={fakeFoodItems} />
+            <FoodListComponent
+              foods={fakeFoodItems}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">Best rated</h3>
-            <FoodListComponent foods={fakeFoodItems} />
+            <FoodListComponent
+              foods={fakeFoodItems}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
           <section className="mb-8">
             <h3 className="text-4xl font-semibold my-8">Categories</h3>
@@ -319,7 +360,11 @@ export default function Home() {
                 </svg>
               </button>
             </div>
-            <FoodListComponent foods={fakeFoodItems} />
+            <FoodListComponent
+              foods={fakeFoodItems}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
         </div>
       </section>
@@ -327,7 +372,15 @@ export default function Home() {
   );
 }
 
-const FoodListComponent = ({ foods }: { foods: Food[] }) => {
+const FoodListComponent = ({
+  foods,
+  favoriteFoodIds = [],
+  onFavoriteFoodIdsChange,
+}: {
+  foods: Food[];
+  favoriteFoodIds?: number[];
+  onFavoriteFoodIdsChange?: (id: number) => void;
+}) => {
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
   const dispatch = useAppDispatch();
   const [isOpen, setOpen] = useState(false);
@@ -336,12 +389,12 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
     selectedFood.foodSizes[0]
   );
   const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
+
   const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
     if (selectedFood !== food) setSelectedSize(food.foodSizes[0]);
     setOpen(!isOpen);
   };
-  const [heartIconState, setHeartIconState] = useState(false);
 
   const handleAddToCart = async (food: Food) => {
     const newCartItem: Cart = {
@@ -375,6 +428,10 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
             className="flex-[0_0_33%] min-w-0"
             food={food}
             key={index}
+            isFavorite={favoriteFoodIds.includes(food.id)}
+            onFavoriteChange={(isFavorite: boolean) =>
+              onFavoriteFoodIdsChange && onFavoriteFoodIdsChange(food.id)
+            }
             onClick={() => handleFoodClick(food)}
           />
         ))}
@@ -389,9 +446,9 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
           }
           selectedSize={selectedSize}
           onFoodSizeChange={(foodSize: any) => handleFoodSizeChange(foodSize)}
-          isFavorite={heartIconState}
+          isFavorite={favoriteFoodIds.includes(selectedFood.id)}
           onFavoriteChange={(isFavorite: boolean) =>
-            setHeartIconState(isFavorite)
+            onFavoriteFoodIdsChange && onFavoriteFoodIdsChange(selectedFood.id)
           }
           onAddToCart={() => handleAddToCart(selectedFood)}
         />

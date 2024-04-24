@@ -3,20 +3,22 @@ import { twMerge } from "tailwind-merge";
 import FoodRating from "./food_rating";
 import { Food } from "@/models/Food";
 import { FoodPrice } from "./food_price";
-import { HeartIcon } from "lucide-react";
 import { IconButton } from "./buttons";
 import { cn } from "@/utils/cn";
+import { HeartIcon, OutlineHeartIcon } from "./icons";
 
 export default function MainPageItem({
   food,
   className,
   onClick,
   isFavorite = false,
+  onFavoriteChange,
 }: {
   food: Food;
   className?: string;
   onClick?: () => void;
   isFavorite?: boolean;
+  onFavoriteChange?: (isFavorite: boolean) => void;
 }) {
   const sortedPriceList = food.foodSizes
     .map((foodSize) => foodSize.price)
@@ -45,11 +47,11 @@ export default function MainPageItem({
         <div className="w-full flex flex-row items-center justify-between">
           <span className="font-semibold">{food.name}</span>
           <IconButton
-            className={cn(
-              "rounded-full ease-linear duration-100",
-              isFavorite ? "" : "hidden"
-            )}
-            icon={<HeartIcon />}
+            className={cn("rounded-full ease-linear duration-100")}
+            icon={isFavorite ? <HeartIcon /> : <OutlineHeartIcon />}
+            onClick={() => {
+              if (onFavoriteChange) onFavoriteChange(!isFavorite);
+            }}
           />
         </div>
         <FoodPrice

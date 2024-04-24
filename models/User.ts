@@ -9,4 +9,5 @@ export type User = {
   preferences: string;
   profileImage: string;
   isAdmin: boolean;
+  listFavorite: number[];
 };
