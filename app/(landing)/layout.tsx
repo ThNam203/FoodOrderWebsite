@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { Toast } from "@/components/toast";
 
 export const metadata: Metadata = {
-  title: "Fooddddddd",
+  title: "Free Food",
   description: "Food selling website",
 };
 
