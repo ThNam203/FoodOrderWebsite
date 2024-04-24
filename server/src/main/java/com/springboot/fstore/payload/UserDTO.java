@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -34,4 +35,6 @@ public class UserDTO {
     private Boolean isAdmin;
     @Schema(description = "The user's created date", example = "iso code")
     private LocalDateTime createdAt;
+    @Schema(description = "The user's favorite food", example = "[1, 2, 3]")
+    private List<Integer> listFavorite;
 }

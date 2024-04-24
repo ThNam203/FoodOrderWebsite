@@ -32,9 +32,10 @@ public class FoodFavoriteServiceImpl implements FoodFavoriteService {
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
         User user = userService.getAuthorizedUser();
         if (user.getFavouriteFoods().contains(food)) {
-            throw new CustomException("Food already in favorite list", HttpStatus.BAD_REQUEST);
+            user.getFavouriteFoods().remove(food);
+        } else {
+            user.getFavouriteFoods().add(food);
         }
-        user.getFavouriteFoods().add(food);
         userRepository.save(user);
     }
 
