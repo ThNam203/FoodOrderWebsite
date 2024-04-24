@@ -15,7 +15,7 @@
     "vue",
     "vue-html"
   ],
-  "cSpell.words": ["createdate", "nextui"],
+  "cSpell.words": ["clsx", "createdate", "nextui"],
   "tailwindCSS.includeLanguages": {
     "html": "html",
     "javascript": "javascript",

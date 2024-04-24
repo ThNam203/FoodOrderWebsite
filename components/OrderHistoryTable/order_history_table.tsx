@@ -16,9 +16,17 @@ import {
   SortDescriptor,
 } from "@nextui-org/react";
 import { SearchIcon } from "./search_icon";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Selection } from "@nextui-org/react";
 import { ChevronDownIcon } from "./chevron_down_icon";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { Order } from "@/models/Order";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
+import OrderService from "@/services/orderService";
+import { setOrders } from "@/redux/slices/order";
+import { OrderToReceive } from "@/convertor/orderConvertor";
+import { showErrorToast } from "@/components/toast";
+
 const columns = [
   { name: "Id", uid: "id", sortable: true },
   { name: "Product", uid: "product" },
@@ -32,87 +40,24 @@ const columns = [
 ];
 
 type OrderItem = {
-  id: number;
+  idOrder: string;
+  idItems: number;
   name: string;
   description: string;
-  image: string;
+  image: string[];
   quantity: number;
   price: number;
   total: number;
   status: string;
-  createDate: string;
+  createDate: Date;
 };
+interface OrderHistoryTableProps {
+  status: string;
+}
 
-const orderItems = [
-  {
-    id: 1,
-    name: "Product 1",
-    description: "Description 1",
-    image: "https://via.placeholder.com/150",
-    quantity: 1,
-    price: 100,
-    total: 100,
-    status: "Completed",
-    createDate: "2021-10-10",
-  },
-  {
-    id: 2,
-    name: "Product 2",
-    description: "Description 2",
-    image: "https://via.placeholder.com/150",
-    quantity: 2,
-    price: 102,
-    total: 102,
-    status: "Completed",
-    createDate: "2021-10-10",
-  },
-  {
-    id: 3,
-    name: "Product 3",
-    description: "Description 3",
-    image: "https://via.placeholder.com/150",
-    quantity: 3,
-    price: 103,
-    total: 103,
-    status: "Completed",
-    createDate: "2021-10-10",
-  },
-  {
-    id: 4,
-    name: "Product 4",
-    description: "Description 4",
-    image: "https://via.placeholder.com/150",
-    quantity: 19,
-    price: 1009,
-    total: 1009,
-    status: "Completed",
-    createDate: "2021-10-10",
-  },
-  {
-    id: 5,
-    name: "Product 5",
-    description: "Description 5",
-    image: "https://via.placeholder.com/150",
-    quantity: 1,
-    price: 1090,
-    total: 1090,
-    status: "Completed",
-    createDate: "2021-10-10",
-  },
-  {
-    id: 6,
-    name: "Product 6",
-    description: "Description 6",
-    image: "https://via.placeholder.com/150",
-    quantity: 15,
-    price: 100,
-    total: 1007,
-    status: "Completed",
-    createDate: "2021-10-10",
-  },
-];
-
-export default function OrderHistoryTable() {
+export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
+  const dispatch = useAppDispatch();
+  const data: Order[] = useAppSelector((state) => state.order.orders);
   const INITIAL_VISIBLE_COLUMNS = [
     "product",
     "name",
@@ -120,6 +65,7 @@ export default function OrderHistoryTable() {
     "quantity",
     "price",
     "total",
+    "status",
   ];
 
   const [filterValue, setFilterValue] = useState("");
@@ -133,6 +79,20 @@ export default function OrderHistoryTable() {
     column: "name",
     direction: "ascending",
   });
+  const orderItems: OrderItem[] = data.flatMap((order) =>
+    order.items.map((item) => ({
+      idOrder: `${order.id}-${item.id}`,
+      idItems: item.id,
+      name: item.food.name,
+      description: item.food.description,
+      image: item.food.images,
+      quantity: item.quantity,
+      price: item.price,
+      total: order.total,
+      status: order.status,
+      createDate: order.createdAt,
+    }))
+  );
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -142,15 +102,36 @@ export default function OrderHistoryTable() {
     );
   }, [visibleColumns]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      dispatch(showPreloader());
+      await OrderService.GetAllOrders()
+        .then((res) => {
+          const data = res.data.map((order: any) => OrderToReceive(order));
+          dispatch(setOrders(data));
+        })
+        .catch((err) => {
+          showErrorToast(err.message);
+        });
+      dispatch(disablePreloader());
+    };
+    fetchData();
+  }, []);
+
   const filteredData = useMemo(() => {
     let filteredData = [...orderItems];
+    if (status !== "All Orders") {
+      filteredData = filteredData.filter(
+        (item) => item.status === status.toUpperCase()
+      );
+    }
     if (hasSearchFilter) {
       filteredData = filteredData.filter((item) =>
         item.name.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
     return filteredData;
-  }, [hasSearchFilter, filterValue]);
+  }, [orderItems, status, hasSearchFilter, filterValue]);
 
   const handleSelectionChange = (keys: Selection) => {
     setSelectedKeys(new Set(Object.values(keys)));
@@ -188,22 +169,47 @@ export default function OrderHistoryTable() {
     setFilterValue("");
     setPage(1);
   }, []);
+  const ProductCell = ({ order }: any) => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setCurrentImageIndex(
+          (prevIndex) => (prevIndex + 1) % order.image.length
+        );
+      }, 3000);
+      return () => clearInterval(timer);
+    }, [order.image]);
+
+    return (
+      <div className="flex flex-col w-[220px] h-[220px]">
+        <Image
+          src={order.image[currentImageIndex]}
+          alt={`${order.name}-${currentImageIndex}`}
+          width={150}
+          height={150}
+        />
+        <div className="absolute bottom-0  left-12 flex justify-center mt-2">
+          {order.image.length > 1 &&
+            order.image.map((_: any, index: number) => (
+              <div
+                key={index}
+                onClick={() => setCurrentImageIndex(index)}
+                className={`h-2 w-2 rounded-full ${
+                  currentImageIndex === index ? "bg-blue-500" : "bg-gray-500"
+                } ml-1 cursor-pointer`}
+              />
+            ))}
+        </div>
+      </div>
+    );
+  };
 
   const renderCell = useCallback((order: any, columnKey: any) => {
     const cellValue = order[columnKey];
-
     switch (columnKey) {
       case "product":
-        return (
-          <div className="flex flex-col">
-            <Image
-              src={order.image}
-              alt={order.name}
-              width={150}
-              height={150}
-            />
-          </div>
-        );
+        return <ProductCell order={order} />;
       case "name":
         return (
           <div className="flex flex-col">
@@ -317,7 +323,7 @@ export default function OrderHistoryTable() {
           items={sortedItems}
         >
           {(item) => (
-            <TableRow key={item.id}>
+            <TableRow key={item.idOrder}>
               {(columnKey) => (
                 <TableCell>{renderCell(item, columnKey)}</TableCell>
               )}
