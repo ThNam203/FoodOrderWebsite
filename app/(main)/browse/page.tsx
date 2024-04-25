@@ -207,7 +207,7 @@ export default function Home() {
   return (
     <>
       <section
-        className="flex"
+        className="h-screen flex overflow-y-scroll"
         style={{
           background:
             "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8) ), url('/images/bg-main-page.jpg')",
@@ -422,7 +422,7 @@ const FoodListComponent = ({
 
   return (
     <div className={cn(emblaStyle.embla)} ref={emblaRef}>
-      <div className="w-full flex gap-[calc((100%-99%)/3)]">
+      <div className="w-full flex gap-[calc((100%-99%)/3)] mb-8">
         {foods.map((food: any, index: number) => (
           <MainPageItem
             className="flex-[0_0_33%] min-w-0"

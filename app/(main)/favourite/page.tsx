@@ -9,6 +9,7 @@ import { fakeFoodItems } from "@/fakedata/foodData";
 import { cn } from "@/utils/cn";
 import FoodService from "@/services/foodService";
 import { FoodToReceive } from "@/convertor/foodConvertor";
+import Image from "next/image";
 
 export default function FavouritePages() {
   const [favouriteFoods, setFavouriteFoods] = useState<Food[]>([]);
@@ -70,7 +71,13 @@ export default function FavouritePages() {
       <h1 className="text-primary text-3xl font-bold mb-4">
         Your favourite foods
       </h1>
-      <div className="grid grid-cols-4 gap-4 max-md:grid-cols-1 max-lg:grid-cols-2">
+      {favouriteFoods.length === 0 && <EmptyItem />}
+      <div
+        className={cn(
+          "grid grid-cols-4 gap-4 max-md:grid-cols-1 max-lg:grid-cols-2",
+          favouriteFoods.length === 0 ? "hidden" : ""
+        )}
+      >
         {favouriteFoods.map((food) => {
           return (
             <FavouriteFood
@@ -126,5 +133,21 @@ const Tag = ({
     >
       {name}
     </span>
+  );
+};
+
+const EmptyItem = () => {
+  return (
+    <div className="h-full flex flex-col items-center gap-10 mt-10">
+      <Image
+        width={300}
+        height={200}
+        src="/images/empty_item.png"
+        alt="empty item image"
+      />
+      <span className="text-secondaryWord text-xl">
+        Shopping more to find your favorite food
+      </span>
+    </div>
   );
 };
