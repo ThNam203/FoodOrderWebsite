@@ -24,7 +24,11 @@ public class FoodFavoriteServiceImpl implements FoodFavoriteService {
     @Override
     public List<FoodDTO> getFoodFavorite() {
         User user = userService.getAuthorizedUser();
-        return user.getFavouriteFoods().stream().map(FoodMapper::toFoodDTO).toList();
+        return user.getFavouriteFoods()
+                .stream()
+                .filter(food -> !food.getIsDeleted())
+                .map(FoodMapper::toFoodDTO)
+                .toList();
     }
 
     @Override
