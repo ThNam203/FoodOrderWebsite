@@ -71,23 +71,20 @@ input[type="number"] {
   font-size: 0.7rem;
 }
 
-/* width */
 ::-webkit-scrollbar {
   width: 8px;
+  scroll-behavior: smooth;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #ddd;
+  background: #00afab;
   border-radius: 5px;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #ccc;
+  background: #00afab;
 }

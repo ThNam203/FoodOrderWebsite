@@ -1,7 +1,9 @@
 import LayoutLoader from "@/components/layout_loader";
+import { ScrollArea } from "@/components/scroll-area";
 import { Toast } from "@/components/toast";
 import ReduxProvider from "@/redux/provider";
 import "@/styles/globals.css";
+import { cn } from "@/utils/cn";
 import { Lato } from "next/font/google";
 
 const lato = Lato({
@@ -22,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={lato.variable}>
+      <body className={cn(lato.variable, "overflow-hidden")}>
         <ReduxProvider>
           <LayoutLoader>{children}</LayoutLoader>
         </ReduxProvider>

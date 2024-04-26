@@ -31,6 +31,7 @@ import { LoadingIcon } from "@/components/icons";
 import { CreateDataForPayment } from "@/convertor/momoConvertor";
 import MomoService from "@/services/momoService";
 import { isValidInfomation } from "@/utils/func";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 const Title = ({
   className,
   content,
@@ -303,6 +304,7 @@ const CartPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      dispatch(showPreloader());
       await CartService.GetCart()
         .then((res) => {
           setCartData(res.data);
@@ -320,7 +322,9 @@ const CartPage = () => {
           showErrorToast("Failed to fetch data");
         });
     };
-    fetchData();
+    fetchData().finally(() => {
+      dispatch(disablePreloader());
+    });
     setCookie("redirect", "");
   }, []);
 
@@ -347,7 +351,7 @@ const CartPage = () => {
   }, [selectedCardIds, cartData, foodData]);
 
   return (
-    <div className="w-full font-sans flex flex-row">
+    <div className="w-full h-screen font-sans flex flex-row">
       <div className="max-h-screen flex-1 flex-col p-8 text-primaryWord">
         <div className="bg-white flex flex-col gap-8 items-start mb-4">
           <h1 className="text-primary text-3xl font-bold">Your cart</h1>
@@ -373,7 +377,8 @@ const CartPage = () => {
               />
               <div
                 className={cn(
-                  "h-full overflow-y-scroll flex flex-col items-center gap-2"
+                  "h-full flex flex-col items-center gap-2 scrollbar overflow-y-scroll",
+                  cartData.length === 0 ? "hidden" : ""
                 )}
               >
                 {cartData.map((cart) => {

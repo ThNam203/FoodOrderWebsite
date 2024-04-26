@@ -32,6 +32,18 @@ const deleteFood = (id: number) => {
   return AxiosService.delete(`/api/foods/${id}`);
 };
 
+const getFavouriteFoods = () => {
+  return AxiosService.get<Food[]>("/api/food-favorite");
+};
+
+const addFavouriteFood = (id: number) => {
+  return AxiosService.post(`/api/food-favorite/${id}`);
+};
+
+const removeFavouriteFood = (id: number) => {
+  return AxiosService.delete(`/api/food-favorite/${id}`);
+};
+
 const FoodService = {
   createNewCategory,
   getCategories,
@@ -39,6 +51,9 @@ const FoodService = {
   createNewFood,
   updateFood,
   deleteFood,
+  getFavouriteFoods,
+  addFavouriteFood,
+  removeFavouriteFood,
 };
 
 export default FoodService;

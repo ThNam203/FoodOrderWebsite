@@ -328,7 +328,7 @@ export default function UserSettingPage() {
                               {...register("province")}
                             />
                           </DropdownTrigger>
-                          <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll">
+                          <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll scrollbar-hide">
                             {provinceNameList.map((provinceName) => (
                               <DropdownItem
                                 key={provinceName}
@@ -366,7 +366,7 @@ export default function UserSettingPage() {
                               }}
                             />
                           </DropdownTrigger>
-                          <DropdownMenu>
+                          <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll scrollbar-hide">
                             {districtNameList.map((districtName) => (
                               <DropdownItem
                                 key={districtName}

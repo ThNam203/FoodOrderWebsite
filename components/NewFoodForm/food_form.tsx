@@ -213,7 +213,7 @@ export const FoodForm = ({
     <div className="fixed left-0 top-0 z-[50] flex h-screen w-screen items-center justify-center bg-black bg-opacity-30">
       <div
         className={
-          "flex max-h-[95%] w-[95%] max-w-[600px] flex-col overflow-y-auto rounded-md bg-white p-4 scrollbar-no-arrows scrollbar scrollbar-hidden"
+          "flex max-h-[95%] w-[95%] max-w-[600px] flex-col overflow-y-auto rounded-md bg-white p-4 scrollbar scrollbar-none"
         }
       >
         <div className="mb-4 flex flex-row items-center justify-between">
