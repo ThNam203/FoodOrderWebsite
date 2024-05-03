@@ -4,7 +4,6 @@ import { CalendarDays, Check, Filter, Maximize2, XCircle } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
-import scrollbar_style from "../../styles/scrollbar.module.css";
 import {
   Accordion,
   AccordionContent,
@@ -48,7 +47,7 @@ const SingleChoiceFilter = <T extends string | number>({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full rounded-md bg-white px-4", className)}
+      className={cn("w-full border-b bg-white px-2", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -114,7 +113,7 @@ const MultiChoicesFilter = <T extends string | number>({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full rounded-md bg-white px-4", className)}
+      className={cn("w-full border-b bg-white px-2", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -286,7 +285,7 @@ const TimeFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full rounded-md bg-white px-4", className)}
+      className={cn("w-full border-b bg-white px-2", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -298,7 +297,7 @@ const TimeFilter = ({
         </AccordionTrigger>
         <AccordionContent>
           <RadioGroup className="gap-3 pb-2">
-            <div className="relative flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
+            <div className="relative flex flex-row items-center gap-2 rounded-sm border border-gray-300 p-2">
               <Radio
                 value="1"
                 id={title + "1"}
@@ -318,7 +317,7 @@ const TimeFilter = ({
               </label>
               <Popover>
                 <PopoverTrigger>
-                  <Maximize2 size={16} />
+                  <Maximize2 size={16} className="cursor-pointer" />
                 </PopoverTrigger>
                 <PopoverContent className="flex w-auto -translate-x-4 flex-row gap-6">
                   <div>
@@ -414,7 +413,7 @@ const TimeFilter = ({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
+            <div className="flex flex-row items-center gap-2 rounded-sm border border-gray-300 p-2">
               <Radio
                 value="2"
                 id={title + "2"}
@@ -438,7 +437,7 @@ const TimeFilter = ({
                 onOpenChange={setIsRangeFilterOpen}
               >
                 <PopoverTrigger>
-                  <CalendarDays size={16} />
+                  <CalendarDays size={16} className="cursor-pointer" />
                 </PopoverTrigger>
                 <PopoverContent className="flex w-auto -translate-x-4 flex-col">
                   <TimerFilterRangePicker
@@ -509,7 +508,7 @@ const SecondaryTimeFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full rounded-md bg-white px-4", className)}
+      className={cn("w-full bg-white px-2", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -521,7 +520,7 @@ const SecondaryTimeFilter = ({
         </AccordionTrigger>
         <AccordionContent>
           <RadioGroup className="gap-3 pb-2">
-            <div className="relative flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
+            <div className="relative flex flex-row items-center gap-2 rounded-sm border border-gray-300 p-2">
               <Radio
                 value="1"
                 id={title + "1"}
@@ -565,7 +564,7 @@ const SecondaryTimeFilter = ({
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="flex flex-row items-center space-x-3 rounded-sm border border-gray-300 p-2">
+            <div className="flex flex-row items-center gap-2 rounded-sm border border-gray-300 p-2">
               <Radio
                 value="2"
                 id={title + "2"}
@@ -637,7 +636,7 @@ const SearchFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full rounded-md bg-white px-4", className)}
+      className={cn("w-full border-b bg-white px-2", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -661,8 +660,7 @@ const SearchFilter = ({
             {showSearchValue ? (
               <div
                 className={cn(
-                  "absolute left-0 top-[100%] z-[9] max-h-[200px] w-full overflow-y-auto shadow-sm shadow-gray-600",
-                  scrollbar_style.scrollbar
+                  "absolute left-0 top-[100%] z-[9] max-h-[200px] w-full overflow-y-auto shadow-sm shadow-gray-600"
                 )}
               >
                 <ul>
@@ -756,7 +754,7 @@ const SearchFilterObject = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full rounded-md bg-white px-4", className)}
+      className={cn("w-full border-b bg-white px-2", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -780,8 +778,7 @@ const SearchFilterObject = ({
             {showSearchValue ? (
               <div
                 className={cn(
-                  "absolute left-0 top-[100%] z-[9] max-h-[200px] w-full overflow-y-auto shadow-sm shadow-gray-600",
-                  scrollbar_style.scrollbar
+                  "absolute left-0 top-[100%] z-[9] max-h-[200px] w-full overflow-y-auto shadow-sm shadow-gray-600"
                 )}
               >
                 <ul>
@@ -871,7 +868,7 @@ const RangeFilter = ({
       type="single"
       collapsible={!alwaysOpen}
       defaultValue="item-1"
-      className={cn("w-full rounded-md bg-white px-4", className)}
+      className={cn("w-full border-b bg-white px-2", className)}
     >
       <AccordionItem value="item-1">
         <AccordionTrigger showArrowFunc={alwaysOpen ? "hidden" : ""}>
@@ -882,12 +879,12 @@ const RangeFilter = ({
           </div>
         </AccordionTrigger>
         <AccordionContent className="overflow-hidden">
-          <div className="relative flex flex-col space-y-2">
-            <div className="flex flex-row items-center justify-between space-x-2">
+          <div className="relative flex flex-col gap-2 py-1">
+            <div className="flex flex-row items-center justify-between gap-2 px-2">
               <label className="w-[50px]">{firstLabel}</label>
               <Input
                 ref={startValueRef}
-                className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                className="w-full"
                 placeholder={firstPlaceholder}
                 onChange={(e) => {
                   setShowReset(true);
@@ -899,11 +896,11 @@ const RangeFilter = ({
                 }}
               />
             </div>
-            <div className="flex flex-row items-center justify-between space-x-2">
+            <div className="flex flex-row items-center justify-between gap-2 px-2">
               <label className="w-[50px]">{secondLabel}</label>
               <Input
                 ref={endValueRef}
-                className="w-full focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+                className="w-full"
                 placeholder={secondPlaceholder}
                 onChange={(e) => {
                   setShowReset(true);
@@ -966,11 +963,11 @@ const PageWithFilters = ({
     <>
       <div
         className={cn(
-          "flex min-h-screen min-w-0 flex-1 flex-col rounded-sm bg-white px-4 py-2 md:mr-[200px] lg:mr-[260px]"
+          "flex min-h-screen min-w-0 flex-1 flex-col rounded-sm bg-white p-8 md:mr-[200px] lg:mr-[260px]"
         )}
       >
         <div className="flex flex-row items-center">
-          <h2 className="my-4 flex-1 text-start text-2xl font-bold">{title}</h2>
+          <h1 className="text-primary text-3xl font-bold">{title}</h1>
           <div className="min-w-[8px] flex-1" />
           {headerButtons}
           <Filter
@@ -983,9 +980,9 @@ const PageWithFilters = ({
       </div>
       <div
         className={cn(
-          "fixed top-2 h-full overflow-hidden",
+          "fixed top-0 h-full border-l px-2 overflow-hidden",
           openFilter
-            ? "left-0 top-0 z-[50] w-full bg-slate-400 p-3"
+            ? "left-0 top-0 z-[50] w-full bg-slate-400"
             : "max-md:hidden md:right-2 md:w-[200px] lg:w-[260px]"
         )}
       >
@@ -993,7 +990,12 @@ const PageWithFilters = ({
           <ScrollArea
             className={cn("rounded-md", openFilter ? "pr-[1px]" : "")}
           >
-            <div className={openFilter ? "h-[calc(96vh-40px)]" : "h-[96vh]"}>
+            <div
+              className={cn(
+                "text-primaryWord",
+                openFilter ? "h-[calc(96vh-40px)]" : "h-[96vh]"
+              )}
+            >
               {...filters}
             </div>
           </ScrollArea>
