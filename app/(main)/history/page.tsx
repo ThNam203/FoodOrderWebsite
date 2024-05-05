@@ -11,7 +11,7 @@ export default function HistoryPage() {
   const [selectedTab, setSelectedTab] = useState("All Orders");
 
   return (
-    <div className="min-h-screen h-screen w-full font-sans p-8 text-primaryWord bg-white">
+    <div className=" h-screen w-full font-sans p-8 text-primaryWord bg-white overflow-y-auto scrollbar-thin">
       <div className="w-full h-full flex flex-col">
         <div className="w-full flex flex-col font-bold text-lg">
           Order History

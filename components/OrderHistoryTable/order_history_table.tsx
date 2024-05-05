@@ -14,6 +14,11 @@ import {
   DropdownItem,
   Pagination,
   SortDescriptor,
+  useDisclosure,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
 } from "@nextui-org/react";
 import { SearchIcon } from "./search_icon";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,9 +31,10 @@ import OrderService from "@/services/orderService";
 import { setOrders } from "@/redux/slices/order";
 import { OrderToReceive } from "@/convertor/orderConvertor";
 import { showErrorToast } from "@/components/toast";
+import { FoodDetail } from "../food_detail";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 const columns = [
-  { name: "Id", uid: "id", sortable: true },
   { name: "Product", uid: "product" },
   { name: "Name", uid: "name", sortable: true },
   { name: "Description", uid: "description" },
@@ -51,6 +57,7 @@ type OrderItem = {
   status: string;
   createDate: Date;
 };
+
 interface OrderHistoryTableProps {
   status: string;
 }
@@ -67,7 +74,9 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
     "total",
     "status",
   ];
+  const [selectedFood, setSelectedFood] = useState<OrderItem | null>(null);
 
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [filterValue, setFilterValue] = useState("");
   const [selectedKeys, setSelectedKeys] = useState(new Set<any>([]));
   const rowsPerPage = 3;
@@ -75,12 +84,50 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
   const [visibleColumns, setVisibleColumns] = useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  enum OrderStatus {
+    PENDING = "PENDING",
+    ACCEPTED = "ACCEPTED",
+    DELIVERED = "DELIVERED",
+    REJECTED = "REJECTED",
+    CANCELLED = "CANCELLED",
+  }
+
+  const statusColorMapping = {
+    [OrderStatus.PENDING]: "text-yellow-400",
+    [OrderStatus.ACCEPTED]: "text-green-400",
+    [OrderStatus.DELIVERED]: "text-blue-400",
+    [OrderStatus.REJECTED]: "text-red-400",
+    [OrderStatus.CANCELLED]: "text-orange-400",
+  };
+
+  const previousImage = () => {
+    if (currentImageIndex === 0) {
+      setCurrentImageIndex(selectedFood?.image?.length ?? -1);
+    } else {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex < (selectedFood?.image?.length ?? 0) - 1 ? prevIndex + 1 : 0
+    );
+  };
+
+  const onRowClick = (item: any) => {
+    setSelectedFood(item);
+    setCurrentImageIndex(0);
+    onOpen();
+  };
+
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "name",
     direction: "ascending",
   });
-  const orderItems: OrderItem[] = data.flatMap((order) =>
-    order.items.map((item) => ({
+  const orderItems: OrderItem[] = data.flatMap((order) => {
+    return order.items.map((item) => ({
       idOrder: `${order.id}-${item.id}`,
       idItems: item.id,
       name: item.food.name,
@@ -91,9 +138,9 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
       total: order.total,
       status: order.status,
       createDate: order.createdAt,
-    }))
-  );
-
+    }));
+  });
+  console.log("orderItems:", orderItems);
   const hasSearchFilter = Boolean(filterValue);
 
   const headerColumns = useMemo(() => {
@@ -172,35 +219,49 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
   const ProductCell = ({ order }: any) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+    const nextImage = () => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % order.image.length);
+    };
+
+    const previousImage = () => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? order.image.length - 1 : prevIndex - 1
+      );
+    };
+
     useEffect(() => {
-      const timer = setInterval(() => {
-        setCurrentImageIndex(
-          (prevIndex) => (prevIndex + 1) % order.image.length
-        );
-      }, 3000);
+      const timer = setInterval(nextImage, 3000);
       return () => clearInterval(timer);
     }, [order.image]);
 
     return (
-      <div className="flex flex-col w-[220px] h-[220px]">
-        <Image
-          src={order.image[currentImageIndex]}
-          alt={`${order.name}-${currentImageIndex}`}
-          width={150}
-          height={150}
-        />
-        <div className="absolute bottom-0  left-12 flex justify-center mt-2">
-          {order.image.length > 1 &&
-            order.image.map((_: any, index: number) => (
-              <div
-                key={index}
-                onClick={() => setCurrentImageIndex(index)}
-                className={`h-2 w-2 rounded-full ${
-                  currentImageIndex === index ? "bg-blue-500" : "bg-gray-500"
-                } ml-1 cursor-pointer`}
-              />
-            ))}
+      <div className="flex flex-row h-[220px] w-[220px]">
+        <button onClick={previousImage}>
+          <ChevronLeftIcon />
+        </button>
+        <div className="w-150 h-150 flex justify-center items-center relative">
+          <Image
+            src={order.image[currentImageIndex]}
+            alt={`${order.name}-${currentImageIndex}`}
+            width={150}
+            height={150}
+          />
+          <div className="absolute bottom-0 left-12 flex justify-center mt-2">
+            {order.image.length > 1 &&
+              order.image.map((_: any, index: number) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`h-2 w-2 rounded-full ${
+                    currentImageIndex === index ? "bg-blue-500" : "bg-gray-500"
+                  } ml-1 cursor-pointer`}
+                />
+              ))}
+          </div>
         </div>
+        <button onClick={nextImage}>
+          <ChevronRightIcon />
+        </button>
       </div>
     );
   };
@@ -220,6 +281,12 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
         return (
           <div className="flex flex-col">
             <span>{cellValue}</span>
+          </div>
+        );
+      case "createDate":
+        return (
+          <div className="flex flex-col">
+            <span>{new Date(cellValue).toLocaleDateString("vi-VN")}</span>
           </div>
         );
       default:
@@ -323,7 +390,7 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
           items={sortedItems}
         >
           {(item) => (
-            <TableRow key={item.idOrder}>
+            <TableRow key={item.idOrder} onDoubleClick={() => onRowClick(item)}>
               {(columnKey) => (
                 <TableCell>{renderCell(item, columnKey)}</TableCell>
               )}
@@ -331,6 +398,102 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
           )}
         </TableBody>
       </Table>
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        placement="center"
+        className="min-h-[700px] min-w-[800px]"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 text-primaryWord" />
+              <ModalBody>
+                <div className="flex flex-row text-primaryWord">
+                  <div className="flex flex-row h-[600px] w-[400px]">
+                    <button onClick={previousImage}>
+                      <ChevronLeftIcon />
+                    </button>
+                    <div className="w-350 h-600 flex justify-center items-center relative">
+                      <Image
+                        src={selectedFood?.image[currentImageIndex]}
+                        alt={selectedFood?.name}
+                        width={350}
+                        height={350}
+                        className="border-2 border-black"
+                      />
+                      <div className="absolute bottom-0 left-18 flex justify-center mt-2">
+                        {selectedFood &&
+                          selectedFood.image &&
+                          selectedFood.image.length > 1 &&
+                          selectedFood.image.map((_: any, index: number) => (
+                            <div
+                              key={index}
+                              onClick={() => setCurrentImageIndex(index)}
+                              className={`h-2 w-2 rounded-full ${
+                                currentImageIndex === index
+                                  ? "bg-blue-500"
+                                  : "bg-gray-500"
+                              } ml-1 cursor-pointer`}
+                            />
+                          ))}
+                      </div>
+                    </div>
+                    <button onClick={nextImage}>
+                      <ChevronRightIcon />
+                    </button>
+                  </div>
+                  <div className="ml-4 min-h-full flex flex-col justify-between">
+                    <div>
+                      <div className="font-sans font-semibold text-3xl">
+                        {selectedFood?.name}
+                      </div>
+                      <div className="font-sans font-semibold text-xl text-orange-600 mt-4">
+                        Price:{" "}
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(selectedFood?.price || 0)}
+                      </div>
+                      <div className="font-sans font-normal text-xl mt-4">
+                        Description: {selectedFood?.description}
+                      </div>
+                      <div className="font-sans font-normal text-xl mt-4">
+                        Quantity: {selectedFood?.quantity}
+                      </div>
+                      <div className="font-sans font-normal text-xl mt-4">
+                        Status:{" "}
+                        {selectedFood?.status && (
+                          <span
+                            className={` ${
+                              statusColorMapping[selectedFood.status]
+                            }`}
+                          >
+                            {selectedFood.status}
+                          </span>
+                        )}
+                      </div>
+                      <div className="font-sans font-normal text-xl mt-4">
+                        Create Date:{" "}
+                        {new Date(
+                          selectedFood?.createDate ?? ""
+                        ).toLocaleDateString("vi-VN")}
+                      </div>
+                    </div>
+                    <div className="font-sans font-semibold text-2xl text-orange-600 mt-4">
+                      Total:{" "}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(selectedFood?.total || 0)}
+                    </div>
+                  </div>
+                </div>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
