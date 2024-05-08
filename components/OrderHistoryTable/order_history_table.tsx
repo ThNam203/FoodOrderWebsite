@@ -42,7 +42,7 @@ const columns = [
   { name: "Price", uid: "price", sortable: true },
   { name: "Total", uid: "total", sortable: true },
   { name: "Status", uid: "status" },
-  { name: "Create Date", uid: "createdate", sortable: true },
+  { name: "Create Date", uid: "createDate", sortable: true },
 ];
 
 type OrderItem = {
@@ -236,9 +236,11 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
 
     return (
       <div className="flex flex-row h-[220px] w-[220px]">
-        <button onClick={previousImage}>
-          <ChevronLeftIcon />
-        </button>
+        {order.image.length > 1 && (
+          <button onClick={previousImage}>
+            <ChevronLeftIcon />
+          </button>
+        )}
         <div className="w-150 h-150 flex justify-center items-center relative">
           <Image
             src={order.image[currentImageIndex]}
@@ -259,15 +261,18 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
               ))}
           </div>
         </div>
-        <button onClick={nextImage}>
-          <ChevronRightIcon />
-        </button>
+        {order.image.length > 1 && (
+          <button onClick={nextImage}>
+            <ChevronRightIcon />
+          </button>
+        )}
       </div>
     );
   };
 
   const renderCell = useCallback((order: any, columnKey: any) => {
     const cellValue = order[columnKey];
+
     switch (columnKey) {
       case "product":
         return <ProductCell order={order} />;
@@ -389,13 +394,20 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
           emptyContent={<div className="text-center">No data found</div>}
           items={sortedItems}
         >
-          {(item) => (
-            <TableRow key={item.idOrder} onDoubleClick={() => onRowClick(item)}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
+          {(item) => {
+            console.log("item:", item);
+            return (
+              <TableRow
+                key={item.idOrder}
+                onDoubleClick={() => onRowClick(item)}
+              >
+                {(columnKey) => {
+                  console.log("columnKey:", columnKey);
+                  return <TableCell>{renderCell(item, columnKey)}</TableCell>;
+                }}
+              </TableRow>
+            );
+          }}
         </TableBody>
       </Table>
       <Modal
@@ -411,9 +423,11 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
               <ModalBody>
                 <div className="flex flex-row text-primaryWord">
                   <div className="flex flex-row h-[600px] w-[400px]">
-                    <button onClick={previousImage}>
-                      <ChevronLeftIcon />
-                    </button>
+                    {selectedFood?.image && selectedFood.image.length > 1 && (
+                      <button onClick={previousImage}>
+                        <ChevronLeftIcon />
+                      </button>
+                    )}
                     <div className="w-350 h-600 flex justify-center items-center relative">
                       <Image
                         src={selectedFood?.image[currentImageIndex]}
@@ -439,9 +453,11 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
                           ))}
                       </div>
                     </div>
-                    <button onClick={nextImage}>
-                      <ChevronRightIcon />
-                    </button>
+                    {selectedFood?.image && selectedFood.image.length > 1 && (
+                      <button onClick={nextImage}>
+                        <ChevronLeftIcon />
+                      </button>
+                    )}
                   </div>
                   <div className="ml-4 min-h-full flex flex-col justify-between">
                     <div>
