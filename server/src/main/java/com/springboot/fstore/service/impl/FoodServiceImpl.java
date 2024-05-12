@@ -31,6 +31,7 @@ public class FoodServiceImpl implements FoodService {
     private final FoodRattingRepository foodRattingRepository;
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
+
     @Override
     public FoodDTO createFood(MultipartFile[] files, FoodDTO foodDTO) {
         Food food = FoodMapper.toFood(foodDTO);
@@ -94,10 +95,10 @@ public class FoodServiceImpl implements FoodService {
 
         //check if user remove some images
         List<String> currentImages = food.getImages().stream().map(Image::getUrl).toList();
-        List <String> uploadedImages = foodDTO.getImages();
+        List<String> uploadedImages = foodDTO.getImages();
         List<String> intersec = new ArrayList<>();
         // get intersec of currentImages and uploadedImages
-        for(String image : uploadedImages) {
+        for (String image : uploadedImages) {
             if (currentImages.contains(image)) {
                 intersec.add(image);
             }

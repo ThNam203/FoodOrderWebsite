@@ -15,6 +15,7 @@ public class OrderMapper {
                 .createdAt(order.getCreatedAt())
                 .build();
     }
+
     public static Order toOrder(OrderDTO orderDTO) {
         return Order.builder()
                 .total(orderDTO.getTotal())

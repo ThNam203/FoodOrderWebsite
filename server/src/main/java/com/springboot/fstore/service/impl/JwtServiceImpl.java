@@ -33,10 +33,12 @@ public class JwtServiceImpl implements JwtService {
     private String jwtAccess;
 
     private final TokenRepository tokenRepository;
+
     @Override
     public String extractUsername(String jwt) {
         return extractClaim(jwt, Claims::getSubject);
     }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -46,6 +48,7 @@ public class JwtServiceImpl implements JwtService {
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
+
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
@@ -73,15 +76,18 @@ public class JwtServiceImpl implements JwtService {
         final String username = extractUsername(jwt);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(jwt);
     }
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
+
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
+
     @Override
     public ResponseCookie generateCookie(String token) {
-        return generateCookie(jwtAccess, token, (int) (jwtExpiration/1000) - 1);
+        return generateCookie(jwtAccess, token, (int) (jwtExpiration / 1000) - 1);
     }
 
     @Override
@@ -97,13 +103,16 @@ public class JwtServiceImpl implements JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
     private ResponseCookie generateCookie(String name, String value, int maxAgeSeconds) {
         return ResponseCookie.from(name, value).secure(true).sameSite("None").path("/").maxAge(maxAgeSeconds).httpOnly(true).build();
     }
+
     private String getCookieValueByName(HttpServletRequest request, String name) {
         Cookie cookie = WebUtils.getCookie(request, name);
         if (cookie != null) {

@@ -1,4 +1,4 @@
-package com.springboot.fstore.payload;
+package com.springboot.fstore.payload.reports;
 
 import lombok.*;
 

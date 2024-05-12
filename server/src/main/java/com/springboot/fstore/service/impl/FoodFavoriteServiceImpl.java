@@ -21,6 +21,7 @@ public class FoodFavoriteServiceImpl implements FoodFavoriteService {
     private final UserRepository userRepository;
     private final FoodRepository foodRepository;
     private final UserService userService;
+
     @Override
     public List<FoodDTO> getFoodFavorite() {
         User user = userService.getAuthorizedUser();

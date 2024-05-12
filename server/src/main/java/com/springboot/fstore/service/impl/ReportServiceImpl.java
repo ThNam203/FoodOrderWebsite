@@ -1,9 +1,10 @@
 package com.springboot.fstore.service.impl;
 
+import com.springboot.fstore.entity.Cart;
 import com.springboot.fstore.entity.Order;
-import com.springboot.fstore.payload.CustomerReport;
-import com.springboot.fstore.payload.FoodReport;
-import com.springboot.fstore.payload.SalesReport;
+import com.springboot.fstore.payload.reports.FoodReport;
+import com.springboot.fstore.payload.reports.FoodReportValue;
+import com.springboot.fstore.payload.reports.ReportValue;
 import com.springboot.fstore.repository.OrderRepository;
 import com.springboot.fstore.service.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,87 +21,360 @@ public class ReportServiceImpl implements ReportService {
 
 
     @Override
-    public List<SalesReport> getSalesReport(Date startDate, Date endDate) {
-
+    public List<ReportValue> getOrderByMonth(Date startDate, Date endDate) {
         LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         endDateTime = endDateTime.plusDays(1);
 
-        List<SalesReport> salesReportList = new ArrayList<>();
-
         List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
 
+        List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
+
         for (Order order : orderList) {
-            if (!salesReportList.isEmpty()
-                    && salesReportList.get(salesReportList.size() - 1).getDate().toLocalDate()
-                    .equals(order.getCreatedAt().toLocalDate())) {
-                salesReportList.get(salesReportList.size() - 1).setRevenue(salesReportList.get(salesReportList.size() - 1).getRevenue() + order.getTotal());
-            } else {
-                salesReportList.add(SalesReport.builder()
-                        .date(order.getCreatedAt())
-                        .revenue(order.getTotal())
-                        .build());
-            }
+            reportValueList.stream()
+                    .filter(reportValue -> reportValue.getMonth() == order.getCreatedAt().getMonthValue()
+                            && reportValue.getYear() == order.getCreatedAt().getYear())
+                    .findFirst()
+                    .ifPresent(reportValue -> reportValue.setValue(reportValue.getValue() + 1));
         }
 
-        return salesReportList;
+        return reportValueList;
     }
 
     @Override
-    public List<FoodReport> getFoodReport(Date startDate, Date endDate) {
+    public List<ReportValue> getTotalCompletedOrderByMonth(Date startDate, Date endDate) {
         LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         endDateTime = endDateTime.plusDays(1);
 
         List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
-        List<FoodReport> foodReportList = new ArrayList<>();
+
+        List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
 
         for (Order order : orderList) {
-            order.getItems().forEach(cart -> {
-                if (!foodReportList.isEmpty() && foodReportList.stream().anyMatch(foodReport -> foodReport.getFoodId() == cart.getFood().getId())) {
-                    FoodReport foodReport = foodReportList.stream().filter(report -> report.getFoodId() == cart.getFood().getId()).findFirst().get();
-                    foodReport.setQuantity(foodReport.getQuantity() + cart.getQuantity());
-                    foodReport.setTotalSales(foodReport.getTotalSales() + cart.getPrice());
-                } else {
-                    foodReportList.add(FoodReport.builder()
-                            .foodId(cart.getFood().getId())
-                            .quantity(cart.getQuantity())
-                            .totalSales(cart.getPrice())
-                            .build());
-                }
-            });
+            if (!order.getStatus().equals("Delivered")) continue;
+
+            reportValueList.stream()
+                    .filter(reportValue -> reportValue.getMonth() == order.getCreatedAt().getMonthValue()
+                            && reportValue.getYear() == order.getCreatedAt().getYear())
+                    .findFirst()
+                    .ifPresent(reportValue -> reportValue.setValue(reportValue.getValue() + 1));
         }
 
-        foodReportList.sort((o1, o2) -> o2.getQuantity() - o1.getQuantity());
+        return reportValueList;
+    }
+
+    @Override
+    public List<ReportValue> getAverageRevenueByMonth(Date startDate, Date endDate) {
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        endDateTime = endDateTime.plusDays(1);
+
+        List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
+
+        List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
+
+        for (ReportValue reportValue : reportValueList) {
+            double totalRevenue = 0;
+            int totalOrder = 0;
+            for (Order order : orderList) {
+                if (!order.getStatus().equals("Delivered")) continue;
+
+                if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
+                        && order.getCreatedAt().getYear() == reportValue.getYear()) {
+                    totalRevenue += order.getTotal();
+                    totalOrder++;
+                }
+            }
+            if (totalOrder != 0) {
+                reportValue.setValue(totalRevenue / totalOrder);
+            }
+        }
+
+        return reportValueList;
+    }
+
+    @Override
+    public List<ReportValue> getCancelledOrderByMonth(Date startDate, Date endDate) {
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        endDateTime = endDateTime.plusDays(1);
+
+        List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
+
+        List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
+
+        for (Order order : orderList) {
+            if (!order.getStatus().equals("Cancelled")) continue;
+
+            reportValueList.stream()
+                    .filter(reportValue -> reportValue.getMonth() == order.getCreatedAt().getMonthValue()
+                            && reportValue.getYear() == order.getCreatedAt().getYear())
+                    .findFirst()
+                    .ifPresent(reportValue -> reportValue.setValue(reportValue.getValue() + 1));
+        }
+
+        return reportValueList;
+    }
+
+    @Override
+    public List<ReportValue> getCancellationRateByMonth(Date startDate, Date endDate) {
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        endDateTime = endDateTime.plusDays(1);
+
+        List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
+
+        List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
+
+        for (ReportValue reportValue : reportValueList) {
+            int totalOrder = 0;
+            int totalCancelled = 0;
+            for (Order order : orderList) {
+                if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
+                        && order.getCreatedAt().getYear() == reportValue.getYear()) {
+                    totalOrder++;
+                    if (order.getStatus().equals("Cancelled")) {
+                        totalCancelled++;
+                    }
+                }
+            }
+            if (totalOrder != 0) {
+                reportValue.setValue((double) totalCancelled / totalOrder);
+            }
+        }
+
+        return reportValueList;
+    }
+
+    @Override
+    public List<ReportValue> getRevenueByMonth(Date startDate, Date endDate) {
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        endDateTime = endDateTime.plusDays(1);
+
+        List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
+
+        List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
+
+            for (ReportValue reportValue : reportValueList) {
+            double totalRevenue = 0;
+            for (Order order : orderList) {
+                if (!order.getStatus().equals("Delivered")) continue;
+
+                if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
+                        && order.getCreatedAt().getYear() == reportValue.getYear()) {
+                    totalRevenue += order.getTotal();
+                }
+            }
+            reportValue.setValue(totalRevenue);
+        }
+
+        return reportValueList;
+    }
+
+    @Override
+    public List<FoodReport> getTopFoodByRevenue(Date startDate, Date endDate) {
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        endDateTime = endDateTime.plusDays(1);
+
+        List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
+
+        List<FoodReport> foodReportList = initFoodReportList(startDateTime, endDateTime);
+
+        for (FoodReport foodReport : foodReportList) {
+            List<FoodReportValue> foodReportValues = new ArrayList<>();
+
+            for (Order order : orderList) {
+                if (!order.getStatus().equals("Delivered")) continue;
+
+                if (order.getCreatedAt().getMonthValue() == foodReport.getMonth()
+                        && order.getCreatedAt().getYear() == foodReport.getYear()) {
+                    for (Cart cart : order.getItems()) {
+                        if (foodReportValues.stream().anyMatch(foodReportValue -> foodReportValue.getFoodId() == cart.getFood().getId())) {
+                            FoodReportValue foodReportValue = foodReportValues.stream()
+                                    .filter(value -> value.getFoodId() == cart.getFood().getId())
+                                    .findFirst()
+                                    .get();
+                            foodReportValue.setRevenue(foodReportValue.getRevenue() + cart.getPrice());
+                            foodReportValue.setQuantity(foodReportValue.getQuantity() + cart.getQuantity());
+                        } else {
+                            foodReportValues.add(FoodReportValue.builder()
+                                    .foodId(cart.getFood().getId())
+                                    .foodName(cart.getFood().getName())
+                                    .quantity(cart.getQuantity())
+                                    .revenue(cart.getPrice())
+                                    .build());
+                        }
+                    }
+                }
+            }
+
+            foodReportValues.sort((o1, o2) -> (int) (o2.getRevenue() - o1.getRevenue()));
+
+            for (int i = 0; i < foodReportValues.size() && i < 5; i++) {
+                foodReport.getValues().add(foodReportValues.get(i));
+            }
+        }
 
         return foodReportList;
     }
 
     @Override
-    public List<CustomerReport> getCustomerReport(Date startDate, Date endDate) {
+    public List<FoodReport> getTopFoodByOrder(Date startDate, Date endDate) {
         LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         endDateTime = endDateTime.plusDays(1);
 
         List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
-        List<CustomerReport> customerReportList = new ArrayList<>();
 
-        for (Order order : orderList) {
-            if (!customerReportList.isEmpty() && customerReportList.stream().anyMatch(customerReport -> customerReport.getUserId() == order.getUser().getId())) {
-                CustomerReport customerReport = customerReportList.stream().filter(report -> report.getUserId() == order.getUser().getId()).findFirst().get();
-                customerReport.setTotalSpent(customerReport.getTotalSpent() + order.getTotal());
-                customerReport.setTotalOrder(customerReport.getTotalOrder() + 1);
-            } else {
-                customerReportList.add(CustomerReport.builder()
-                        .userId(order.getUser().getId())
-                        .totalSpent(order.getTotal())
-                        .totalOrder(1)
+        List<FoodReport> foodReportList = initFoodReportList(startDateTime, endDateTime);
+
+        for (FoodReport foodReport : foodReportList) {
+            List<FoodReportValue> foodReportValues = new ArrayList<>();
+
+            for (Order order : orderList) {
+                if (!order.getStatus().equals("Delivered")) continue;
+
+                if (order.getCreatedAt().getMonthValue() == foodReport.getMonth()
+                        && order.getCreatedAt().getYear() == foodReport.getYear()) {
+                    for (Cart cart : order.getItems()) {
+                        if (foodReportValues.stream().anyMatch(foodReportValue -> foodReportValue.getFoodId() == cart.getFood().getId())) {
+                            FoodReportValue foodReportValue = foodReportValues.stream()
+                                    .filter(value -> value.getFoodId() == cart.getFood().getId())
+                                    .findFirst()
+                                    .get();
+                            foodReportValue.setRevenue(foodReportValue.getRevenue() + cart.getPrice());
+                            foodReportValue.setQuantity(foodReportValue.getQuantity() + cart.getQuantity());
+                        } else {
+                            foodReportValues.add(FoodReportValue.builder()
+                                    .foodId(cart.getFood().getId())
+                                    .foodName(cart.getFood().getName())
+                                    .quantity(cart.getQuantity())
+                                    .revenue(cart.getPrice())
+                                    .build());
+                        }
+                    }
+                }
+            }
+
+            foodReportValues.sort((o1, o2) -> (int) (o2.getQuantity() - o1.getQuantity()));
+
+            for (int i = 0; i < foodReportValues.size() && i < 5; i++) {
+                foodReport.getValues().add(foodReportValues.get(i));
+            }
+        }
+
+        return foodReportList;
+    }
+
+    @Override
+    public List<ReportValue> getCustomerTransaction(Date startDate, Date endDate) {
+        LocalDateTime startDateTime = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime endDateTime = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        endDateTime = endDateTime.plusDays(1);
+
+        List<Order> orderList = orderRepository.findAllByCreatedAtBetween(startDateTime, endDateTime);
+
+        List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
+
+        for (ReportValue reportValue : reportValueList) {
+            Set<Integer> customerSet = new HashSet<>();
+
+            for (Order order : orderList) {
+                if (!order.getStatus().equals("Delivered")) continue;
+
+                if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
+                        && order.getCreatedAt().getYear() == reportValue.getYear()) {
+                    customerSet.add(order.getUser().getId());
+                }
+            }
+            reportValue.setValue(customerSet.size());
+        }
+
+        return reportValueList;
+    }
+
+    private List<ReportValue> initReportValueList(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        List<ReportValue> reportValueList = new ArrayList<>();
+        if (startDateTime.getYear() == endDateTime.getYear()) {
+            for (int month = startDateTime.getMonthValue(); month <= endDateTime.getMonthValue(); month++) {
+                reportValueList.add(ReportValue.builder()
+                        .month(month)
+                        .year(startDateTime.getYear())
+                        .value(0)
+                        .build());
+            }
+        } else {
+            for (int month = startDateTime.getMonthValue(); month <= 12; month++) {
+                reportValueList.add(ReportValue.builder()
+                        .month(month)
+                        .year(startDateTime.getYear())
+                        .value(0)
+                        .build());
+            }
+
+            for (int year = startDateTime.getYear() + 1; year < endDateTime.getYear(); year++) {
+                for (int month = 1; month <= 12; month++) {
+                    reportValueList.add(ReportValue.builder()
+                            .month(month)
+                            .year(year)
+                            .value(0)
+                            .build());
+                }
+            }
+
+            for (int month = 1; month <= endDateTime.getMonthValue(); month++) {
+                reportValueList.add(ReportValue.builder()
+                        .month(month)
+                        .year(endDateTime.getYear())
+                        .value(0)
+                        .build());
+            }
+        }
+        return reportValueList;
+    }
+
+    private List<FoodReport> initFoodReportList(LocalDateTime startDateTime, LocalDateTime endDateTime ) {
+        List<FoodReport> foodReportList = new ArrayList<>();
+
+        if (startDateTime.getYear() == endDateTime.getYear()) {
+            for (int month = startDateTime.getMonthValue(); month <= endDateTime.getMonthValue(); month++) {
+                foodReportList.add(FoodReport.builder()
+                        .month(month)
+                        .year(startDateTime.getYear())
+                        .values(new ArrayList<>())
+                        .build());
+            }
+        } else {
+            for (int month = startDateTime.getMonthValue(); month <= 12; month++) {
+                foodReportList.add(FoodReport.builder()
+                        .month(month)
+                        .year(startDateTime.getYear())
+                        .values(new ArrayList<>())
+                        .build());
+            }
+
+            for (int year = startDateTime.getYear() + 1; year < endDateTime.getYear(); year++) {
+                for (int month = 1; month <= 12; month++) {
+                    foodReportList.add(FoodReport.builder()
+                            .month(month)
+                            .year(year)
+                            .values(new ArrayList<>())
+                            .build());
+                }
+            }
+
+            for (int month = 1; month <= endDateTime.getMonthValue(); month++) {
+                foodReportList.add(FoodReport.builder()
+                        .month(month)
+                        .year(endDateTime.getYear())
+                        .values(new ArrayList<>())
                         .build());
             }
         }
 
-        customerReportList.sort((o1, o2) -> (int) (o2.getTotalSpent() - o1.getTotalSpent()));
-
-        return customerReportList;
+        return foodReportList;
     }
 }

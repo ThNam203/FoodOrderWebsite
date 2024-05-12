@@ -11,7 +11,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "food_ratting")
-public class FoodRatting extends BaseEntity{
+public class FoodRatting extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

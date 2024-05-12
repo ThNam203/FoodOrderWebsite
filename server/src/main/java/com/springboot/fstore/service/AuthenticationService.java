@@ -6,5 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthenticationService {
     UserDTO register(AccountDTO request, HttpServletResponse response);
+
     UserDTO authenticate(AccountDTO request, HttpServletResponse response);
 }
