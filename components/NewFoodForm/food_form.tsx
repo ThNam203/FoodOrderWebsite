@@ -121,6 +121,7 @@ export const FoodForm = ({
 
   const setInitialValues = () => {
     if (food) {
+      console.log("food: ", food);
       setValue("name", food.name);
       setValue("status", food.status ? "true" : "false");
       setValue("category", food.category.name);
@@ -353,8 +354,9 @@ export const FoodForm = ({
 
                     setValue("sizes", [...watch("sizes"), newSize]);
                   }}
-                  content="Add size"
-                />
+                >
+                  Add size
+                </TextButton>
               </div>
             </div>
           </div>
@@ -364,8 +366,9 @@ export const FoodForm = ({
               type="submit"
               className="w-[100px] px-4 text-white"
               disabled={isUploadingFood}
-              content={food ? "Update" : "Add"}
-            />
+            >
+              {food ? "Update" : "Add"}
+            </TextButton>
             <TextButton
               type="button"
               className="w-[100px] bg-gray-400 px-4 hover:bg-gray-500 disabled:bg-gray-400/60"
@@ -375,8 +378,9 @@ export const FoodForm = ({
                 closeForm();
               }}
               disabled={isUploadingFood}
-              content="Cancel"
-            />
+            >
+              Cancel
+            </TextButton>
           </div>
         </form>
       </div>

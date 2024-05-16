@@ -100,10 +100,11 @@ export default function RegisterPage() {
           <TextButton
             type="submit"
             iconBefore={isSigningUp ? <LoadingIcon /> : null}
-            content={isSigningUp ? "" : "Sign Up"}
             className="w-full mt-10 text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
             disabled={isSigningUp}
-          />
+          >
+            {isSigningUp ? "" : "Sign Up"}
+          </TextButton>
 
           <span className="text-sm text-secondaryWord self-start mt-4">
             Already have an account

@@ -1,4 +1,6 @@
 import { Font, StyleSheet } from "@react-pdf/renderer";
+import OpenSansSemiBold from "../../public/fonts/OpenSans-SemiBold.ttf";
+import OpenSansMedium from "../../public/fonts/OpenSans-Medium.ttf";
 
 export const getDefaultStylePDF = (numOfCols: number) => {
   const styles = StyleSheet.create({
@@ -18,7 +20,7 @@ export const getDefaultStylePDF = (numOfCols: number) => {
       alignItems: "center",
     },
     headerTitle: {
-      fontWeight: 700,
+      fontWeight: 600,
       fontFamily: "OpenSans",
       fontSize: "24px",
     },
@@ -78,11 +80,11 @@ export const getDefaultStylePDF = (numOfCols: number) => {
     family: "OpenSans",
     fonts: [
       {
-        src: "https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-300.ttf",
+        src: OpenSansMedium,
         fontWeight: 300,
       },
       {
-        src: "https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-600.ttf",
+        src: OpenSansSemiBold,
         fontWeight: 600,
       },
     ],
@@ -109,7 +111,7 @@ export const getBusinessStylePDF = ({ numOfCols }: { numOfCols: number }) => {
       alignItems: "center",
     },
     headerTitle: {
-      fontWeight: 700,
+      fontWeight: 600,
       fontFamily: "OpenSans",
       fontSize: "18px",
     },
@@ -177,11 +179,11 @@ export const getBusinessStylePDF = ({ numOfCols }: { numOfCols: number }) => {
     family: "OpenSans",
     fonts: [
       {
-        src: "https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-300.ttf",
+        src: OpenSansMedium,
         fontWeight: 300,
       },
       {
-        src: "https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-600.ttf",
+        src: OpenSansSemiBold,
         fontWeight: 600,
       },
     ],

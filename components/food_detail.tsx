@@ -130,10 +130,11 @@ export const FoodDetail = ({
             <ModalFooter>
               <TextButton
                 iconAfter={<ShoppingCart className="w-4 h-4" />}
-                content="Add to cart"
                 className="w-min gap-2 text-nowrap text-primaryWord bg-transparent hover:text-primary hover:bg-transparent ease-linear duration-100"
                 onClick={onAddToCart}
-              />
+              >
+                Add to cart
+              </TextButton>
             </ModalFooter>
           </>
         )}

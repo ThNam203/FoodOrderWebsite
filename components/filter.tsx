@@ -275,6 +275,7 @@ const TimeFilter = ({
   const [isRangeFilterOpen, setIsRangeFilterOpen] = useState(false);
 
   useEffect(() => {
+    console.log("isSingleFilter", isSingleFilter);
     onTimeFilterControlChanged(
       isSingleFilter ? TimeFilterType.StaticRange : TimeFilterType.RangeTime
     );

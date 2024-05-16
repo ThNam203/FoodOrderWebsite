@@ -80,30 +80,34 @@ export function CustomDataTablePagination<TData>({
                 className="hidden h-8 w-8 p-0 lg:flex"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
-                content="Go to first page"
                 iconAfter={<ChevronsLeft className="h-4 w-4" />}
-              />
+              >
+                Go to first page
+              </TextButton>
               <TextButton
                 className="h-8 w-8 p-0"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                content="Go to previous page"
                 iconAfter={<ChevronLeftIcon className="h-4 w-4" />}
-              />
+              >
+                Go to previous page
+              </TextButton>
               <TextButton
                 className="h-8 w-8 p-0"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                content="Go to next page"
                 iconAfter={<ChevronRightIcon className="h-4 w-4" />}
-              />
+              >
+                Go to next page
+              </TextButton>
               <TextButton
                 className="hidden h-8 w-8 p-0 lg:flex"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
-                content="Go to last page"
                 iconAfter={<ChevronsRight className="h-4 w-4" />}
-              />
+              >
+                Go to last page
+              </TextButton>
             </div>
           </>
         ) : null}

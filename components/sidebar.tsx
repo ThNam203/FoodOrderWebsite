@@ -24,6 +24,7 @@ import { cookies } from "next/headers";
 import { usePathname } from "next/navigation";
 import AuthService from "@/services/authService";
 import { showErrorToast, showSuccessToast } from "./toast";
+import { LayoutList } from "lucide-react";
 
 const CustomLink = ({
   className,
@@ -109,7 +110,7 @@ export default function Sidebar({
           </div>
           <div className={style["nav__list"]}>
             <CustomLink
-              href="/dashboard/menu"
+              href="/dashboard"
               content="Dashboard"
               icon={<DashBoardIcon />}
               selectedLink={usePathname()}
@@ -132,6 +133,12 @@ export default function Sidebar({
               </svg>
               <span className={style["nav__name"]}>Intro</span>
             </a> */}
+            <CustomLink
+              href="/inventory/menu"
+              content="Inventory"
+              icon={<LayoutList strokeWidth={1} />}
+              selectedLink={usePathname()}
+            />
 
             <CustomLink
               href="/browse"
@@ -153,7 +160,7 @@ export default function Sidebar({
               selectedLink={selectedLink}
             />
             <CustomLink
-              href="/order_management"
+              href="/order-management"
               content="Orders"
               icon={<OrderIcon />}
               selectedLink={selectedLink}

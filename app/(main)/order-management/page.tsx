@@ -40,6 +40,7 @@ export default function OrderManagement() {
       dispatch(showPreloader());
       await OrderService.GetAllOrders()
         .then((res) => {
+          console.log(res);
           const data = res.data.map((order: any) => OrderToReceive(order));
           dispatch(setOrders(data));
         })
@@ -130,7 +131,7 @@ export default function OrderManagement() {
   };
 
   return (
-    <div className="flex flex-col p-8 text-primaryWord">
+    <div className="h-screen flex flex-col p-8 text-primaryWord overflow-y-scroll">
       <div className="flex flex-row justify-between mb-4">
         <h1 className="text-4xl font-bold text-primary">Order management</h1>
       </div>
@@ -216,9 +217,10 @@ const OrderDetailTab = ({
                   ? "bg-primary text-white"
                   : "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord"
               )}
-              content="Food items"
               onClick={() => handleSelectedFoodItemTabChange("")}
-            />
+            >
+              Food items
+            </TextButton>
             <ChevronRight className="w-5 h-5 text-secondaryWord" />
           </div>
           <div className="flex flex-row gap-4">
@@ -293,12 +295,13 @@ const FoodItemTab = ({
         "text-sm rounded-md py-1",
         selectedTab === cart.food.name ? selectedStyle : defaultStyle
       )}
-      content={cart.food.name + " x " + cart.quantity.toString()}
       onClick={() => {
         setSelectedTab(cart.food.name);
         if (onClick) onClick();
       }}
-    />
+    >
+      {cart.food.name + " x " + cart.quantity.toString()}
+    </TextButton>
   );
 };
 

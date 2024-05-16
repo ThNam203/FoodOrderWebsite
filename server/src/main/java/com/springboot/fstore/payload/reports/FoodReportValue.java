@@ -1,5 +1,7 @@
 package com.springboot.fstore.payload.reports;
 
+import com.springboot.fstore.entity.Food;
+import com.springboot.fstore.payload.FoodDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +14,5 @@ import lombok.NoArgsConstructor;
 public class FoodReportValue {
     private double revenue;
     private int quantity;
-    private int foodId;
-    private String foodName;
-    private String foodImage;
+    private FoodDTO food;
 }

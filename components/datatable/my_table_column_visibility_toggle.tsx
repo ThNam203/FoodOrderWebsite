@@ -39,9 +39,10 @@ function DataTableViewOptions<TData>({
       <DropdownMenuTrigger asChild>
         <TextButton
           iconBefore={<Settings2 className="h-4 w-4" />}
-          content={title}
           className="gap-2 whitespace-nowrap text-secondaryWord bg-gray-100 hover:bg-gray-200 ease-linear duration-100 py-2 rounded-md cursor-pointer"
-        />
+        >
+          {title}
+        </TextButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

@@ -246,7 +246,7 @@ const CartPage = () => {
   const [foodData, setFoodData] = useState<Food[]>([]);
   const [selectedCardIds, setSelectedCartIds] = useState<number[]>([]);
   const [selectedPayMethod, setSelectedPayMethod] = useState<PaymentMethod>(
-    PaymentMethod.MOMO
+    PaymentMethod.CASH
   );
   const [subtotal, setSubtotal] = useState(0);
   const rightColRef = useRef<HTMLDivElement>(null);
@@ -377,7 +377,7 @@ const CartPage = () => {
               />
               <div
                 className={cn(
-                  "h-full flex flex-col items-center gap-2 scrollbar overflow-y-scroll",
+                  "h-full flex flex-col items-center gap-2 overflow-y-scroll",
                   cartData.length === 0 ? "hidden" : ""
                 )}
               >
@@ -494,20 +494,6 @@ const CartPage = () => {
                 <div className="font-bold">Payment method</div>
                 <div className="w-full flex flex-row items-center justify-start gap-2">
                   <PayMethodButton
-                    content={PaymentMethod.MOMO}
-                    icon={
-                      <Image
-                        src="/images/momo_logo.svg"
-                        alt="momo"
-                        className="rounded-lg"
-                        width={40}
-                        height={40}
-                      />
-                    }
-                    selectedButton={selectedPayMethod}
-                    onClick={() => handlePayMethodChange(PaymentMethod.MOMO)}
-                  />
-                  <PayMethodButton
                     content={PaymentMethod.CASH}
                     icon={
                       <Image
@@ -520,6 +506,20 @@ const CartPage = () => {
                     }
                     selectedButton={selectedPayMethod}
                     onClick={() => handlePayMethodChange(PaymentMethod.CASH)}
+                  />
+                  <PayMethodButton
+                    content={PaymentMethod.MOMO}
+                    icon={
+                      <Image
+                        src="/images/momo_logo.svg"
+                        alt="momo"
+                        className="rounded-lg"
+                        width={40}
+                        height={40}
+                      />
+                    }
+                    selectedButton={selectedPayMethod}
+                    onClick={() => handlePayMethodChange(PaymentMethod.MOMO)}
                   />
                 </div>
               </div>
@@ -548,15 +548,17 @@ const CartPage = () => {
 
               <div className="w-1/2 flex flex-row items-center justify-between gap-4 mt-8">
                 <TextButton
-                  content="View order"
                   className="w-1/2 bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord"
                   onClick={() => router.push("/")}
-                />
+                >
+                  View order
+                </TextButton>
                 <TextButton
-                  content="Continue shopping"
                   className="w-1/2 text-nowrap"
                   onClick={() => router.push("/browse")}
-                />
+                >
+                  Continue shopping
+                </TextButton>
               </div>
             </div>
           }
@@ -580,12 +582,13 @@ const CartPage = () => {
                 <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
-                content="Make payment"
                 className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={() => {
                   handleSelectedTabChange("Checkout Details");
                 }}
-              />
+              >
+                Make payment
+              </TextButton>
             </div>
           }
         />
@@ -629,7 +632,6 @@ const CartPage = () => {
               </div>
               <TextButton
                 iconBefore={isOrdering ? <LoadingIcon /> : null}
-                content={isOrdering ? "" : "Order"}
                 className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={async () => {
                   if (!thisUser) {
@@ -681,7 +683,9 @@ const CartPage = () => {
                     )
                     .finally(() => setIsOrdering(false));
                 }}
-              />
+              >
+                {isOrdering ? "" : "Order"}
+              </TextButton>
             </div>
           }
         />

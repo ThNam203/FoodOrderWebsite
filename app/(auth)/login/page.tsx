@@ -93,10 +93,11 @@ export default function LoginPage() {
             <TextButton
               type="submit"
               iconBefore={isLoggingIn ? <LoadingIcon /> : null}
-              content={isLoggingIn ? "" : "Sign Me In"}
               disabled={isLoggingIn}
               className="w-full mt-6 text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
-            />
+            >
+              {isLoggingIn ? "" : "Sign Me In"}
+            </TextButton>
 
             <span className="text-sm text-secondaryWord">
               Don&#39;t have an account
