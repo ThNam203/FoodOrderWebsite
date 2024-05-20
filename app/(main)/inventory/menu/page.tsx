@@ -7,9 +7,9 @@ import { setFoods } from "@/redux/slices/food";
 import FoodService from "@/services/foodService";
 import { useEffect, useState } from "react";
 
-import CustomCarousel, {
+import ImageCarousel, {
   CarouselItem,
-} from "@/components/CustomCarousel/custom_carousel";
+} from "@/components/CustomCarousel/image_carousel";
 import {
   ConfirmDialog,
   ConfirmDialogType,
@@ -206,7 +206,7 @@ const FoodDetailTab = ({
         <div
           className={cn("w-[250px] max-h-[200px] rounded-sm overflow-hidden")}
         >
-          <CustomCarousel carouselItems={carouselItems} />
+          <ImageCarousel carouselItems={carouselItems} />
         </div>
         <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
           <div className="flex flex-1 flex-col">

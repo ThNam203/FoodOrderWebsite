@@ -24,7 +24,7 @@ import { cookies } from "next/headers";
 import { usePathname } from "next/navigation";
 import AuthService from "@/services/authService";
 import { showErrorToast, showSuccessToast } from "./toast";
-import { LayoutList } from "lucide-react";
+import { Home, LayoutList } from "lucide-react";
 
 const CustomLink = ({
   className,
@@ -82,7 +82,11 @@ export default function Sidebar({
 
   return (
     <div
-      className={cn(style["l-navbar"], isSidebarOpen ? style.expander : "")}
+      className={cn(
+        style["l-navbar"],
+        isSidebarOpen ? style.expander : "",
+        "max-sm:w-[92px]"
+      )}
       id="navbar"
     >
       <nav className={style.nav}>
@@ -93,7 +97,7 @@ export default function Sidebar({
               width="3rem"
               height="3rem"
               viewBox="0 0 24 24"
-              className={style["nav__toggle"]}
+              className={cn(style["nav__toggle"], "max-sm:hidden")}
               id="nav-toggle"
               onClick={() => {
                 onSidebarToggle();
@@ -104,11 +108,18 @@ export default function Sidebar({
                 d="M4 17.27v-1h16v1zm0-4.77v-1h16v1zm0-4.77v-1h16v1z"
               />
             </svg>
-            <a href="#" className={style["nav__logo"]}>
+            <a href="/" className={cn(style["nav__logo"], "max-sm:hidden")}>
               FFOOD
             </a>
           </div>
           <div className={style["nav__list"]}>
+            <CustomLink
+              href="/"
+              content=""
+              icon={<Home size={20} />}
+              selectedLink={usePathname()}
+              className="sm:hidden"
+            />
             <CustomLink
               href="/dashboard"
               content="Dashboard"
@@ -140,12 +151,6 @@ export default function Sidebar({
               selectedLink={usePathname()}
             />
 
-            <CustomLink
-              href="/browse"
-              content="Browse"
-              icon={<BrowseIcon />}
-              selectedLink={selectedLink}
-            />
             <CustomLink
               href="/cart"
               content="Your cart"

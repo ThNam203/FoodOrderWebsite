@@ -26,7 +26,8 @@ export default function RootLayout({
     <div
       className={cn(
         "min-h-screen bg-transparent font-sans transition-[0.5] ease-linear duration-300",
-        isSidebarOpen ? "pl-[calc(92px+6rem)]" : "pl-[92px]"
+        isSidebarOpen ? "pl-[calc(92px+6rem)]" : "pl-[92px]",
+        "max-sm:pl-[92px]"
       )}
     >
       <Sidebar

@@ -54,9 +54,9 @@ const ReportCustomerTransaction = ({
 
   return (
     <ReportCard className={className}>
-      <div className="flex flex-row">
-        <div className="flex-1">
-          <div className="flex flex-col gap-4">
+      <div className="w-full h-full flex flex-row">
+        <div className="w-full h-full flex-1">
+          <div className="w-full h-full flex flex-col gap-4">
             <span className="text-2xl">
               Total number of transaction customers in{" "}
               {getMonthLabel(current.getMonth() + 1)}

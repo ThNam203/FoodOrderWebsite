@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 import CustomCarousel, {
   CarouselItem,
-} from "@/components/CustomCarousel/custom_carousel";
+} from "@/components/CustomCarousel/image_carousel";
 import { showErrorToast } from "@/components/toast";
 import { OrderToReceive } from "@/convertor/orderConvertor";
 import { Cart } from "@/models/Cart";
@@ -152,6 +152,7 @@ export default function OrderManagement() {
           showFilterButton: true,
           filterOptionKeys: filterOptionKeys,
           showDataTableViewOptions: true,
+          showRowSelectedCounter: true,
           onFilterChange: handleFilterChange,
           rowColorDependence: {
             key: "status",

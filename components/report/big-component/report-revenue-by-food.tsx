@@ -28,7 +28,7 @@ const ReportRevenueByFood = ({ report }: { report: FoodReportData[] }) => {
   }, [report]);
 
   return (
-    <ReportCard className="flex flex-col justify-between pb-10">
+    <ReportCard className="w-full flex flex-col justify-between pb-10">
       <span className="text-2xl">Top revenue by food</span>
       <ChartUI type="doughnut" data={chartData} />
     </ReportCard>

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { ClassValue } from "clsx";
@@ -9,11 +9,13 @@ import { ChevronLeft, ChevronRight, Circle, Dot } from "lucide-react";
 import { useDotButton } from "./carousel_dot_button";
 
 export type CarouselItem = {
-  image: string;
-  title?: string;
+  id: number;
+  text: string;
+  icon: string;
+  quantity: number;
 };
 
-export default function CustomCarousel({
+export default function CategoryCarousel({
   carouselItems,
   className,
 }: {
@@ -25,9 +27,10 @@ export default function CustomCarousel({
   ]);
   // const { selectedIndex, scrollSnaps, onDotButtonClick } =
   //   useDotButton(emplaApi);
+  const [selectedCategory, setSelectedCategory] = useState<number>();
 
   return (
-    <div className="relative group">
+    <div className={cn("relative group", className)}>
       <TextButton
         iconBefore={<ChevronLeft className="text-white" />}
         className={cn(
@@ -55,16 +58,21 @@ export default function CustomCarousel({
             return (
               <div
                 key={index}
-                style={{ backgroundImage: `url(${item.image})` }}
+                onClick={() => setSelectedCategory(item.id)}
                 className={cn(
-                  "flex-0_0_100",
-                  "h-48 bg-center bg-cover bg-no-repeat relative after:absolute after:left-0 after:right-0 after:bottom-0 after:top-0 after:bg-slate-800 after:bg-opacity-40",
-                  className
+                  "rounded-md p-2 grid grid-cols-3 grid-rows-2 gap-2 shadow-xl cursor-pointer transition-colors duration-500 ease-in-out h-16 min-w-40",
+                  selectedCategory === item.id ? "bg-primary" : ""
                 )}
               >
-                <h3 className="absolute left-60 bottom-3 right-3 text-4xl text-right z-[1]">
-                  {item.title}
-                </h3>
+                <div className="rounded-full flex items-center justify-center bg-white row-span-2">
+                  <img className="h-8 w-8" src={item.icon} alt="" />
+                </div>
+                <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+                  {item.text}
+                </p>
+                <p className="text-xs text-slate-400 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+                  {item.quantity} dishes
+                </p>
               </div>
             );
           })}

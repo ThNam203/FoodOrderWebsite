@@ -122,8 +122,8 @@ const ReportPage = () => {
           initial={{ x: 0, y: 40 }}
           animate={{ x: 0, y: 0 }}
         >
-          <div className="grid grid-cols-4 gap-4">
-            <div className="grid grid-rows-3 gap-4">
+          <div className="w-full grid grid-cols-4 gap-4">
+            <div className="grid 2xl:grid-rows-4 max-2xl:grid-cols-4 max-xl:grid-cols-2 max-md:grid-cols-1 max-2xl:col-span-4 gap-4">
               <ReportCard>
                 <ReportCompareCard
                   title="Completed orders"
@@ -139,7 +139,7 @@ const ReportPage = () => {
                       : 0
                   }
                   unit="orders"
-                  className="border-0 p-0"
+                  className="border-0 p-0 "
                   icon={
                     <div className="flex flex-row items-center justify-center w-10 h-10 bg-green-300 rounded-full justify-self-end text-white border-2 border-white outline outline-2 outline-green-300">
                       <CircleCheckBig size={20} />
@@ -219,16 +219,16 @@ const ReportPage = () => {
                 />
               </ReportCard>
             </div>
-            <div className="col-span-3">
+            <div className="2xl:col-span-3 max-2xl:col-span-4 shrink-0">
               {orderReport && <ReportOrder report={orderReport} />}
             </div>
           </div>
         </MotionWrapper>
-        <div className="grid grid-cols-6 gap-4">
-          <div className="col-span-4">
+        <div className="grid grid-cols-6 xl:grid-rows-2 max-xl:grid-rows-3 max-md:grid-rows-4 gap-4">
+          <div className="xl:col-span-4 max-xl:col-span-6 row-start-1 row-span-1">
             {revenueReport && <ReportRevenue report={revenueReport} />}
           </div>
-          <div className="col-span-2">
+          <div className="xl:col-span-2 xl:row-start-1 xl:row-span-1 max-xl:row-start-2 max-xl:col-span-3 max-md:col-span-6">
             {foodByRevenueReport && (
               <ReportRevenueByFood
                 report={
@@ -238,9 +238,7 @@ const ReportPage = () => {
               />
             )}
           </div>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-1">
+          <div className="xl:col-span-2 max-xl:col-span-3 row-start-2 row-span-1 max-md:row-start-3 max-md:col-span-6">
             <TrendingFood
               data={
                 foodByOrderReport &&
@@ -252,7 +250,7 @@ const ReportPage = () => {
             />
           </div>
 
-          <div className="col-span-2">
+          <div className="xl:col-span-4 max-xl:col-span-6 xl:row-start-2 max-xl:row-start-3 max-md:row-start-4 row-span-1">
             {customerTransactionReport && (
               <ReportCustomerTransaction report={customerTransactionReport} />
             )}

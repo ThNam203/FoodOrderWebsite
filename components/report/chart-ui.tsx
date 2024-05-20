@@ -2,10 +2,19 @@
 import { getAllMonthLabels } from "@/utils/func";
 import React, { useEffect, useRef } from "react";
 import { Chart, registerables } from "chart.js";
+import { ClassValue } from "clsx";
+import { cn } from "@/utils/cn";
 
-const ChartUI = ({ type, data }: { type: any; data: any }) => {
+const ChartUI = ({
+  type,
+  data,
+  className,
+}: {
+  type: any;
+  data: any;
+  className?: ClassValue;
+}) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
-  console.log("Chart data", data);
 
   useEffect(() => {
     if (chartRef.current && data) {
@@ -13,6 +22,8 @@ const ChartUI = ({ type, data }: { type: any; data: any }) => {
         type: type,
         data: data,
         options: {
+          maintainAspectRatio: true,
+          responsive: true,
           parsing: {
             xAxisKey: "month",
             yAxisKey: "value",
@@ -24,7 +35,8 @@ const ChartUI = ({ type, data }: { type: any; data: any }) => {
       };
     }
   }, [data]);
-  return <canvas ref={chartRef}></canvas>;
+
+  return <canvas id="chart" ref={chartRef} className="w-full"></canvas>;
 };
 Chart.register(...registerables);
 export default ChartUI;

@@ -5,7 +5,7 @@ import CurrentLocationMap from "@/components/map";
 
 export default function IntroPage() {
   return (
-    <>
+    <div className="h-screen overflow-y-scroll">
       <section className="p-2">
         <MainPageCarousel />
       </section>
@@ -20,7 +20,7 @@ export default function IntroPage() {
           our restaurant directly to you!
         </p>
         <a
-          href="/browse"
+          href="/"
           className="px-10 py-6 mb-16 border-2 border-black text-black hover:text-white rounded-sm  hover:cursor-pointer hover:bg-primary font-bold "
         >
           ORDER ONLINE
@@ -125,6 +125,6 @@ export default function IntroPage() {
           <h3 className="text-center">© 2024 FFOOD&apos;S KITCHEN</h3>
         </div>
       </section>
-    </>
+    </div>
   );
 }

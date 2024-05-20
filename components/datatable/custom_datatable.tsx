@@ -144,7 +144,7 @@ export function CustomDatatable<TData>({
                 setColFilterInput(event.target.value);
                 handleFilterChange(event.target.value, selectedFilterKey);
               }}
-              className="max-w-sm shrink-0 w-[300px] py-2"
+              className="max-w-sm shrink-0 md:w-[300px] max-md:w-auto py-2"
             />
           )}
           {!config.showFilterButton ? null : (

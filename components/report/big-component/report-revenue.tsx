@@ -46,9 +46,9 @@ const ReportRevenue = ({ report }: { report: RevenueReport }) => {
 
   return (
     <ReportCard>
-      <div className="flex flex-row">
-        <div className="flex-1">
-          <div className="flex flex-col gap-4">
+      <div className="w-full flex flex-row">
+        <div className="w-full flex-1">
+          <div className="w-full flex flex-col gap-4">
             <span className="text-2xl">
               Total revenue in {getMonthLabel(current.getMonth() + 1)}
             </span>
