@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
 public class SpringbootFstoreRestApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringbootFstoreRestApiApplication.class, args);
-	}
-	
+    public static void main(String[] args) {
+        SpringApplication.run(SpringbootFstoreRestApiApplication.class, args);
+    }
+
 }

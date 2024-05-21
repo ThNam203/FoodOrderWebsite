@@ -11,7 +11,7 @@ export default function HistoryPage() {
   const [selectedTab, setSelectedTab] = useState("All Orders");
 
   return (
-    <div className="min-h-screen h-screen w-full font-sans p-8 text-primaryWord bg-white">
+    <div className=" h-screen w-full font-sans p-8 text-primaryWord bg-white overflow-y-auto scrollbar-thin">
       <div className="w-full h-full flex flex-col">
         <div className="w-full flex flex-col font-bold text-lg">
           Order History
@@ -36,25 +36,25 @@ export default function HistoryPage() {
             />
             <Tab
               className="w-[200px]"
-              content="On the Way"
+              content="Accepted"
               setSelectedTab={setSelectedTab}
               selectedTab={selectedTab}
             />
             <Tab
               className="w-[200px]"
-              content="Completed"
+              content="Rejected"
+              setSelectedTab={setSelectedTab}
+              selectedTab={selectedTab}
+            />
+            <Tab
+              className="w-[200px]"
+              content="Delivered"
               setSelectedTab={setSelectedTab}
               selectedTab={selectedTab}
             />
             <Tab
               className="w-[200px]"
               content="Cancelled"
-              setSelectedTab={setSelectedTab}
-              selectedTab={selectedTab}
-            />
-            <Tab
-              className="w-[200px]"
-              content="Refunded"
               setSelectedTab={setSelectedTab}
               selectedTab={selectedTab}
             />
@@ -66,7 +66,57 @@ export default function HistoryPage() {
               contentFor="All Orders"
               content={
                 <div className="items-center justify-start w-full h-full px-10 flex flex-col">
-                  <OrderHistoryTable />
+                  <OrderHistoryTable status={selectedTab} />
+                </div>
+              }
+            />
+            <TabContent
+              className="w-full mt-4 h-full flex flex-col items-center justify-start"
+              selectedTab={selectedTab}
+              contentFor="Pending"
+              content={
+                <div className="items-center justify-start w-full h-full px-10 flex flex-col">
+                  <OrderHistoryTable status={selectedTab} />
+                </div>
+              }
+            />
+            <TabContent
+              className="w-full mt-4 h-full flex flex-col items-center justify-start"
+              selectedTab={selectedTab}
+              contentFor="Accepted"
+              content={
+                <div className="items-center justify-start w-full h-full px-10 flex flex-col">
+                  <OrderHistoryTable status={selectedTab} />
+                </div>
+              }
+            />
+            <TabContent
+              className="w-full mt-4 h-full flex flex-col items-center justify-start"
+              selectedTab={selectedTab}
+              contentFor="Rejected"
+              content={
+                <div className="items-center justify-start w-full h-full px-10 flex flex-col">
+                  <OrderHistoryTable status={selectedTab} />
+                </div>
+              }
+            />
+            <TabContent
+              className="w-full mt-4 h-full flex flex-col items-center justify-start"
+              selectedTab={selectedTab}
+              contentFor="Delivered"
+              content={
+                <div className="items-center justify-start w-full h-full px-10 flex flex-col">
+                  <OrderHistoryTable status={selectedTab} />
+                </div>
+              }
+            />
+            <TabContent
+              className="w-full mt-4 h-full flex flex-col items-center justify-start"
+              selectedTab={selectedTab}
+              contentFor="Cancelled"
+              content={
+                <div className="items-center justify-start w-full h-full px-10 flex flex-col">
+                  <OrderHistoryTable status={selectedTab} />
                 </div>
               }
             />

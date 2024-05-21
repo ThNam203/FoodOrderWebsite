@@ -34,7 +34,7 @@ const CartTab = ({
     >
       <div
         className={cn(
-          "w-6 h-6 flex items-center justify-center font-bold text-white rounded-full",
+          "w-6 h-6 flex items-center justify-center font-bold text-white rounded-full shrink-0",
           selectedTab === tabName ? currentNumStyle : defaultNumStyle
         )}
       >
@@ -42,7 +42,7 @@ const CartTab = ({
       </div>
       <span
         className={cn(
-          "cursor-pointer font-semibold text-lg",
+          "cursor-pointer font-semibold text-lg whitespace-nowrap",
           disabled ? "cursor-default" : "hover:text-primaryWord",
           selectedTab === tabName ? currentStepStyle : defaultStepStyle
         )}

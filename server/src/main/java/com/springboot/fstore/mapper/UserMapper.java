@@ -1,5 +1,6 @@
 package com.springboot.fstore.mapper;
 
+import com.springboot.fstore.entity.Food;
 import com.springboot.fstore.entity.User;
 import com.springboot.fstore.payload.UserDTO;
 
@@ -11,10 +12,15 @@ public class UserMapper {
                 .email(user.getEmail())
                 .address(user.getAddress())
                 .phoneNumber(user.getPhoneNumber())
-               .preferences(user.getPreferences())
+                .preferences(user.getPreferences())
                 .profileImage(user.getProfileImage())
                 .isAdmin(user.getIsAdmin())
                 .createdAt(user.getCreatedAt())
+                .listFavorite(user.getFavouriteFoods() != null ? user.getFavouriteFoods()
+                        .stream()
+                        .filter(food -> !food.getIsDeleted())
+                        .map(Food::getId).toList()
+                        : null)
                 .build();
     }
 
@@ -24,7 +30,7 @@ public class UserMapper {
                 .email(userDTO.getEmail())
                 .address(userDTO.getAddress())
                 .phoneNumber(userDTO.getPhoneNumber())
-               .preferences(userDTO.getPreferences())
+                .preferences(userDTO.getPreferences())
                 .profileImage(userDTO.getProfileImage())
                 .isAdmin(userDTO.getIsAdmin())
                 .build();

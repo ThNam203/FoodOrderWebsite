@@ -25,7 +25,7 @@ public class FileServiceImlp implements FileService {
     private String bucketName;
 
     @Override
-    public String uploadFile(MultipartFile file ){
+    public String uploadFile(MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 return null;
@@ -34,40 +34,40 @@ public class FileServiceImlp implements FileService {
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             s3.putObject(new PutObjectRequest(bucketName, fileName, fileObj));
             fileObj.delete();
-            return "https://"+bucketName+".s3.amazonaws.com/"+fileName;
-        } catch (Exception e){
+            return "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
+        } catch (Exception e) {
             return null;
         }
     }
 
 
     @Override
-    public byte[] downloadFile(String fileName){
-        S3Object s3Object = s3.getObject(bucketName,fileName);
+    public byte[] downloadFile(String fileName) {
+        S3Object s3Object = s3.getObject(bucketName, fileName);
         S3ObjectInputStream inputStream = s3Object.getObjectContent();
-        try{
+        try {
             byte[] content = IOUtils.toByteArray(inputStream);
             return content;
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
     @Override
-    public String deleteFile(String fileName){
-        s3.deleteObject(bucketName,fileName);
-        return fileName+" removed ...";
+    public String deleteFile(String fileName) {
+        s3.deleteObject(bucketName, fileName);
+        return fileName + " removed ...";
     }
 
-    private File convertMultiPartToFile(MultipartFile file){
+    private File convertMultiPartToFile(MultipartFile file) {
         File convertedFile = new File(file.getOriginalFilename());
-        try{
+        try {
             FileOutputStream fos = new FileOutputStream(convertedFile);
             fos.write(file.getBytes());
             fos.close();
-        }catch (IOException e){
-            log.error("Error converting multipartFile to file",e);
+        } catch (IOException e) {
+            log.error("Error converting multipartFile to file", e);
         }
         return convertedFile;
     }

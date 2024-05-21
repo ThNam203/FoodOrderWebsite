@@ -126,9 +126,10 @@ const NewCategoryModal = ({
                     }}
                     className="!h-[35px] w-[100px] bg-green-400 text-white hover:bg-green-500 disabled:bg-green-400/60 rounded hover:text-white"
                     disabled={isLoading}
-                    content="Add"
                     iconAfter={isLoading ? <LoadingCircle /> : null}
-                  />
+                  >
+                    Add
+                  </TextButton>
                   <TextButton
                     type="button"
                     className={
@@ -139,8 +140,9 @@ const NewCategoryModal = ({
                       resetValues();
                       onClose();
                     }}
-                    content="Cancel"
-                  />
+                  >
+                    Cancel
+                  </TextButton>
                 </ModalFooter>
               </>
             );

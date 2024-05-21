@@ -1,5 +1,6 @@
 import { FoodFormData } from "@/components/NewFoodForm/food_form";
 import { Food, FoodCategory, FoodStatus } from "@/models/Food";
+import { id } from "date-fns/locale";
 
 const FoodToSend = (food: Food) => {
   const toSend = {
@@ -13,6 +14,7 @@ const FoodToSend = (food: Food) => {
     status: food.status,
     foodSizes: food.foodSizes.map((size) => {
       return {
+        id: size.id,
         name: size.name,
         price: size.price,
         weight: size.weight,
@@ -66,7 +68,7 @@ const FoodToReceive = (data: any): Food => {
     category: data.category,
     rating: data.rating,
     tags: data.tags,
-    status: data.status,
+    status: data.status === "true" ? FoodStatus.ACTIVE : FoodStatus.DISABLE,
     createdAt: new Date(data.createdAt),
   };
   return foodReceived;

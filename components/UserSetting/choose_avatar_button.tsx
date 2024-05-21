@@ -20,7 +20,7 @@ export const ChooseAvatarButton = ({
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0)
       onImageChanged(e.target.files[0]);
-  }
+  };
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!fileUrl) {
@@ -58,7 +58,7 @@ export const ChooseAvatarButton = ({
               width={900}
               height={900}
               alt="user avatar"
-              className="w-full h-full flex-shrink-0 object-center overflow-hidden cursor-pointer"
+              className="w-full h-full flex-shrink-0 object-cover overflow-hidden cursor-pointer"
             />
           </>
         ) : (
@@ -68,7 +68,7 @@ export const ChooseAvatarButton = ({
             sizes="100vw"
             src={fileUrl!}
             alt="image"
-            className="w-full h-full"
+            className="w-full h-full flex-shrink-0 object-cover overflow-hidden cursor-pointer"
           />
         )}
       </>

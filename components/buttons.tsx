@@ -15,7 +15,6 @@ export interface IconButtonProps extends ButtonProps {
 
 export interface TextButtonProps extends ButtonProps {
   iconBefore?: ReactNode;
-  content?: string;
   iconAfter?: ReactNode;
 }
 
@@ -58,7 +57,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
 IconButton.displayName = "IconButton";
 
 const TextButton = React.forwardRef<HTMLButtonElement, TextButtonProps>(
-  ({ className, content, iconBefore, iconAfter, ...props }, ref) => {
+  ({ className, children, iconBefore, iconAfter, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -69,7 +68,7 @@ const TextButton = React.forwardRef<HTMLButtonElement, TextButtonProps>(
         {...props}
       >
         {iconBefore}
-        {content}
+        {children}
         {iconAfter}
       </button>
     );

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="token")
+@Table(name = "token")
 public class Token {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

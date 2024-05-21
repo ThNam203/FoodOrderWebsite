@@ -1,7 +1,7 @@
 import { Food, FoodSize } from "@/models/Food";
 import { cn } from "@/utils/cn";
 import Image from "next/image";
-import { HeartIcon } from "../icons";
+import { HeartIcon, OutlineHeartIcon } from "../icons";
 import { IconButton } from "../buttons";
 import FoodRating from "../food_rating";
 import { useState } from "react";
@@ -11,10 +11,14 @@ export default function FavouriteFood({
   food,
   className,
   onClick,
+  isFavorite = false,
+  onFavoriteChange,
 }: {
   food: Food;
   className?: string;
   onClick?: () => void;
+  isFavorite?: boolean;
+  onFavoriteChange?: (isFavorite: boolean) => void;
 }) {
   const sortedPriceList = food.foodSizes
     .map((foodSize) => foodSize.price)
@@ -43,10 +47,10 @@ export default function FavouriteFood({
         <div className="w-full flex flex-row items-center justify-between">
           <span className="font-semibold">{food.name}</span>
           <IconButton
-            className="rounded-full ease-linear duration-100"
-            icon={<HeartIcon />}
+            className={cn("rounded-full ease-linear duration-100")}
+            icon={isFavorite ? <HeartIcon /> : <OutlineHeartIcon />}
             onClick={() => {
-              alert("Removed");
+              if (onFavoriteChange) onFavoriteChange(!isFavorite);
             }}
           />
         </div>

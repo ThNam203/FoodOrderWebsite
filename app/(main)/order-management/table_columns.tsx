@@ -117,16 +117,15 @@ const statusColumn = (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <TextButton
-              content={
-                rowUpdating.includes(row.original.id)
-                  ? "Updating..."
-                  : (value as OrderStatus)
-              }
               className={cn(
                 "w-[100px] gap-2 whitespace-nowrap ease-linear duration-100 py-1 rounded-md cursor-pointer outline outline-offset-0 outline-1",
                 styleButton
               )}
-            />
+            >
+              {rowUpdating.includes(row.original.id)
+                ? "Updating..."
+                : (value as OrderStatus)}
+            </TextButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="font-sans bg-white text-secondaryWord">
             {Object.keys(OrderStatus).map((key) => (

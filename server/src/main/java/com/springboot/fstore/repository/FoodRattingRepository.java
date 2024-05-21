@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface FoodRattingRepository extends JpaRepository<FoodRatting, Integer>{
+public interface FoodRattingRepository extends JpaRepository<FoodRatting, Integer> {
     Optional<FoodRatting> findByFoodIdAndUserId(int foodId, int userId);
 }

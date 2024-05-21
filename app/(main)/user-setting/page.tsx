@@ -66,6 +66,8 @@ const schema: ZodType<UserSettingFormData> = z
   });
 
 const splitAddress = (address: string) => {
+  if (address === null || address === undefined)
+    return { houseNumber: "", street: "", district: "", province: "" };
   const [houseNumber, street, district, province] = address.split(", ");
   return { houseNumber, street, district, province };
 };
@@ -101,7 +103,7 @@ export default function UserSettingPage() {
     form.setValue("phonenumber", thisUser.phoneNumber);
 
     const address = thisUser.address;
-    if (address) {
+    if (address !== null && address !== undefined) {
       const { houseNumber, street, district, province } = splitAddress(address);
       form.setValue("houseNumber", houseNumber);
       form.setValue("street", street);
@@ -238,7 +240,7 @@ export default function UserSettingPage() {
               setSelectedTab={setSelectedTab}
               selectedTab={selectedTab}
             />
-            <Tab
+            {/* <Tab
               className="w-[200px]"
               content="Billing"
               setSelectedTab={setSelectedTab}
@@ -249,7 +251,7 @@ export default function UserSettingPage() {
               content="Notification"
               setSelectedTab={setSelectedTab}
               selectedTab={selectedTab}
-            />
+            /> */}
           </div>
           <TabContent
             className="w-5/6"
@@ -326,7 +328,7 @@ export default function UserSettingPage() {
                               {...register("province")}
                             />
                           </DropdownTrigger>
-                          <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll">
+                          <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll scrollbar-hide">
                             {provinceNameList.map((provinceName) => (
                               <DropdownItem
                                 key={provinceName}
@@ -364,7 +366,7 @@ export default function UserSettingPage() {
                               }}
                             />
                           </DropdownTrigger>
-                          <DropdownMenu>
+                          <DropdownMenu className="max-h-[300px] !rounded-sm overflow-y-scroll scrollbar-hide">
                             {districtNameList.map((districtName) => (
                               <DropdownItem
                                 key={districtName}
@@ -470,20 +472,22 @@ export default function UserSettingPage() {
                 <div className="flex flex-row items-center self-end gap-2">
                   <TextButton
                     type="button"
-                    content="Cancel"
                     className="w-[100px] self-end text-sm font-extrabold text-white bg-gray-400 hover:bg-gray-300/80 disabled:bg-gray-300/60"
                     onClick={() => {
                       if (thisUser) setChosenImageUrl(thisUser.profileImage);
                     }}
                     disabled={isSaving}
-                  />
+                  >
+                    Cancel
+                  </TextButton>
                   <TextButton
                     type="submit"
-                    content={isSaving ? "" : "Save"}
                     className="w-[100px] text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
                     iconAfter={isSaving ? <LoadingIcon /> : null}
                     disabled={isSaving}
-                  />
+                  >
+                    {isSaving ? "" : "Save"}
+                  </TextButton>
                 </div>
               </div>
             }

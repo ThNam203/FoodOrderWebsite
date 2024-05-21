@@ -18,6 +18,7 @@ public class OrderController {
     public ResponseEntity<OrderDTO> makeOrder(@RequestBody OrderDTO orderDTO) {
         return ResponseEntity.ok(orderService.makeOrder(orderDTO));
     }
+
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getOrders() {
         return ResponseEntity.ok(orderService.getOrders());

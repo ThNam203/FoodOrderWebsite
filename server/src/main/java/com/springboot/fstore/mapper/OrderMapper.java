@@ -11,10 +11,11 @@ public class OrderMapper {
                 .status(order.getStatus())
                 .paymentMethod(order.getPaymentMethod())
                 .items(order.getItems() != null ? order.getItems().stream().map(CartMapper::toCartDTO).toList() : null)
-                .user(order.getUser() != null ? order.getUser() : null)
+                .user(order.getUser() != null ? UserMapper.toUserDTO(order.getUser()) : null)
                 .createdAt(order.getCreatedAt())
                 .build();
     }
+
     public static Order toOrder(OrderDTO orderDTO) {
         return Order.builder()
                 .total(orderDTO.getTotal())

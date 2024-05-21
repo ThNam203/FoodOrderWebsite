@@ -10,6 +10,7 @@ public class FoodRattingMapper {
                 .comment(foodRattingDTO.getComment())
                 .build();
     }
+
     public static FoodRattingDTO toFoodRattingDTO(FoodRatting foodRatting) {
         return FoodRattingDTO.builder()
                 .rate(foodRatting.getRate())

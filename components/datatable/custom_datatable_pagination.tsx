@@ -28,6 +28,7 @@ export function CustomDataTablePagination<TData>({
   table,
   config,
 }: DataTablePaginationProps<TData>) {
+  console.log("CustomDataTablePagination pagecount", table.getPageCount());
   return (
     <div
       className={cn(
@@ -69,41 +70,45 @@ export function CustomDataTablePagination<TData>({
             </SelectContent>
           </Select>
         </div>
-        {table.getPageCount() > 1 ? (
+        {table.getPageCount() > 0 ? (
           <>
             <div className="flex w-[100px] items-center justify-center text-xs font-medium">
               Page {table.getState().pagination.pageIndex + 1} of{" "}
               {table.getPageCount()}
             </div>
-            <div className="flex items-center space-x-2 sr-only">
+            <div className="w-[100px] h-[100px] bg-red-300 flex items-center space-x-2 sr-only">
               <TextButton
                 className="hidden h-8 w-8 p-0 lg:flex"
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
-                content="Go to first page"
                 iconAfter={<ChevronsLeft className="h-4 w-4" />}
-              />
+              >
+                Go to first page
+              </TextButton>
               <TextButton
                 className="h-8 w-8 p-0"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                content="Go to previous page"
                 iconAfter={<ChevronLeftIcon className="h-4 w-4" />}
-              />
+              >
+                Go to previous page
+              </TextButton>
               <TextButton
                 className="h-8 w-8 p-0"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                content="Go to next page"
                 iconAfter={<ChevronRightIcon className="h-4 w-4" />}
-              />
+              >
+                Go to next page
+              </TextButton>
               <TextButton
                 className="hidden h-8 w-8 p-0 lg:flex"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
-                content="Go to last page"
                 iconAfter={<ChevronsRight className="h-4 w-4" />}
-              />
+              >
+                Go to last page
+              </TextButton>
             </div>
           </>
         ) : null}

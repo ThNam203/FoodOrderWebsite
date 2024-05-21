@@ -21,10 +21,15 @@ public class FoodFavoriteServiceImpl implements FoodFavoriteService {
     private final UserRepository userRepository;
     private final FoodRepository foodRepository;
     private final UserService userService;
+
     @Override
     public List<FoodDTO> getFoodFavorite() {
         User user = userService.getAuthorizedUser();
-        return user.getFavouriteFoods().stream().map(FoodMapper::toFoodDTO).toList();
+        return user.getFavouriteFoods()
+                .stream()
+                .filter(food -> !food.getIsDeleted())
+                .map(FoodMapper::toFoodDTO)
+                .toList();
     }
 
     @Override
@@ -32,9 +37,10 @@ public class FoodFavoriteServiceImpl implements FoodFavoriteService {
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
         User user = userService.getAuthorizedUser();
         if (user.getFavouriteFoods().contains(food)) {
-            throw new CustomException("Food already in favorite list", HttpStatus.BAD_REQUEST);
+            user.getFavouriteFoods().remove(food);
+        } else {
+            user.getFavouriteFoods().add(food);
         }
-        user.getFavouriteFoods().add(food);
         userRepository.save(user);
     }
 

@@ -19,6 +19,7 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
+
     @Override
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();

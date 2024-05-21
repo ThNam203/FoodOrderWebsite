@@ -69,18 +69,20 @@ export const ConfirmDialog = ({
               <TextButton
                 type="button"
                 onClick={onAccept}
-                content={answerButton}
                 className={cn(
                   "w-[100px]",
                   type === "warning" ? "bg-red-500" : "bg-gray-100"
                 )}
-              />
+              >
+                {answerButton}
+              </TextButton>
               <TextButton
                 type="button"
                 onClick={onCancel}
-                content="Cancel"
                 className="w-[100px] bg-gray-100 text-secondaryWord"
-              />
+              >
+                Cancel
+              </TextButton>
             </ModalFooter>
           </>
         )}

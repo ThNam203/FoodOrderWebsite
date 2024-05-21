@@ -49,7 +49,7 @@ const TabContent = ({
 }) => {
   return (
     <div
-      className={cn("", selectedTab === contentFor ? "" : "hidden", className)}
+      className={`${selectedTab === contentFor ? "" : "hidden"} ${className}`}
     >
       {content}
     </div>

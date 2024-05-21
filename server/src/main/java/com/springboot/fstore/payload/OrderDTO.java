@@ -20,5 +20,5 @@ public class OrderDTO {
     private String paymentMethod;
     private List<CartDTO> items;
     private LocalDateTime createdAt;
-    private User user;
+    private UserDTO user;
 }

@@ -1,34 +1,40 @@
 "use client";
 import FavouriteFood from "@/components/Favourite/favourite_food_item";
 import { Food, FoodSize } from "@/models/Food";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { IconButton, TextButton } from "@/components/buttons";
-import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
-import { NumberInput } from "@/components/input";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@nextui-org/react";
-import { ShoppingCart, SigmaIcon } from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/utils/cn";
-import FoodRating from "@/components/food_rating";
 import { FoodDetail } from "@/components/food_detail";
-import { showDefaultToast } from "@/components/toast";
+import { showDefaultToast, showErrorToast } from "@/components/toast";
 import { fakeFoodItems } from "@/fakedata/foodData";
+import { cn } from "@/utils/cn";
+import FoodService from "@/services/foodService";
+import { FoodToReceive } from "@/convertor/foodConvertor";
+import Image from "next/image";
 
 export default function FavouritePages() {
-  const [favouriteFoods, setFavouriteFoods] = useState<Food[]>(fakeFoodItems);
+  const [favouriteFoods, setFavouriteFoods] = useState<Food[]>([]);
+  const [favoriteFoodIds, setFavoriteFoodIds] = useState<number[]>([]);
+
   const [isOpen, setOpen] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<Food>(favouriteFoods[0]);
-  const [selectedSize, setSelectedSize] = useState<FoodSize>(
-    selectedFood.foodSizes[0]
-  );
+  const [selectedFood, setSelectedFood] = useState<Food>();
+  const [selectedSize, setSelectedSize] = useState<FoodSize>();
   const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await FoodService.getFavouriteFoods()
+        .then((res) => {
+          const favouriteFoods = res.data.map((food) => FoodToReceive(food));
+          setFavouriteFoods(favouriteFoods);
+          setFavoriteFoodIds(favouriteFoods.map((food) => food.id));
+        })
+        .catch((err) => {
+          showErrorToast("Failed to fetch favourite foods" + err);
+        });
+    };
+    fetchData();
+  }, []);
+
   const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
     if (selectedFood !== food) setSelectedSize(food.foodSizes[0]);
@@ -39,42 +45,68 @@ export default function FavouritePages() {
     if (selectedSize !== foodSize) setSelectedSize(foodSize);
   };
 
+  const handleFavoriteFoodIdsChange = async (id: number) => {
+    await FoodService.addFavouriteFood(id)
+      .then(() => {
+        onFavoriteFoodIdsChange(id);
+      })
+      .catch((err) => {
+        showErrorToast("Failed to add to favorite");
+      });
+  };
+
+  const onFavoriteFoodIdsChange = (id: number) => {
+    if (favoriteFoodIds.includes(id)) {
+      const newFavoriteFoodIds = favoriteFoodIds.filter((foodId) => {
+        return foodId !== id;
+      });
+      setFavoriteFoodIds(newFavoriteFoodIds);
+    } else {
+      setFavoriteFoodIds([...favoriteFoodIds, id]);
+    }
+  };
+
   return (
     <div className="w-full h-screen font-sans text-primaryWord p-8 overflow-y-scroll">
       <h1 className="text-primary text-3xl font-bold mb-4">
         Your favourite foods
       </h1>
-      <div className="grid grid-cols-4 gap-4 max-md:grid-cols-1 max-lg:grid-cols-2">
+      {favouriteFoods.length === 0 && <EmptyItem />}
+      <div
+        className={cn(
+          "grid grid-cols-4 gap-4 max-md:grid-cols-1 max-lg:grid-cols-2",
+          favouriteFoods.length === 0 ? "hidden" : ""
+        )}
+      >
         {favouriteFoods.map((food) => {
           return (
             <FavouriteFood
               key={food.id}
               food={food}
+              isFavorite={favoriteFoodIds.includes(food.id)}
+              onFavoriteChange={(isFavorite) => {
+                handleFavoriteFoodIdsChange(food.id);
+              }}
               onClick={() => handleFoodClick(food)}
             />
           );
         })}
       </div>
-      <FoodDetail
-        isOpen={isOpen}
-        onOpenChange={() => setOpen(!isOpen)}
-        food={selectedFood}
-        foodQuantity={selectedFoodQuantity}
-        onFoodQuantityChange={(quantity) => setSelectedFoodQuantity(quantity)}
-        selectedSize={selectedSize}
-        onFoodSizeChange={(foodSize) => handleFoodSizeChange(foodSize)}
-        isFavorite={true}
-        onFavoriteChange={(isFavorite) => {
-          if (!isFavorite) {
-            const newFavouriteFoods = favouriteFoods.filter(
-              (food) => food !== selectedFood
-            );
-            setFavouriteFoods(newFavouriteFoods);
-            setOpen(!isOpen);
-            showDefaultToast("Removed from favourite");
-          }
-        }}
-      />
+      {selectedFood && (
+        <FoodDetail
+          isOpen={isOpen}
+          onOpenChange={() => setOpen(!isOpen)}
+          food={selectedFood!}
+          foodQuantity={selectedFoodQuantity}
+          onFoodQuantityChange={(quantity) => setSelectedFoodQuantity(quantity)}
+          selectedSize={selectedSize!}
+          onFoodSizeChange={(foodSize) => handleFoodSizeChange(foodSize)}
+          isFavorite={favoriteFoodIds.includes(selectedFood.id)}
+          onFavoriteChange={(isFavorite) => {
+            handleFavoriteFoodIdsChange(selectedFood.id);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -101,5 +133,21 @@ const Tag = ({
     >
       {name}
     </span>
+  );
+};
+
+const EmptyItem = () => {
+  return (
+    <div className="h-full flex flex-col items-center gap-10 mt-10">
+      <Image
+        width={300}
+        height={200}
+        src="/images/empty_item.png"
+        alt="empty item image"
+      />
+      <span className="text-secondaryWord text-xl">
+        Shopping more to find your favorite food
+      </span>
+    </div>
   );
 };

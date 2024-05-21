@@ -28,6 +28,8 @@ module.exports = {
       },
       boxShadow: {
         primaryShadow: "0 0 45px -15px rgba(0,0,0,0.3)",
+        hoverShadow:
+          "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
       },
       flex: {
         "0_0_100": "0 0 100%",
@@ -65,5 +67,5 @@ module.exports = {
     },
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [nextui(), require("tailwind-scrollbar")],
 };

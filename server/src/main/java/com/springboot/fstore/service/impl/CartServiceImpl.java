@@ -26,6 +26,7 @@ public class CartServiceImpl implements CartService {
     private final UserService userService;
     private final FoodRepository foodRepository;
     private final FoodSizeRepository foodSizeRepository;
+
     @Override
     public List<CartDTO> getCart() {
         User user = userService.getAuthorizedUser();

@@ -25,8 +25,7 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "min-h-screen bg-white font-sans transition-[0.5] scrollbar ease-linear duration-300",
-        isSidebarOpen ? "pl-[calc(92px+6rem)]" : "pl-[92px]"
+        "min-h-screen w-full bg-transparent font-sans flex flex-row justify-end"
       )}
     >
       <Sidebar
@@ -39,7 +38,15 @@ export default function RootLayout({
           setIsSidebarOpen(!isSidebarOpen);
         }}
       />
-      {children}
+      <div
+        className={cn(
+          "relative w-[calc(100%-92px-6rem)] transition-[0.5] ease-linear duration-300 relative",
+          isSidebarOpen ? "w-[calc(100%-92px-6rem)]" : "w-[calc(100%-92px)]",
+          "max-sm:w-[calc(100%-92px)]"
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }

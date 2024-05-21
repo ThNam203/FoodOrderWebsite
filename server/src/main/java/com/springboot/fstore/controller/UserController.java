@@ -22,7 +22,7 @@ public class UserController {
 
     @Operation(summary = "Change password")
     @PostMapping("/me/change-password")
-    public ResponseEntity<?> changePassword(@RequestPart(value = "oldPassword") String oldPassword, @RequestPart(value = "newPassword")  String newPassword) {
+    public ResponseEntity<?> changePassword(@RequestPart(value = "oldPassword") String oldPassword, @RequestPart(value = "newPassword") String newPassword) {
         userService.changePassword(oldPassword, newPassword);
         return ResponseEntity.status(204).build();
     }
@@ -30,7 +30,7 @@ public class UserController {
     @Operation(summary = "Update user info")
     @PutMapping("/me")
     public ResponseEntity<UserDTO> updateInfoMe(@RequestPart(value = "files", required = false) MultipartFile[] files,
-                                                @RequestPart("data")  UserDTO userDTO) {
+                                                @RequestPart("data") UserDTO userDTO) {
         return ResponseEntity.ok(userService.updateInfoMe(files, userDTO));
     }
 }

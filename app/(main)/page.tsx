@@ -1,38 +1,81 @@
 "use client";
 
-import MainPageItem from "@/components/main_page_item";
-import { ReactNode, use, useEffect, useRef, useState } from "react";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
-import emblaStyle from "@/styles/embla_carousel.module.css";
-import { twMerge } from "tailwind-merge";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@nextui-org/react";
-import { cn } from "@/utils/cn";
-import { IconButton, TextButton } from "@/components/buttons";
-import { Heart, ShoppingCart } from "lucide-react";
-import { HeartIcon, OutlineHeartIcon } from "@/components/icons";
-import { NumberInput } from "@/components/input";
-import { useRouter } from "next/navigation";
-import { Food, FoodSize } from "@/models/Food";
+import CategoryCarousel from "@/components/CustomCarousel/category_carousel";
+import ImageCarousel from "@/components/CustomCarousel/image_carousel";
+import { TextButton } from "@/components/buttons";
 import { FoodDetail } from "@/components/food_detail";
-import { Cart } from "@/models/Cart";
-import CartService from "@/services/cartService";
+import MainPageItem from "@/components/main_page_item";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
+import { FoodToReceive } from "@/convertor/foodConvertor";
 import { fakeFoodItems } from "@/fakedata/foodData";
-import { setCookie } from "cookies-next";
+import { Cart } from "@/models/Cart";
+import { Food, FoodSize } from "@/models/Food";
+import default_user_image from "@/public/images/default_user.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addCartItem } from "@/redux/slices/cart";
-import FoodService from "@/services/foodService";
 import { setFoods } from "@/redux/slices/food";
+import CartService from "@/services/cartService";
+import FoodService from "@/services/foodService";
+import emblaStyle from "@/styles/embla_carousel.module.css";
+import { cn } from "@/utils/cn";
+import { he, is } from "date-fns/locale";
+import Autoplay from "embla-carousel-autoplay";
+import useEmblaCarousel from "embla-carousel-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 var data: any = {
   categories: [
+    {
+      id: 1,
+      text: "All",
+      icon: "https://cdn-icons-png.flaticon.com/128/5110/5110796.png",
+      quantity: 5,
+    },
+    {
+      id: 2,
+      text: "Pizzaa",
+      icon: "https://cdn-icons-png.flaticon.com/128/1404/1404945.png",
+      quantity: 5,
+    },
+    {
+      id: 3,
+      text: "Asian",
+      icon: "https://cdn-icons-png.flaticon.com/128/4329/4329449.png",
+      quantity: 5,
+    },
+    {
+      id: 4,
+      text: "Burgers",
+      icon: "https://cdn-icons-png.flaticon.com/128/878/878052.png",
+      quantity: 5,
+    },
+    {
+      id: 5,
+      text: "Barbecue",
+      icon: "https://cdn-icons-png.flaticon.com/128/2946/2946598.png",
+      quantity: 5,
+    },
+    {
+      id: 6,
+      text: "Desserts",
+      icon: "https://cdn-icons-png.flaticon.com/128/4465/4465242.png",
+      quantity: 5,
+    },
+    {
+      id: 7,
+      text: "Thai",
+      icon: "https://cdn-icons-png.flaticon.com/128/197/197452.png",
+      quantity: 5,
+    },
+    {
+      id: 8,
+      text: "Sushi",
+      icon: "https://cdn-icons-png.flaticon.com/128/3183/3183425.png",
+      quantity: 5,
+    },
     {
       id: 1,
       text: "All",
@@ -155,6 +198,20 @@ var data: any = {
       price: 0.99,
     },
   ],
+  adImages: [
+    {
+      image:
+        "https://cf.shopee.vn/file/vn-50009109-93074cd7272fcd06fc514ef80e8aa20f_xxhdpi",
+    },
+    {
+      image:
+        "https://cf.shopee.vn/file/vn-50009109-ed6696a2bea64ffee99377b73c44d5e8_xhdpi",
+    },
+    {
+      image:
+        "https://cf.shopee.vn/file/vn-50009109-c5335039e1b1aab390cc29f3446908fc_xhdpi",
+    },
+  ],
 };
 
 export default function Home() {
@@ -163,9 +220,9 @@ export default function Home() {
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const [isOpen, setOpen] = useState(false);
   const router = useRouter();
-  const [food, setFood] = useState<Food[]>(
-    useAppSelector((state) => state.food.activeFood)
-  );
+  const food = useAppSelector((state) => state.food.activeFood);
+  const thisUser = useAppSelector((state) => state.profile.value);
+  const [favoriteFoodList, setFavoriteFoodList] = useState<number[]>([]);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
@@ -176,8 +233,8 @@ export default function Home() {
     const fetchData = async () => {
       await FoodService.getAllFood()
         .then((res) => {
-          setFood(res.data);
-          dispatch(setFoods(res.data));
+          const data = res.data.map((food) => FoodToReceive(food));
+          dispatch(setFoods(data));
         })
         .catch((err) => {
           showErrorToast("Failed to fetch data");
@@ -186,10 +243,37 @@ export default function Home() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setFavoriteFoodList(
+      thisUser && thisUser.listFavorite ? thisUser.listFavorite : []
+    );
+  }, [thisUser]);
+
+  const handleFavoriteFoodIdsChange = async (id: number) => {
+    await FoodService.addFavouriteFood(id)
+      .then(() => {
+        onFavoriteFoodIdsChange(id);
+      })
+      .catch((err) => {
+        showErrorToast("Failed to add to favorite");
+      });
+  };
+
+  const onFavoriteFoodIdsChange = (id: number) => {
+    if (favoriteFoodList.includes(id)) {
+      const newFavoriteFoodList = favoriteFoodList.filter((foodId) => {
+        return foodId !== id;
+      });
+      setFavoriteFoodList(newFavoriteFoodList);
+    } else {
+      setFavoriteFoodList([...favoriteFoodList, id]);
+    }
+  };
+
   return (
     <>
       <section
-        className="flex"
+        className="relative h-screen flex overflow-y-scroll"
         style={{
           background:
             "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8) ), url('/images/bg-main-page.jpg')",
@@ -217,110 +301,79 @@ export default function Home() {
               />
             </div>
             <div
-              className="flex flex-row items-center gap-2 hover:cursor-pointer"
+              className="flex flex-row items-center gap-4 cursor-pointer sm:hover:bg-gray-50/20 rounded-md sm:px-4 sm:py-1 ease-linear duration-200"
               onClick={() => {
                 router.push("/user-setting");
               }}
             >
-              <img
-                src="https://scontent.fsgn19-1.fna.fbcdn.net/v/t1.6435-1/89355819_802321806918041_2820306896441835520_n.jpg?stp=dst-jpg_p240x240&_nc_cat=106&ccb=1-7&_nc_sid=2b6aad&_nc_ohc=mGJ07GAwJPIAX-HmCpl&_nc_ht=scontent.fsgn19-1.fna&oh=00_AfDzBpS8oC1vm-lKKyG65r9dHO5IqZrn36HGZ17stH9nXg&oe=6606CBD4"
-                className="w-10 h-10 rounded-full"
+              <p className="text-sm text-white font-semibold max-sm:hidden">
+                {thisUser ? thisUser.name : ""}
+              </p>
+              <Image
+                width={500}
+                height={400}
+                sizes="100vw"
+                src={
+                  thisUser && thisUser.profileImage
+                    ? thisUser.profileImage
+                    : default_user_image
+                }
+                alt="image"
+                className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer"
               />
-              <p className="text-sm text-white font-semibold">Huynh Nam</p>
             </div>
           </div>
-          <div className="grid grid-cols-6 grid-rows-2 mt-12 rounded-lg gap-1">
+          {/* <ImageCarousel carouselItems={data.adImages} className="mt-12" /> */}
+          <div className="grid grid-cols-6 lg:grid-rows-2 max-lg:grid-rows-3 mt-12 rounded-lg gap-1">
             <img
               src="https://cf.shopee.vn/file/vn-50009109-93074cd7272fcd06fc514ef80e8aa20f_xxhdpi"
               alt="banner 1"
-              className="col-span-4 row-span-2 h-full object-cover rounded-md"
+              className="lg:col-span-4 max-lg:col-span-6 row-span-2 h-full object-cover rounded-md"
             />
             <img
               src="https://cf.shopee.vn/file/vn-50009109-ed6696a2bea64ffee99377b73c44d5e8_xhdpi"
               alt="banner 2"
-              className="col-span-2 rounded-md"
+              className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
             />
             <img
               src="https://cf.shopee.vn/file/vn-50009109-c5335039e1b1aab390cc29f3446908fc_xhdpi"
               alt="banner 2"
-              className="col-span-2 rounded-md"
+              className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
             />
           </div>
           <section>
             <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
 
-            <FoodListComponent foods={food} />
+            <FoodListComponent
+              foods={food}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">On sale</h3>
 
-            <FoodListComponent foods={fakeFoodItems} />
+            <FoodListComponent
+              foods={fakeFoodItems}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">Best rated</h3>
-            <FoodListComponent foods={fakeFoodItems} />
+            <FoodListComponent
+              foods={fakeFoodItems}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
-          <section className="mb-8">
-            <h3 className="text-4xl font-semibold my-8">Categories</h3>
-            <div className="flex flex-row gap-8 my-8 items-center w-full">
-              <button
-                onClick={() => onCategoriesScrollButtonClick(-50)}
-                className="h-10 w-10 flex-grow-0 rounded-lg hover:shadow-xl flex justify-center items-center bg-gray-100 p-3 "
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20px"
-                  height="20px"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="black"
-                    d="m14 18l-6-6l6-6l1.4 1.4l-4.6 4.6l4.6 4.6z"
-                  />
-                </svg>
-              </button>
-              <div
-                className="flex flex-row flex-1 overflow-x-auto scrollbar small-scrollbar gap-2 pb-1"
-                ref={categoriesContainerRef}
-              >
-                {data.categories.map((cat: any, idx: number) => (
-                  <div
-                    key={idx}
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`rounded-md p-2 grid grid-cols-3 grid-rows-2 gap-2 shadow-xl cursor-pointer transition-colors duration-500 ease-in-out h-16 min-w-40 ${
-                      cat.id === activeCategory ? "bg-primary" : ""
-                    }`}
-                  >
-                    <div className="rounded-full flex items-center justify-center bg-white row-span-2">
-                      <img className="h-8 w-8" src={cat.icon} alt="" />
-                    </div>
-                    <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
-                      {cat.text}
-                    </p>
-                    <p className="text-xs text-slate-400 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
-                      {cat.quantity} dishes
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => onCategoriesScrollButtonClick(50)}
-                className="h-10 w-10 flex-grow-0 rounded-lg hover:shadow-xl flex justify-center items-center bg-gray-100 p-3"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20px"
-                  height="20px"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="black"
-                    d="M12.6 12L8 7.4L9.4 6l6 6l-6 6L8 16.6z"
-                  />
-                </svg>
-              </button>
-            </div>
-            <FoodListComponent foods={fakeFoodItems} />
+          <section className="mb-8 space-y-4">
+            <CategoryCarousel carouselItems={data.categories} />
+            <FoodListComponent
+              foods={fakeFoodItems}
+              favoriteFoodIds={favoriteFoodList}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
           </section>
         </div>
       </section>
@@ -328,7 +381,15 @@ export default function Home() {
   );
 }
 
-const FoodListComponent = ({ foods }: { foods: Food[] }) => {
+const FoodListComponent = ({
+  foods,
+  favoriteFoodIds = [],
+  onFavoriteFoodIdsChange,
+}: {
+  foods: Food[];
+  favoriteFoodIds?: number[];
+  onFavoriteFoodIdsChange?: (id: number) => void;
+}) => {
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
   const dispatch = useAppDispatch();
   const [isOpen, setOpen] = useState(false);
@@ -337,12 +398,12 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
     selectedFood.foodSizes[0]
   );
   const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
+
   const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
     if (selectedFood !== food) setSelectedSize(food.foodSizes[0]);
     setOpen(!isOpen);
   };
-  const [heartIconState, setHeartIconState] = useState(false);
 
   const handleAddToCart = async (food: Food) => {
     const newCartItem: Cart = {
@@ -370,12 +431,16 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
 
   return (
     <div className={cn(emblaStyle.embla)} ref={emblaRef}>
-      <div className="w-full flex gap-[calc((100%-99%)/3)]">
+      <div className="w-full flex gap-[calc((100%-99%)/3)] mb-8">
         {foods.map((food: any, index: number) => (
           <MainPageItem
-            className="flex-[0_0_33%] min-w-0"
+            className="xl:flex-[0_0_33%] max-xl:flex-[0_0_50%] max-md:flex-[0_0_100%] min-w-0"
             food={food}
             key={index}
+            isFavorite={favoriteFoodIds.includes(food.id)}
+            onFavoriteChange={(isFavorite: boolean) =>
+              onFavoriteFoodIdsChange && onFavoriteFoodIdsChange(food.id)
+            }
             onClick={() => handleFoodClick(food)}
           />
         ))}
@@ -390,9 +455,9 @@ const FoodListComponent = ({ foods }: { foods: Food[] }) => {
           }
           selectedSize={selectedSize}
           onFoodSizeChange={(foodSize: any) => handleFoodSizeChange(foodSize)}
-          isFavorite={heartIconState}
+          isFavorite={favoriteFoodIds.includes(selectedFood.id)}
           onFavoriteChange={(isFavorite: boolean) =>
-            setHeartIconState(isFavorite)
+            onFavoriteFoodIdsChange && onFavoriteFoodIdsChange(selectedFood.id)
           }
           onAddToCart={() => handleAddToCart(selectedFood)}
         />

@@ -61,7 +61,7 @@ export default function RegisterPage() {
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       <div className="w-screen h-screen font-sans flex items-center justify-center bg-[#fff2e8] text-primaryWord">
-        <div className="w-[730px] flex flex-col items-center justify-start rounded-md shadow-primaryShadow bg-white py-12 px-12">
+        <div className="md:w-[730px] max-md:w-[80%] flex flex-col items-center justify-start rounded-md shadow-primaryShadow bg-white py-12 px-12">
           <div className="font-bold text-lg text-center">
             Sign up your account
           </div>
@@ -100,10 +100,11 @@ export default function RegisterPage() {
           <TextButton
             type="submit"
             iconBefore={isSigningUp ? <LoadingIcon /> : null}
-            content={isSigningUp ? "" : "Sign Up"}
             className="w-full mt-10 text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
             disabled={isSigningUp}
-          />
+          >
+            {isSigningUp ? "" : "Sign Up"}
+          </TextButton>
 
           <span className="text-sm text-secondaryWord self-start mt-4">
             Already have an account
