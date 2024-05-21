@@ -273,7 +273,7 @@ export default function Home() {
   return (
     <>
       <section
-        className="h-screen flex overflow-y-scroll"
+        className="relative h-screen flex overflow-y-scroll"
         style={{
           background:
             "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8) ), url('/images/bg-main-page.jpg')",

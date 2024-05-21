@@ -25,15 +25,15 @@ export default function IntroPage() {
         >
           ORDER ONLINE
         </a>
-        <div className="grid grid-cols-3 w-[70%]">
-          <div>
+        <div className="grid lg:grid-cols-3 max-lg:grid-cols-6 grid-rows-2 w-[70%]">
+          <div className="max-lg:col-span-3 max-lg:row-start-1 max-lg:row-span-1">
             <p className="text-xl text-center tracking-widest font-semibold">
               LOCATION
             </p>
             <p className="text-center font-medium my-2">SE109.O21 St.</p>
             <p className="text-center">UIT, Thu Duc, TPHCM</p>
           </div>
-          <div>
+          <div className="max-lg:col-span-3 max-lg:col-start-4 max-lg:row-start-1 max-lg:row-span-1">
             <p className="text-xl text-center tracking-widest font-semibold">
               HOURS
             </p>
@@ -42,7 +42,7 @@ export default function IntroPage() {
             </p>
             <p className="text-center">Dinner: Thursday - Sunday, 5pm to 9pm</p>
           </div>
-          <div>
+          <div className="max-lg:col-span-6 max-lg:row-start-2 max-lg:row-span-1">
             <p className="text-xl text-center tracking-widest font-semibold">
               CONTACT
             </p>

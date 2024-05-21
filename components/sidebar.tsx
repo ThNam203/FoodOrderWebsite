@@ -85,7 +85,7 @@ export default function Sidebar({
       className={cn(
         style["l-navbar"],
         isSidebarOpen ? style.expander : "",
-        "max-sm:w-[92px]"
+        "max-sm:w-[92px] z-40"
       )}
       id="navbar"
     >
