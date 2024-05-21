@@ -1,4 +1,6 @@
 "use client";
+import MenuTable from "@/components/menu_table";
+import { NewFoodForm } from "@/components/NewFoodForm/new_food_form";
 import { TextButton } from "@/components/buttons";
 import { CustomDatatable } from "@/components/datatable/custom_datatable";
 import { Food } from "@/models/Food";
