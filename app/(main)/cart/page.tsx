@@ -11,15 +11,28 @@ import {
 import { Cart } from "@/models/Cart";
 import { Food } from "@/models/Food";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { deleteCartItem, setCartItems } from "@/redux/slices/cart";
+import cart, {
+  deleteCartItem,
+  setCartItems,
+  updateCartItem,
+} from "@/redux/slices/cart";
 import { setFoods } from "@/redux/slices/food";
 import CartService from "@/services/cartService";
 import FoodService from "@/services/foodService";
 import { cn } from "@/utils/cn";
-import { Checkbox } from "@nextui-org/react";
+import { Checkbox, Tooltip } from "@nextui-org/react";
 import { ClassValue } from "clsx";
 import { getCookie, setCookie } from "cookies-next";
-import { ChevronDown, ChevronRight, CircleCheck, Pen, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  CircleCheck,
+  Edit,
+  FileText,
+  Pen,
+  StickyNote,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -30,7 +43,7 @@ import LoadingCircle from "@/components/LoadingCircle/loading_circle";
 import { LoadingIcon } from "@/components/icons";
 import { CreateDataForPayment } from "@/convertor/momoConvertor";
 import MomoService from "@/services/momoService";
-import { isValidInfomation } from "@/utils/func";
+import { displayNumber, isValidInfomation } from "@/utils/func";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import { CartToReceive } from "@/convertor/cartConvertor";
 const Title = ({
@@ -73,7 +86,7 @@ const TitleBar = ({
   return (
     <div
       className={cn(
-        "w-full flex flex-row items-center justify-end p-2",
+        "w-full flex flex-row items-center justify-end py-2 pl-2 pr-4",
         className
       )}
     >
@@ -86,10 +99,11 @@ const TitleBar = ({
         }}
       />
       <Title content="Food" className="w-1/2 flex" />
-      <Title content="Quantity" className="w-[150px] text-center" />
+      <Title content="Size" className="w-[150px] text-center" />
+      <Title content="Quantity" className="w-[150px] text-center px-8" />
       <Title content="Price" className="w-[150px] text-center max-lg:hidden" />
       <Title content="Total" className="w-[150px] text-center" />
-      <span className="w-[50px]"></span> {/* this is place for delete button */}
+      <span className="w-[100px]"></span>
     </div>
   );
 };
@@ -120,7 +134,10 @@ const CartItem = ({
   foodName,
   foodQuantity,
   foodPrice,
+  size,
+  cartNote,
   onQuantityChange,
+  onNoteChange,
   onDelete,
   isSelected = false,
   onSelected,
@@ -128,8 +145,11 @@ const CartItem = ({
   foodImageUrl: string;
   foodName: string;
   foodQuantity: number;
+  size: string;
   foodPrice: number;
+  cartNote: string;
   onQuantityChange: (value: number) => void;
+  onNoteChange?: (value: string) => void;
   onDelete: () => void;
   isSelected?: boolean;
   onSelected?: () => void;
@@ -140,6 +160,9 @@ const CartItem = ({
       cartRef.current.classList.add("animate-row-disappear");
     }
   };
+  const [isEdittingNote, setIsEdittingNote] = useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const [tempCartNote, setTempCartNote] = useState(cartNote);
 
   return (
     <div
@@ -157,6 +180,7 @@ const CartItem = ({
         />
         <span className="md:ml-10">{foodName}</span>
       </div>
+      <span className="w-[150px] text-center">{size}</span>
       <div className="w-[150px] px-2">
         <NumberInput
           value={foodQuantity}
@@ -167,15 +191,78 @@ const CartItem = ({
           onChange={(e) => onQuantityChange(Number.parseInt(e.target.value))}
         />
       </div>
+
       <span className="w-[150px] text-center max-lg:hidden">
-        {foodPrice + "đ"}
+        {displayNumber(foodPrice, "đ")}
       </span>
       <span className="w-[150px] text-center">
-        {(foodPrice * foodQuantity).toFixed(0) + "đ"}
+        {displayNumber(foodPrice * foodQuantity, "đ")}
       </span>
 
+      <Tooltip
+        showArrow
+        isOpen={isTooltipOpen}
+        onOpenChange={(isOpen) => {
+          if (!isEdittingNote) setIsTooltipOpen(isOpen);
+        }}
+        content={
+          isEdittingNote ? (
+            <div className="flex flex-row items-center font-sans">
+              <TextArea
+                className="outline-0 rounded-lg resize-none"
+                value={tempCartNote}
+                onChange={(e) => setTempCartNote(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (onNoteChange) onNoteChange(tempCartNote);
+                    setIsTooltipOpen(false);
+                    setIsEdittingNote(false);
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <span className="px-2">
+              {cartNote && cartNote.length > 0 ? cartNote : "Add note"}
+            </span>
+          )
+        }
+        closeDelay={0}
+        classNames={{
+          base: [
+            // arrow color
+            "before:bg-cyan-500 focus-within:before:bg-cyan-500",
+          ],
+          // tooltip color
+          content: [
+            "bg-cyan-500 text-white font-sans px-1 focus-within:bg-cyan-500",
+          ],
+        }}
+      >
+        <span
+          className={cn(
+            "w-[50px] flex items-center justify-center opacity-0 text-primaryWord group-hover:opacity-100 ease-linear duration-100 cursor-pointer",
+            isEdittingNote ? "opacity-100" : "",
+            cartNote && cartNote.length > 0 ? "opacity-100" : ""
+          )}
+          onClick={() => {
+            setIsTooltipOpen(!isTooltipOpen);
+            setIsEdittingNote(!isEdittingNote);
+          }}
+        >
+          {cartNote && cartNote.length > 0 ? (
+            <FileText className="text-cyan-500" />
+          ) : (
+            <Edit />
+          )}
+        </span>
+      </Tooltip>
+
       <X
-        className="w-[50px] text-center opacity-0 text-red-500 group-hover:opacity-100 ease-linear duration-100 cursor-pointer"
+        className={cn(
+          "w-[50px] text-center opacity-0 text-red-500 group-hover:opacity-100 ease-linear duration-100 cursor-pointer",
+          isEdittingNote ? "opacity-100" : ""
+        )}
         onClick={() => {
           setTimeout(() => onDelete(), 200);
           addAnimation();
@@ -389,12 +476,29 @@ const CartPage = () => {
                 )}
               >
                 {cartData.map((cart) => {
-                  const onQuantityChange = (value: number) => {
+                  const handleQuantityChange = (value: number) => {
                     setCartData(
                       cartData.map((i) =>
                         i.id === cart.id ? { ...i, quantity: value } : i
                       )
                     );
+                  };
+                  const handleNoteChange = async (note: string) => {
+                    const updatedCart = { ...cart, note: note };
+                    await CartService.UpdateCart(updatedCart)
+                      .then(() => {
+                        dispatch(updateCartItem(updatedCart));
+                        setCartData(
+                          cartData.map((cart) =>
+                            cart.id === updatedCart.id ? updatedCart : cart
+                          )
+                        );
+                      })
+                      .catch((err) => {
+                        showErrorToast(
+                          "Failed to update cart item with error:" + err
+                        );
+                      });
                   };
                   const onDelete = async (id: number) => {
                     await CartService.DeleteCart(id)
@@ -426,7 +530,10 @@ const CartPage = () => {
                       foodName={food.name}
                       foodQuantity={cart.quantity}
                       foodPrice={foodSize.price}
-                      onQuantityChange={onQuantityChange}
+                      size={foodSize.name}
+                      cartNote={cart.note}
+                      onQuantityChange={handleQuantityChange}
+                      onNoteChange={handleNoteChange}
                       onDelete={() => onDelete(cart.id)}
                       isSelected={selectedCardIds.includes(cart.id)}
                       onSelected={() => handleSelectedCardIdsChange(cart.id)}
@@ -594,7 +701,7 @@ const CartPage = () => {
                 <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
-                className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
+                className="absolute bottom-0 w-full bg-third hover:bg-third/90"
                 onClick={() => {
                   handleSelectedTabChange("Checkout Details");
                 }}

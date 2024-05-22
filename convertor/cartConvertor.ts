@@ -9,6 +9,7 @@ const CartToSend = (cart: Cart) => {
     foodSize: {
       id: cart.foodSize.id,
     },
+    note: cart.note,
   };
 };
 
@@ -19,6 +20,7 @@ const CartToReceive = (data: any): Cart => {
     price: data.price,
     food: data.food,
     foodSize: data.foodSize,
+    note: data.note,
   };
   return cartReceived;
 };

@@ -6,4 +6,5 @@ export type Cart = {
   price: number;
   food: Food;
   foodSize: FoodSize;
+  note: string;
 };

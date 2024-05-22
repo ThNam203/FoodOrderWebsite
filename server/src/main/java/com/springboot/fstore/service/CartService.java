@@ -10,4 +10,6 @@ public interface CartService {
     CartDTO addCart(CartDTO cartDTO);
 
     void deleteCart(int cartId);
+
+    void updateCart(int cartId, CartDTO cartDTO);
 }
