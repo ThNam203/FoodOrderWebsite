@@ -8,10 +8,7 @@ import com.springboot.fstore.mapper.FoodRattingMapper;
 import com.springboot.fstore.mapper.FoodSizeMapper;
 import com.springboot.fstore.payload.FoodDTO;
 import com.springboot.fstore.payload.FoodRattingDTO;
-import com.springboot.fstore.repository.CategoryRepository;
-import com.springboot.fstore.repository.FoodRattingRepository;
-import com.springboot.fstore.repository.FoodRepository;
-import com.springboot.fstore.repository.UserRepository;
+import com.springboot.fstore.repository.*;
 import com.springboot.fstore.service.FileService;
 import com.springboot.fstore.service.FoodService;
 import com.springboot.fstore.service.UserService;
@@ -29,6 +26,7 @@ public class FoodServiceImpl implements FoodService {
     private final UserService userService;
     private final FoodRepository foodRepository;
     private final FoodRattingRepository foodRattingRepository;
+    private final OrderRepository orderRepository;
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
 
@@ -163,8 +161,15 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public FoodDTO getFood(int id) {
+        User user = userService.getAuthorizedUser();
         Food food = foodRepository.findById(id).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
-        return FoodMapper.toFoodDTO(food);
+
+        List<Order> orders = orderRepository.findAllByUserId(user.getId());
+        boolean isPurchased = orders.stream().anyMatch(order -> order.getItems().stream().anyMatch(cart -> cart.getFood().getId() == food.getId()));
+        FoodDTO foodDTO = FoodMapper.toFoodDTO(food);
+        foodDTO.setPurchased(isPurchased);
+
+        return foodDTO;
     }
 
     @Override
@@ -176,8 +181,18 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public List<FoodDTO> getFoods() {
+        User user = userService.getAuthorizedUser();
         List<Food> foods = foodRepository.findAll();
-        return foods.stream().map(FoodMapper::toFoodDTO).toList();
+        List<Order> orders = orderRepository.findAllByUserId(user.getId());
+
+        return foods.stream()
+                .map(food -> {
+                    boolean isPurchased = orders.stream().anyMatch(order -> order.getItems().stream().anyMatch(cart -> cart.getFood().getId() == food.getId()));
+                    FoodDTO foodDTO = FoodMapper.toFoodDTO(food);
+                    foodDTO.setPurchased(isPurchased);
+                    return foodDTO;
+                })
+                .toList();
     }
 
     @Override
