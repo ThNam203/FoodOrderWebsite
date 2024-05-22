@@ -1,227 +1,36 @@
 "use client";
 
 import CategoryCarousel from "@/components/CustomCarousel/category_carousel";
-import ImageCarousel from "@/components/CustomCarousel/image_carousel";
-import { TextButton } from "@/components/buttons";
 import { FoodDetail } from "@/components/food_detail";
 import MainPageItem from "@/components/main_page_item";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { FoodToReceive } from "@/convertor/foodConvertor";
-import { fakeFoodItems } from "@/fakedata/foodData";
 import { Cart } from "@/models/Cart";
 import { Food, FoodSize } from "@/models/Food";
 import default_user_image from "@/public/images/default_user.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addCartItem } from "@/redux/slices/cart";
+import { setFoodCategories } from "@/redux/slices/category";
 import { setFoods } from "@/redux/slices/food";
 import CartService from "@/services/cartService";
 import FoodService from "@/services/foodService";
 import emblaStyle from "@/styles/embla_carousel.module.css";
 import { cn } from "@/utils/cn";
-import { he, is } from "date-fns/locale";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-var data: any = {
-  categories: [
-    {
-      id: 1,
-      text: "All",
-      icon: "https://cdn-icons-png.flaticon.com/128/5110/5110796.png",
-      quantity: 5,
-    },
-    {
-      id: 2,
-      text: "Pizzaa",
-      icon: "https://cdn-icons-png.flaticon.com/128/1404/1404945.png",
-      quantity: 5,
-    },
-    {
-      id: 3,
-      text: "Asian",
-      icon: "https://cdn-icons-png.flaticon.com/128/4329/4329449.png",
-      quantity: 5,
-    },
-    {
-      id: 4,
-      text: "Burgers",
-      icon: "https://cdn-icons-png.flaticon.com/128/878/878052.png",
-      quantity: 5,
-    },
-    {
-      id: 5,
-      text: "Barbecue",
-      icon: "https://cdn-icons-png.flaticon.com/128/2946/2946598.png",
-      quantity: 5,
-    },
-    {
-      id: 6,
-      text: "Desserts",
-      icon: "https://cdn-icons-png.flaticon.com/128/4465/4465242.png",
-      quantity: 5,
-    },
-    {
-      id: 7,
-      text: "Thai",
-      icon: "https://cdn-icons-png.flaticon.com/128/197/197452.png",
-      quantity: 5,
-    },
-    {
-      id: 8,
-      text: "Sushi",
-      icon: "https://cdn-icons-png.flaticon.com/128/3183/3183425.png",
-      quantity: 5,
-    },
-    {
-      id: 1,
-      text: "All",
-      icon: "https://cdn-icons-png.flaticon.com/128/5110/5110796.png",
-      quantity: 5,
-    },
-    {
-      id: 2,
-      text: "Pizzaa",
-      icon: "https://cdn-icons-png.flaticon.com/128/1404/1404945.png",
-      quantity: 5,
-    },
-    {
-      id: 3,
-      text: "Asian",
-      icon: "https://cdn-icons-png.flaticon.com/128/4329/4329449.png",
-      quantity: 5,
-    },
-    {
-      id: 4,
-      text: "Burgers",
-      icon: "https://cdn-icons-png.flaticon.com/128/878/878052.png",
-      quantity: 5,
-    },
-    {
-      id: 5,
-      text: "Barbecue",
-      icon: "https://cdn-icons-png.flaticon.com/128/2946/2946598.png",
-      quantity: 5,
-    },
-    {
-      id: 6,
-      text: "Desserts",
-      icon: "https://cdn-icons-png.flaticon.com/128/4465/4465242.png",
-      quantity: 5,
-    },
-    {
-      id: 7,
-      text: "Thai",
-      icon: "https://cdn-icons-png.flaticon.com/128/197/197452.png",
-      quantity: 5,
-    },
-    {
-      id: 8,
-      text: "Sushi",
-      icon: "https://cdn-icons-png.flaticon.com/128/3183/3183425.png",
-      quantity: 5,
-    },
-  ],
-  // foodItems: [
-  //   {
-  //     title: "Bagel Story",
-  //     image:
-  //       "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/25008305-442083466194421-4458779521922891776-n-1517333246.jpg?crop=1xw:1xh;center,top&resize=480:*",
-  //     prepTimeValue: "25 - 30",
-  //     prepTimeUnit: "min",
-  //     rating: 4.7,
-  //     cat1: "Deli",
-  //     cat2: "Bagels",
-  //     range: "$$",
-  //     favourite: false,
-  //   },
-  //   {
-  //     title: "Dessert Rose",
-  //     image:
-  //       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
-  //     prepTimeValue: "30 - 35",
-  //     prepTimeUnit: "min",
-  //     rating: 4.5,
-  //     cat1: "Cafes",
-  //     cat2: "Desserts",
-  //     range: "$",
-  //     favourite: false,
-  //   },
-  //   {
-  //     title: "Barbecue Nation",
-  //     image:
-  //       "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Zm9vZHxlbnwwfHwwfHx8MA%3D%3D",
-  //     prepTimeValue: "40 - 60",
-  //     prepTimeUnit: "min",
-  //     rating: 4.6,
-  //     cat1: "Barbecue",
-  //     cat2: "Chicken",
-  //     range: "$$$",
-  //     favourite: false,
-  //   },
-  //   {
-  //     title: "Twinkle Star",
-  //     image:
-  //       "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGZvb2R8ZW58MHx8MHx8fDA%3D",
-  //     prepTimeValue: "40 - 60",
-  //     prepTimeUnit: "min",
-  //     rating: 4.6,
-  //     cat1: "Barbecue",
-  //     cat2: "Chicken",
-  //     range: "$$$",
-  //     favourite: false,
-  //   },
-  // ],
-  cartItems: [
-    {
-      title: "BBQ Burger",
-      image:
-        "https://hips.hearstapps.com/pop.h-cdn.co/assets/cm/15/05/54ca71fb94ad3_-_5summer_skills_burger_470_0808-de.jpg?crop=1xw:1.0xh;center,top&resize=480:*",
-      quantity: 1,
-      price: 14.99,
-    },
-    {
-      title: "French Fries",
-      image:
-        "https://recipes.timesofindia.com/thumb/54659021.cms?width=1200&height=1200",
-      quantity: 1,
-      price: 9.99,
-    },
-    {
-      title: "Cheese Sauce",
-      image:
-        "https://www.pepperscale.com/wp-content/uploads/2017/10/spicy-nacho-cheese.jpeg",
-      quantity: 1,
-      price: 0.99,
-    },
-  ],
-  adImages: [
-    {
-      image:
-        "https://cf.shopee.vn/file/vn-50009109-93074cd7272fcd06fc514ef80e8aa20f_xxhdpi",
-    },
-    {
-      image:
-        "https://cf.shopee.vn/file/vn-50009109-ed6696a2bea64ffee99377b73c44d5e8_xhdpi",
-    },
-    {
-      image:
-        "https://cf.shopee.vn/file/vn-50009109-c5335039e1b1aab390cc29f3446908fc_xhdpi",
-    },
-  ],
-};
-
 export default function Home() {
   const dispatch = useAppDispatch();
-  const [activeCategory, setActiveCategory] = useState(1);
+  const [activeCategory, setActiveCategory] = useState("All");
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
-  const [isOpen, setOpen] = useState(false);
   const router = useRouter();
   const food = useAppSelector((state) => state.food.activeFood);
+  const categories = useAppSelector((state) => state.foodCategory.value);
   const thisUser = useAppSelector((state) => state.profile.value);
+  const [topFoods, setTopFoods] = useState<Food[]>([]);
   const [favoriteFoodList, setFavoriteFoodList] = useState<number[]>([]);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
@@ -229,6 +38,7 @@ export default function Home() {
       categoriesContainerRef.current.scrollLeft += scrollValue;
     }
   };
+
   useEffect(() => {
     const fetchData = async () => {
       await FoodService.getAllFood()
@@ -238,6 +48,26 @@ export default function Home() {
         })
         .catch((err) => {
           showErrorToast("Failed to fetch data");
+        });
+
+      await FoodService.getTopFoodInMonthRange()
+        .then((res) => {
+          const data = res.data[0].values.map((food: any) =>
+            FoodToReceive(food)
+          );
+          data.slice(0, data.length > 4 ? 4 : data.length - 1);
+          setTopFoods(data);
+        })
+        .catch((err) => {
+          showErrorToast("Failed to get top foods");
+        });
+
+      await FoodService.getCategories()
+        .then((res) => {
+          dispatch(setFoodCategories(res.data));
+        })
+        .catch((err) => {
+          showErrorToast("Failed to fetch categories");
         });
     };
     fetchData();
@@ -345,32 +175,35 @@ export default function Home() {
             <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
 
             <FoodListComponent
-              foods={food}
-              favoriteFoodIds={favoriteFoodList}
-              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-            />
-          </section>
-          <section>
-            <h3 className="text-4xl font-semibold my-8">On sale</h3>
-
-            <FoodListComponent
-              foods={fakeFoodItems}
+              foods={topFoods}
               favoriteFoodIds={favoriteFoodList}
               onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
             />
           </section>
           <section>
             <h3 className="text-4xl font-semibold my-8">Best rated</h3>
+
             <FoodListComponent
-              foods={fakeFoodItems}
+              foods={(() => {
+                const sorted = food.toSorted((a, b) => a.rating - b.rating);
+                return sorted.splice(
+                  0,
+                  sorted.length > 4 ? 4 : sorted.length - 1
+                );
+              })()}
               favoriteFoodIds={favoriteFoodList}
               onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
             />
           </section>
           <section className="mb-8 space-y-4">
-            <CategoryCarousel carouselItems={data.categories} />
+            <CategoryCarousel
+              carouselItems={categories.map((item) => ({
+                ...item,
+                quantity: food.filter((f) => f.category.id === item.id).length,
+              }))}
+            />
             <FoodListComponent
-              foods={fakeFoodItems}
+              foods={food}
               favoriteFoodIds={favoriteFoodList}
               onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
             />
