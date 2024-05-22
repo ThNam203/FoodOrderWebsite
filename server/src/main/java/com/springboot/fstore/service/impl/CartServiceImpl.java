@@ -45,6 +45,13 @@ public class CartServiceImpl implements CartService {
         cart.setUser(user);
         cart.setOrdered(false);
 
+        //check if there is a cart with the same food and food size
+        List<Cart> cartList = cartRepository.findByUserId(user.getId());
+
+        List<CartDTO> cartDTOList = new ArrayList<>();
+        for (Cart c : cartList)
+            if (!cart.isOrdered()) cartDTOList.add(CartMapper.toCartDTO(cart));
+
         if (cartDTO.getFood() != null) {
             Food food = foodRepository.findById(cartDTO.getFood().getId())
                     .orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
@@ -67,5 +74,14 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CustomException("Cart not found", HttpStatus.NOT_FOUND));
         cartRepository.delete(cart);
+    }
+
+    @Override
+    public void updateCart(int cartId, CartDTO cartDTO) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new CustomException("Cart not found", HttpStatus.NOT_FOUND));
+        cart.setQuantity(cartDTO.getQuantity());
+        cart.setNote(cartDTO.getNote());
+        cartRepository.save(cart);
     }
 }

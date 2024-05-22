@@ -1,16 +1,18 @@
+import { displayNumber } from "@/utils/func";
+
 export const FoodPrice = ({
   currency = "đ",
   defaultPrice,
   secondPrice,
 }: {
   currency?: string;
-  defaultPrice: number | string;
-  secondPrice?: number | string;
+  defaultPrice: number;
+  secondPrice?: number;
 }) => {
   return (
     <span className="font-semibold">
-      {defaultPrice + currency}{" "}
-      {secondPrice ? " - " + secondPrice + currency : null}
+      {displayNumber(defaultPrice, currency)}{" "}
+      {secondPrice ? " - " + displayNumber(secondPrice, currency) : null}
     </span>
   );
 };

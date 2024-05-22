@@ -516,20 +516,18 @@ const mapRange = (
     outputLower + ((value - inputLower) / INPUT_RANGE) * OUTPUT_RANGE || 0;
 };
 
-const displayNumber = (number: number, unit: "%" | string) => {
-  if (unit === "%")
-    if (number < 1000)
+const displayNumber = (number: number, unit: "%" | string = "") => {
+  if (unit === "%") {
+    if (number < 1000) {
       return (
         number.toLocaleString("vi-VN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }) + unit
       );
-  return (
-    number.toLocaleString("vi-VN", {
-      maximumFractionDigits: 0,
-    }) + unit
-  );
+    }
+  }
+
   return (
     number.toLocaleString("vi-VN", {
       maximumFractionDigits: 0,

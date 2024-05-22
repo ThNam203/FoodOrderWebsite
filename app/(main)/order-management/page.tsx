@@ -16,7 +16,7 @@ import { setOrders } from "@/redux/slices/order";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import OrderService from "@/services/orderService";
 import { cn } from "@/utils/cn";
-import { formatDate, handleFilterColumn } from "@/utils/func";
+import { displayNumber, formatDate, handleFilterColumn } from "@/utils/func";
 import { Row } from "@tanstack/react-table";
 import { ClassValue } from "clsx";
 import { ChevronRight } from "lucide-react";
@@ -26,7 +26,7 @@ import {
   orderTableColumns,
 } from "./table_columns";
 
-export default function OrderManagement() {
+export default function HistoryPage() {
   const dispatch = useAppDispatch();
   const data: Order[] = useAppSelector((state) => state.order.orders);
   const [rowUpdating, setRowUpdating] = useState<number[]>([]);
@@ -133,7 +133,7 @@ export default function OrderManagement() {
   return (
     <div className="h-screen flex flex-col p-8 text-primaryWord overflow-y-scroll">
       <div className="flex flex-row justify-between mb-4">
-        <h1 className="text-4xl font-bold text-primary">Order management</h1>
+        <h1 className="text-4xl font-bold text-primary">History</h1>
       </div>
       <CustomDatatable
         data={filteredData}
@@ -181,13 +181,22 @@ const OrderDetailTab = ({
   setShowTabs: (value: boolean) => any;
 }) => {
   const order = row.original;
-  const [selectFoodItemTab, setSelectFoodItemTab] = useState<string>(""); //use food name as tab name
+  const [selectFoodItemTab, setSelectFoodItemTab] = useState<number>(-1); //use food name as tab name
   const [selectedFood, setSelectedFood] = useState<Food | undefined>();
+  const [selectedCart, setSelectedCart] = useState<Cart | undefined>();
 
-  const handleSelectedFoodItemTabChange = (tab: string) => {
-    setSelectFoodItemTab(tab);
-    const selectedFood = order.items.find((cart) => cart.food.name === tab);
-    setSelectedFood(selectedFood?.food);
+  const handleSelectedFoodItemTabChange = (id: number) => {
+    setSelectFoodItemTab(id);
+    if (id === -1) {
+      setSelectedFood(undefined);
+      setSelectedCart(undefined);
+    } else {
+      const cart = order.items.find((cart) => cart.food.id === id);
+      if (cart) {
+        setSelectedCart(cart);
+        setSelectedFood(cart.food);
+      }
+    }
   };
   return (
     <div className="flex h-fit flex-col gap-4 px-4 py-2">
@@ -202,7 +211,10 @@ const OrderDetailTab = ({
           </div>
           <div className="flex flex-1 flex-col">
             <RowInfo label="Total:" value={order.total.toString() + "đ"} />
-            <RowInfo label="Order date:" value={formatDate(order.createdAt)} />
+            <RowInfo
+              label="Order date:"
+              value={formatDate(order.createdAt, "datetime")}
+            />
             <RowInfo label="Payment method:" value={order.paymentMethod} />
             <RowInfo label="Status:" value={order.status} />
           </div>
@@ -214,11 +226,11 @@ const OrderDetailTab = ({
             <TextButton
               className={cn(
                 "text-sm rounded-md py-1",
-                selectFoodItemTab === ""
+                selectFoodItemTab === -1
                   ? "bg-primary text-white"
                   : "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord"
               )}
-              onClick={() => handleSelectedFoodItemTabChange("")}
+              onClick={() => handleSelectedFoodItemTabChange(-1)}
             >
               Food items
             </TextButton>
@@ -235,7 +247,7 @@ const OrderDetailTab = ({
             ))}
           </div>
         </div>
-        <FoodItemContent food={selectedFood} />
+        <FoodItemContent food={selectedFood} cart={selectedCart} />
       </div>
     </div>
   );
@@ -282,8 +294,8 @@ const FoodItemTab = ({
 }: {
   className?: ClassValue;
   cart: Cart;
-  selectedTab: string;
-  setSelectedTab: (selectedTab: string) => void;
+  selectedTab: number;
+  setSelectedTab: (id: number) => void;
   onClick?: () => void;
   disabled?: boolean;
 }) => {
@@ -294,10 +306,10 @@ const FoodItemTab = ({
     <TextButton
       className={cn(
         "text-sm rounded-md py-1",
-        selectedTab === cart.food.name ? selectedStyle : defaultStyle
+        selectedTab === cart.food.id ? selectedStyle : defaultStyle
       )}
       onClick={() => {
-        setSelectedTab(cart.food.name);
+        setSelectedTab(cart.food.id);
         if (onClick) onClick();
       }}
     >
@@ -306,8 +318,14 @@ const FoodItemTab = ({
   );
 };
 
-const FoodItemContent = ({ food }: { food: Food | undefined }) => {
-  if (!food) return <></>;
+const FoodItemContent = ({
+  food,
+  cart,
+}: {
+  food: Food | undefined;
+  cart: Cart | undefined;
+}) => {
+  if (!food || !cart) return null;
 
   const carouselItems: CarouselItem[] = food.images.map((image) => {
     return {
@@ -327,19 +345,11 @@ const FoodItemContent = ({ food }: { food: Food | undefined }) => {
           <div className="flex flex-1 flex-col">
             <RowInfo label="Food ID:" value={food.id.toString()} />
             <RowInfo label="Food name:" value={food.name} />
-            <RowInfo
-              label="Status:"
-              value={food.status ? "Active" : "Disable"}
-            />
-            <RowInfo label="Category:" value={food.category.name} />
-            <RowInfo label="Tags:" value={food.tags.join(", ")} />
+            <RowInfo label="Size:" value={cart.foodSize.name} />
+            <RowInfo label="Price:" value={displayNumber(cart.price, "đ")} />
           </div>
           <div className="flex flex-1 flex-col">
-            <RowInfo
-              label="Description:"
-              value={food.description}
-              showTextArea
-            />
+            <RowInfo label="Note:" value={cart.note} showTextArea />
           </div>
         </div>
       </div>

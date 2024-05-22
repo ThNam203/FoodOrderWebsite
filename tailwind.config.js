@@ -19,7 +19,8 @@ module.exports = {
       colors: {
         primary: "#fc8019",
         secondary: "#d56c16",
-        primaryWord: "#1f1f23",
+        third: "#1f1f23",
+        primaryWord: "#000000",
         secondaryWord: "#777777",
         disableColor: "#d8d8d8",
         borderColor: "#e3e3e6",

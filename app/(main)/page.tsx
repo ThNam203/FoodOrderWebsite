@@ -393,10 +393,8 @@ const FoodListComponent = ({
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
   const dispatch = useAppDispatch();
   const [isOpen, setOpen] = useState(false);
-  const [selectedFood, setSelectedFood] = useState<Food>(fakeFoodItems[0]);
-  const [selectedSize, setSelectedSize] = useState<FoodSize>(
-    selectedFood.foodSizes[0]
-  );
+  const [selectedFood, setSelectedFood] = useState<Food>();
+  const [selectedSize, setSelectedSize] = useState<FoodSize>();
   const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
 
   const handleFoodClick = (food: Food) => {
@@ -406,24 +404,26 @@ const FoodListComponent = ({
   };
 
   const handleAddToCart = async (food: Food) => {
+    if (!selectedSize) return;
     const newCartItem: Cart = {
       id: -1,
       quantity: selectedFoodQuantity,
       price: selectedFoodQuantity * selectedSize.price,
       food: food,
       foodSize: selectedSize,
+      note: "",
     };
     await CartService.AddCart(newCartItem)
       .then((res) => {
         console.log(res);
         dispatch(addCartItem(res.data));
         showSuccessToast("Added to cart successfully");
+        setOpen(!isOpen);
       })
       .catch((err) => {
         console.log(err);
         showErrorToast("Failed to add to cart");
-      })
-      .finally(() => {});
+      });
   };
   const handleFoodSizeChange = (foodSize: FoodSize) => {
     if (selectedSize !== foodSize) setSelectedSize(foodSize);
@@ -445,22 +445,25 @@ const FoodListComponent = ({
           />
         ))}
 
-        <FoodDetail
-          isOpen={isOpen}
-          onOpenChange={() => setOpen(!isOpen)}
-          food={selectedFood}
-          foodQuantity={selectedFoodQuantity}
-          onFoodQuantityChange={(quantity: number) =>
-            setSelectedFoodQuantity(quantity)
-          }
-          selectedSize={selectedSize}
-          onFoodSizeChange={(foodSize: any) => handleFoodSizeChange(foodSize)}
-          isFavorite={favoriteFoodIds.includes(selectedFood.id)}
-          onFavoriteChange={(isFavorite: boolean) =>
-            onFavoriteFoodIdsChange && onFavoriteFoodIdsChange(selectedFood.id)
-          }
-          onAddToCart={() => handleAddToCart(selectedFood)}
-        />
+        {selectedFood && selectedSize && (
+          <FoodDetail
+            isOpen={isOpen}
+            onOpenChange={() => setOpen(!isOpen)}
+            food={selectedFood}
+            foodQuantity={selectedFoodQuantity}
+            onFoodQuantityChange={(quantity: number) =>
+              setSelectedFoodQuantity(quantity)
+            }
+            selectedSize={selectedSize}
+            onFoodSizeChange={(foodSize: any) => handleFoodSizeChange(foodSize)}
+            isFavorite={favoriteFoodIds.includes(selectedFood.id)}
+            onFavoriteChange={(isFavorite: boolean) =>
+              onFavoriteFoodIdsChange &&
+              onFavoriteFoodIdsChange(selectedFood.id)
+            }
+            onAddToCart={() => handleAddToCart(selectedFood)}
+          />
+        )}
       </div>
     </div>
   );

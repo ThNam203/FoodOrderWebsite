@@ -6,6 +6,7 @@ import Image from "next/image";
 import { FoodReportData, MonthlyFoodReportData } from "@/models/Report";
 import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
+import { displayNumber } from "@/utils/func";
 
 interface TrendingFoodProps {
   data: FoodReportData[] | undefined;
@@ -49,7 +50,8 @@ const FoodRow = ({ food, count }: { food: Food; count: number }) => {
       if (foodSize.price < minPrice) minPrice = foodSize.price;
       if (foodSize.price > maxPrice) maxPrice = foodSize.price;
     });
-    formattedPrice = minPrice + "đ - " + maxPrice + "đ";
+    formattedPrice =
+      displayNumber(minPrice, "đ") + " - " + displayNumber(maxPrice, "đ");
   }
   return (
     <div className="rounded-md bg-white hover:bg-white/10 flex flex-row justify-between py-3 pr-4 text-primaryWord">
