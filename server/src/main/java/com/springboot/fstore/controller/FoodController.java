@@ -1,7 +1,6 @@
 package com.springboot.fstore.controller;
 
 import com.springboot.fstore.payload.FoodDTO;
-import com.springboot.fstore.payload.FoodRattingDTO;
 import com.springboot.fstore.service.FoodService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -48,13 +47,6 @@ public class FoodController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFood(@PathVariable int id) {
         foodService.deleteFood(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Rate food")
-    @PostMapping("/{id}/rate")
-    public ResponseEntity<?> rateFood(@PathVariable int id, @RequestBody FoodRattingDTO foodRattingDTO) {
-        foodService.rateFood(id, foodRattingDTO);
         return ResponseEntity.noContent().build();
     }
 }
