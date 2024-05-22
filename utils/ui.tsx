@@ -1,11 +1,8 @@
-import { useEffect, useState } from "react";
-import { cn } from "./cn";
-import { CalendarDays, Filter } from "lucide-react";
-import { ScrollArea } from "@/components/scroll-area";
-import { TextButton } from "@/components/buttons";
-import { format } from "date-fns";
-import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
 import { TimerFilterRangePicker } from "@/components/filter";
+import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
+import { format } from "date-fns";
+import { CalendarDays } from "lucide-react";
+import { useState } from "react";
 
 function MyDateRangePicker({
   rangeTimeValue = { startDate: new Date(), endDate: new Date() },

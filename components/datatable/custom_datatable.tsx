@@ -144,7 +144,7 @@ export function CustomDatatable<TData>({
                 setColFilterInput(event.target.value);
                 handleFilterChange(event.target.value, selectedFilterKey);
               }}
-              className="max-w-sm shrink-0 w-[300px] py-2"
+              className="max-w-sm shrink-0 md:w-[300px] max-md:w-auto py-2"
             />
           )}
           {!config.showFilterButton ? null : (
@@ -152,9 +152,10 @@ export function CustomDatatable<TData>({
               <DropdownMenuTrigger asChild>
                 <TextButton
                   iconBefore={<Filter className="h-4 w-4" />}
-                  content={columnTitles[selectedFilterKey] || "Filter"}
                   className="gap-2 whitespace-nowrap text-secondaryWord bg-gray-100 hover:bg-gray-200 ease-linear duration-100 py-2 rounded-md cursor-pointer outline-none select-none"
-                />
+                >
+                  {columnTitles[selectedFilterKey] || "Filter"}
+                </TextButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="font-sans bg-white text-secondaryWord">
                 <DropdownMenuCheckboxItem

@@ -42,7 +42,7 @@ export default function LoginPage() {
       .then((res) => {
         console.log(res);
         showSuccessToast("Login Successfully");
-        router.push("/");
+        router.push("/intro");
       })
       .catch((err) => {
         showErrorToast("Wrong email or password");
@@ -55,15 +55,15 @@ export default function LoginPage() {
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
       <div className="w-screen h-screen font-sans bg-transparent flex flex-row items-center justify-center text-primaryWord">
-        <div className="w-11/12 flex flex-row items-center justify-center gap-10">
+        <div className="xl:w-11/12 max-xl:w-full flex flex-row items-center justify-center gap-10">
           <Image
             width={940}
             height={560}
             src={Background}
             alt="hamburger"
-            className="w-[940px] h-[560px] rounded-md"
+            className="h-[35vw] max-xl:hidden rounded-md"
           />
-          <div className="w-1/3 h-[560px] flex flex-col items-center justify-start pt-8 gap-4">
+          <div className="xl:w-1/3 max-xl:w-1/2 max-md:w-5/6 h-[560px] flex flex-col items-center justify-start pt-8 gap-4">
             <div className="font-extrabold text-xl text-center">
               Create an Account
             </div>
@@ -93,10 +93,11 @@ export default function LoginPage() {
             <TextButton
               type="submit"
               iconBefore={isLoggingIn ? <LoadingIcon /> : null}
-              content={isLoggingIn ? "" : "Sign Me In"}
               disabled={isLoggingIn}
               className="w-full mt-6 text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
-            />
+            >
+              {isLoggingIn ? "" : "Sign Me In"}
+            </TextButton>
 
             <span className="text-sm text-secondaryWord">
               Don&#39;t have an account

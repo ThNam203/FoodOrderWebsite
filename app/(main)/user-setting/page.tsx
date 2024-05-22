@@ -472,20 +472,22 @@ export default function UserSettingPage() {
                 <div className="flex flex-row items-center self-end gap-2">
                   <TextButton
                     type="button"
-                    content="Cancel"
                     className="w-[100px] self-end text-sm font-extrabold text-white bg-gray-400 hover:bg-gray-300/80 disabled:bg-gray-300/60"
                     onClick={() => {
                       if (thisUser) setChosenImageUrl(thisUser.profileImage);
                     }}
                     disabled={isSaving}
-                  />
+                  >
+                    Cancel
+                  </TextButton>
                   <TextButton
                     type="submit"
-                    content={isSaving ? "" : "Save"}
                     className="w-[100px] text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
                     iconAfter={isSaving ? <LoadingIcon /> : null}
                     disabled={isSaving}
-                  />
+                  >
+                    {isSaving ? "" : "Save"}
+                  </TextButton>
                 </div>
               </div>
             }

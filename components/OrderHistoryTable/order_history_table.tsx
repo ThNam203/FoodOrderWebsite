@@ -30,9 +30,18 @@ import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import OrderService from "@/services/orderService";
 import { setOrders } from "@/redux/slices/order";
 import { OrderToReceive } from "@/convertor/orderConvertor";
-import { showErrorToast } from "@/components/toast";
+import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { FoodDetail } from "../food_detail";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import {
+  ConfirmDialog,
+  ConfirmDialogType,
+  useConfirmDialog,
+} from "../confirm_dialog";
+import { Food, FoodSize } from "@/models/Food";
+import { Cart } from "@/models/Cart";
+import CartService from "@/services/cartService";
+import { addCartItem } from "@/redux/slices/cart";
 
 const columns = [
   { name: "Product", uid: "product" },
@@ -46,7 +55,8 @@ const columns = [
 ];
 
 type OrderItem = {
-  idOrder: string;
+  id: string;
+  idOrder: number;
   idItems: number;
   name: string;
   description: string;
@@ -56,8 +66,8 @@ type OrderItem = {
   total: number;
   status: string;
   createDate: Date;
+  items: Cart[];
 };
-
 interface OrderHistoryTableProps {
   status: string;
 }
@@ -85,6 +95,14 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
     new Set(INITIAL_VISIBLE_COLUMNS)
   );
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const {
+    isOpen: isOpenConfirm,
+    setOpen,
+    content,
+    title,
+    type,
+    setConfirmDialog,
+  } = useConfirmDialog();
 
   enum OrderStatus {
     PENDING = "PENDING",
@@ -100,6 +118,20 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
     [OrderStatus.DELIVERED]: "text-blue-400",
     [OrderStatus.REJECTED]: "text-red-400",
     [OrderStatus.CANCELLED]: "text-orange-400",
+  };
+
+  const onStatusChange = async (id: number, status: OrderStatus) => {
+    await OrderService.UpdateOrder(id, status)
+      .then((res) => {
+        const updatedOrder = OrderToReceive(res.data);
+        const newData = data.map((order) =>
+          order.id === updatedOrder.id ? updatedOrder : order
+        );
+        dispatch(setOrders(newData));
+      })
+      .catch((err) => {
+        showErrorToast(err.message);
+      });
   };
 
   const previousImage = () => {
@@ -128,19 +160,20 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
   });
   const orderItems: OrderItem[] = data.flatMap((order) => {
     return order.items.map((item) => ({
-      idOrder: `${order.id}-${item.id}`,
+      id: `${order.id}-${item.id}`,
+      idOrder: order.id,
       idItems: item.id,
       name: item.food.name,
       description: item.food.description,
       image: item.food.images,
       quantity: item.quantity,
       price: item.price,
-      total: order.total,
+      total: item.price * item.quantity,
       status: order.status,
       createDate: order.createdAt,
+      items: order.items,
     }));
   });
-  console.log("orderItems:", orderItems);
   const hasSearchFilter = Boolean(filterValue);
 
   const headerColumns = useMemo(() => {
@@ -155,6 +188,7 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
       await OrderService.GetAllOrders()
         .then((res) => {
           const data = res.data.map((order: any) => OrderToReceive(order));
+          console.log("data:", data);
           dispatch(setOrders(data));
         })
         .catch((err) => {
@@ -163,7 +197,7 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
       dispatch(disablePreloader());
     };
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const filteredData = useMemo(() => {
     let filteredData = [...orderItems];
@@ -395,14 +429,9 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
           items={sortedItems}
         >
           {(item) => {
-            console.log("item:", item);
             return (
-              <TableRow
-                key={item.idOrder}
-                onDoubleClick={() => onRowClick(item)}
-              >
+              <TableRow key={item.id} onDoubleClick={() => onRowClick(item)}>
                 {(columnKey) => {
-                  console.log("columnKey:", columnKey);
                   return <TableCell>{renderCell(item, columnKey)}</TableCell>;
                 }}
               </TableRow>
@@ -482,7 +511,9 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
                         {selectedFood?.status && (
                           <span
                             className={` ${
-                              statusColorMapping[selectedFood.status]
+                              statusColorMapping[
+                                selectedFood.status as keyof typeof statusColorMapping
+                              ]
                             }`}
                           >
                             {selectedFood.status}
@@ -501,8 +532,42 @@ export default function OrderHistoryTable({ status }: OrderHistoryTableProps) {
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
                         currency: "VND",
-                      }).format(selectedFood?.total || 0)}
+                      }).format(
+                        (selectedFood?.price || 0) *
+                          (selectedFood?.quantity || 0)
+                      )}
                     </div>
+                    {selectedFood?.status === OrderStatus.PENDING && (
+                      <Button
+                        color="warning"
+                        size="md"
+                        onClick={() => {
+                          setConfirmDialog(
+                            "Cancel Order",
+                            "Are you sure you want to cancel this order?",
+                            "warning" as ConfirmDialogType
+                          );
+                          setOpen(true);
+                        }}
+                        className="font-sans font-semibold text-xl"
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
+                    <ConfirmDialog
+                      isOpen={isOpenConfirm}
+                      onOpenChange={setOpen}
+                      title={title}
+                      content={content}
+                      onAccept={() => {
+                        setOpen(false);
+                        onStatusChange(
+                          selectedFood?.idOrder ?? 0,
+                          OrderStatus.CANCELLED
+                        );
+                        onClose();
+                      }}
+                    />
                   </div>
                 </div>
               </ModalBody>

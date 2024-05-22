@@ -322,6 +322,7 @@ function handleRangeNumFilter<T>(
     const filterKeys = Object.keys(filter);
     for (let key of filterKeys) {
       let value = row[key as keyof typeof row];
+      console.log("key", key, "value", value);
       if (typeof value === "number") {
         const ivalue = value as number;
         let startValue = filter[key as keyof typeof filter]
@@ -469,6 +470,73 @@ function camelToPascalWithSpaces(camelCaseStr: string) {
   return pascalCaseStr;
 }
 
+const getAllMonthLabels = (fromMonth: number = 1, toMonth: number = 12) => {
+  const monthLabels: string[] = [];
+  Array.from({ length: toMonth - fromMonth + 1 }, (_, i) => {
+    monthLabels.push(format(new Date(0, i + fromMonth - 1), "MMM"));
+  });
+  return monthLabels;
+};
+
+const getMonthLabel = (month: number) => {
+  return format(new Date(0, month - 1), "MMMM");
+};
+
+const getColorList = () => {
+  //return some main colors that easy to see
+  return [
+    "#fcd34d",
+    "#fca5a5",
+    "#fdba74",
+    "#bef264",
+    "#86efac",
+    "#67e8f9",
+    "#5eead4",
+    "#c4b5fd",
+    "#a5b4fc",
+    "#fda4af",
+    "#f0abfc",
+  ];
+};
+
+const getDateFromMonth = (month: number, year: number) => {
+  return new Date(year, month - 1, 1);
+};
+
+const mapRange = (
+  inputLower: number,
+  inputUpper: number,
+  outputLower: number,
+  outputUpper: number
+) => {
+  const INPUT_RANGE = inputUpper - inputLower;
+  const OUTPUT_RANGE = outputUpper - outputLower;
+
+  return (value: number) =>
+    outputLower + ((value - inputLower) / INPUT_RANGE) * OUTPUT_RANGE || 0;
+};
+
+const displayNumber = (number: number, unit: "%" | string) => {
+  if (unit === "%")
+    if (number < 1000)
+      return (
+        number.toLocaleString("vi-VN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) + unit
+      );
+  return (
+    number.toLocaleString("vi-VN", {
+      maximumFractionDigits: 0,
+    }) + unit
+  );
+  return (
+    number.toLocaleString("vi-VN", {
+      maximumFractionDigits: 0,
+    }) + unit
+  );
+};
+
 export {
   formatNumberInput,
   formatPrice,
@@ -489,4 +557,9 @@ export {
   getStaticRangeFilterTime,
   getMinMaxOfListTime,
   camelToPascalWithSpaces,
+  getAllMonthLabels,
+  getMonthLabel,
+  getColorList,
+  mapRange,
+  displayNumber,
 };

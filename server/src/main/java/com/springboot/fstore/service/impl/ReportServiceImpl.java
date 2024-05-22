@@ -2,6 +2,7 @@ package com.springboot.fstore.service.impl;
 
 import com.springboot.fstore.entity.Cart;
 import com.springboot.fstore.entity.Order;
+import com.springboot.fstore.mapper.FoodMapper;
 import com.springboot.fstore.payload.reports.FoodReport;
 import com.springboot.fstore.payload.reports.FoodReportValue;
 import com.springboot.fstore.payload.reports.ReportValue;
@@ -52,7 +53,7 @@ public class ReportServiceImpl implements ReportService {
         List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
 
         for (Order order : orderList) {
-            if (!order.getStatus().equals("Delivered")) continue;
+            if (!order.getStatus().equals("DELIVERED")) continue;
 
             reportValueList.stream()
                     .filter(reportValue -> reportValue.getMonth() == order.getCreatedAt().getMonthValue()
@@ -78,7 +79,7 @@ public class ReportServiceImpl implements ReportService {
             double totalRevenue = 0;
             int totalOrder = 0;
             for (Order order : orderList) {
-                if (!order.getStatus().equals("Delivered")) continue;
+                if (!order.getStatus().equals("DELIVERED")) continue;
 
                 if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
                         && order.getCreatedAt().getYear() == reportValue.getYear()) {
@@ -105,7 +106,7 @@ public class ReportServiceImpl implements ReportService {
         List<ReportValue> reportValueList = initReportValueList(startDateTime, endDateTime);
 
         for (Order order : orderList) {
-            if (!order.getStatus().equals("Cancelled")) continue;
+            if (!order.getStatus().equals("CANCELLED")) continue;
 
             reportValueList.stream()
                     .filter(reportValue -> reportValue.getMonth() == order.getCreatedAt().getMonthValue()
@@ -134,7 +135,7 @@ public class ReportServiceImpl implements ReportService {
                 if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
                         && order.getCreatedAt().getYear() == reportValue.getYear()) {
                     totalOrder++;
-                    if (order.getStatus().equals("Cancelled")) {
+                    if (order.getStatus().equals("CANCELLED")) {
                         totalCancelled++;
                     }
                 }
@@ -160,7 +161,7 @@ public class ReportServiceImpl implements ReportService {
             for (ReportValue reportValue : reportValueList) {
             double totalRevenue = 0;
             for (Order order : orderList) {
-                if (!order.getStatus().equals("Delivered")) continue;
+                if (!order.getStatus().equals("DELIVERED")) continue;
 
                 if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
                         && order.getCreatedAt().getYear() == reportValue.getYear()) {
@@ -187,22 +188,21 @@ public class ReportServiceImpl implements ReportService {
             List<FoodReportValue> foodReportValues = new ArrayList<>();
 
             for (Order order : orderList) {
-                if (!order.getStatus().equals("Delivered")) continue;
+                if (!order.getStatus().equals("DELIVERED")) continue;
 
                 if (order.getCreatedAt().getMonthValue() == foodReport.getMonth()
                         && order.getCreatedAt().getYear() == foodReport.getYear()) {
                     for (Cart cart : order.getItems()) {
-                        if (foodReportValues.stream().anyMatch(foodReportValue -> foodReportValue.getFoodId() == cart.getFood().getId())) {
+                        if (foodReportValues.stream().anyMatch(foodReportValue -> foodReportValue.getFood().getId() == cart.getFood().getId())) {
                             FoodReportValue foodReportValue = foodReportValues.stream()
-                                    .filter(value -> value.getFoodId() == cart.getFood().getId())
+                                    .filter(value -> value.getFood().getId() == cart.getFood().getId())
                                     .findFirst()
                                     .get();
                             foodReportValue.setRevenue(foodReportValue.getRevenue() + cart.getPrice());
                             foodReportValue.setQuantity(foodReportValue.getQuantity() + cart.getQuantity());
                         } else {
                             foodReportValues.add(FoodReportValue.builder()
-                                    .foodId(cart.getFood().getId())
-                                    .foodName(cart.getFood().getName())
+                                    .food(FoodMapper.toFoodDTO(cart.getFood()))
                                     .quantity(cart.getQuantity())
                                     .revenue(cart.getPrice())
                                     .build());
@@ -235,22 +235,21 @@ public class ReportServiceImpl implements ReportService {
             List<FoodReportValue> foodReportValues = new ArrayList<>();
 
             for (Order order : orderList) {
-                if (!order.getStatus().equals("Delivered")) continue;
+                if (!order.getStatus().equals("DELIVERED")) continue;
 
                 if (order.getCreatedAt().getMonthValue() == foodReport.getMonth()
                         && order.getCreatedAt().getYear() == foodReport.getYear()) {
                     for (Cart cart : order.getItems()) {
-                        if (foodReportValues.stream().anyMatch(foodReportValue -> foodReportValue.getFoodId() == cart.getFood().getId())) {
+                        if (foodReportValues.stream().anyMatch(foodReportValue -> foodReportValue.getFood().getId() == cart.getFood().getId())) {
                             FoodReportValue foodReportValue = foodReportValues.stream()
-                                    .filter(value -> value.getFoodId() == cart.getFood().getId())
+                                    .filter(value -> value.getFood().getId() == cart.getFood().getId())
                                     .findFirst()
                                     .get();
                             foodReportValue.setRevenue(foodReportValue.getRevenue() + cart.getPrice());
                             foodReportValue.setQuantity(foodReportValue.getQuantity() + cart.getQuantity());
                         } else {
                             foodReportValues.add(FoodReportValue.builder()
-                                    .foodId(cart.getFood().getId())
-                                    .foodName(cart.getFood().getName())
+                                    .food(FoodMapper.toFoodDTO(cart.getFood()))
                                     .quantity(cart.getQuantity())
                                     .revenue(cart.getPrice())
                                     .build());
@@ -283,7 +282,7 @@ public class ReportServiceImpl implements ReportService {
             Set<Integer> customerSet = new HashSet<>();
 
             for (Order order : orderList) {
-                if (!order.getStatus().equals("Delivered")) continue;
+                if (!order.getStatus().equals("DELIVERED")) continue;
 
                 if (order.getCreatedAt().getMonthValue() == reportValue.getMonth()
                         && order.getCreatedAt().getYear() == reportValue.getYear()) {

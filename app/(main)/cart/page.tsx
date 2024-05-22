@@ -19,7 +19,7 @@ import { cn } from "@/utils/cn";
 import { Checkbox } from "@nextui-org/react";
 import { ClassValue } from "clsx";
 import { getCookie, setCookie } from "cookies-next";
-import { ChevronRight, CircleCheck, Pen, X } from "lucide-react";
+import { ChevronDown, ChevronRight, CircleCheck, Pen, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -32,6 +32,7 @@ import { CreateDataForPayment } from "@/convertor/momoConvertor";
 import MomoService from "@/services/momoService";
 import { isValidInfomation } from "@/utils/func";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
+import { CartToReceive } from "@/convertor/cartConvertor";
 const Title = ({
   className,
   content,
@@ -86,7 +87,7 @@ const TitleBar = ({
       />
       <Title content="Food" className="w-1/2 flex" />
       <Title content="Quantity" className="w-[150px] text-center" />
-      <Title content="Price" className="w-[150px] text-center" />
+      <Title content="Price" className="w-[150px] text-center max-lg:hidden" />
       <Title content="Total" className="w-[150px] text-center" />
       <span className="w-[50px]"></span> {/* this is place for delete button */}
     </div>
@@ -148,13 +149,13 @@ const CartItem = ({
       )}
     >
       <Checkbox isSelected={isSelected} className="mr-2" onClick={onSelected} />
-      <div className="w-1/2 flex flex-row items-center justify-self-start text-center font-semibold text-lg">
+      <div className="w-1/2 flex md:flex-row max-md:flex-col md:items-center max-md:items-start justify-self-start text-center font-semibold text-lg">
         <img
           src={foodImageUrl}
           alt="Twinkle Star"
-          className="h-20 w-40 rounded justify-seft-start object-cover"
+          className="h-20 rounded justify-seft-start object-cover"
         />
-        <span className="ml-10">{foodName}</span>
+        <span className="md:ml-10">{foodName}</span>
       </div>
       <div className="w-[150px] px-2">
         <NumberInput
@@ -166,7 +167,9 @@ const CartItem = ({
           onChange={(e) => onQuantityChange(Number.parseInt(e.target.value))}
         />
       </div>
-      <span className="w-[150px] text-center">{foodPrice + "đ"}</span>
+      <span className="w-[150px] text-center max-lg:hidden">
+        {foodPrice + "đ"}
+      </span>
       <span className="w-[150px] text-center">
         {(foodPrice * foodQuantity).toFixed(0) + "đ"}
       </span>
@@ -196,7 +199,7 @@ const PaymenBar = ({
   return (
     <div
       className={cn(
-        "w-full flex flex-row items-center justify-center gap-4",
+        "w-full flex flex-row flex-wrap items-center justify-center gap-4",
         className
       )}
     >
@@ -207,6 +210,7 @@ const PaymenBar = ({
         setSelectedTab={setSelectedTab}
       />
       <ChevronRight className="text-primary" />
+
       <CartTab
         tabNum={2}
         tabName="Checkout Details"
@@ -246,7 +250,7 @@ const CartPage = () => {
   const [foodData, setFoodData] = useState<Food[]>([]);
   const [selectedCardIds, setSelectedCartIds] = useState<number[]>([]);
   const [selectedPayMethod, setSelectedPayMethod] = useState<PaymentMethod>(
-    PaymentMethod.MOMO
+    PaymentMethod.CASH
   );
   const [subtotal, setSubtotal] = useState(0);
   const rightColRef = useRef<HTMLDivElement>(null);
@@ -289,7 +293,7 @@ const CartPage = () => {
 
   const collapseRightColumn = () => {
     if (rightColRef.current) {
-      rightColRef.current.classList.remove("w-[400px]");
+      rightColRef.current.classList.remove("xl:w-[400px]");
       rightColRef.current.classList.add("w-0");
       rightColRef.current.classList.remove("p-8");
     }
@@ -307,8 +311,11 @@ const CartPage = () => {
       dispatch(showPreloader());
       await CartService.GetCart()
         .then((res) => {
-          setCartData(res.data);
-          dispatch(setCartItems(res.data));
+          const convertedData = res.data.map((cart: any) =>
+            CartToReceive(cart)
+          );
+          setCartData(convertedData);
+          dispatch(setCartItems(convertedData));
         })
         .catch((err) => {
           showErrorToast("Error while fetching cart data");
@@ -351,8 +358,8 @@ const CartPage = () => {
   }, [selectedCardIds, cartData, foodData]);
 
   return (
-    <div className="w-full h-screen font-sans flex flex-row">
-      <div className="max-h-screen flex-1 flex-col p-8 text-primaryWord">
+    <div className="w-full h-screen font-sans flex xl:flex-row xl:justify-between max-xl:flex-col max-xl:overflow-y-scroll">
+      <div className="w-full lg:min-h-screen max-lg:h-fit flex flex-col p-8 text-primaryWord">
         <div className="bg-white flex flex-col gap-8 items-start mb-4">
           <h1 className="text-primary text-3xl font-bold">Your cart</h1>
           <PaymenBar
@@ -377,7 +384,7 @@ const CartPage = () => {
               />
               <div
                 className={cn(
-                  "h-full flex flex-col items-center gap-2 scrollbar overflow-y-scroll",
+                  "h-full flex flex-col items-center gap-2 overflow-y-scroll",
                   cartData.length === 0 ? "hidden" : ""
                 )}
               >
@@ -433,9 +440,9 @@ const CartPage = () => {
         <CartContent
           contentFor="Checkout Details"
           selectedTab={selectedTab}
-          className="h-3/4"
+          className="h-fit"
           content={
-            <div className="h-full px-2 flex flex-col gap-8">
+            <div className="h-fit px-2 flex flex-col gap-8">
               <div className="w-full flex flex-col gap-2">
                 <IconButton
                   icon={<Pen className="w-4 h-4" strokeWidth={2} />}
@@ -492,21 +499,7 @@ const CartPage = () => {
               <div className="w-full flex flex-col gap-2">
                 <Separate classname="h-[1.5px]" />
                 <div className="font-bold">Payment method</div>
-                <div className="w-full flex flex-row items-center justify-start gap-2">
-                  <PayMethodButton
-                    content={PaymentMethod.MOMO}
-                    icon={
-                      <Image
-                        src="/images/momo_logo.svg"
-                        alt="momo"
-                        className="rounded-lg"
-                        width={40}
-                        height={40}
-                      />
-                    }
-                    selectedButton={selectedPayMethod}
-                    onClick={() => handlePayMethodChange(PaymentMethod.MOMO)}
-                  />
+                <div className="w-full flex flex-row flex-wrap items-center justify-start gap-2">
                   <PayMethodButton
                     content={PaymentMethod.CASH}
                     icon={
@@ -521,6 +514,20 @@ const CartPage = () => {
                     selectedButton={selectedPayMethod}
                     onClick={() => handlePayMethodChange(PaymentMethod.CASH)}
                   />
+                  <PayMethodButton
+                    content={PaymentMethod.MOMO}
+                    icon={
+                      <Image
+                        src="/images/momo_logo.svg"
+                        alt="momo"
+                        className="rounded-lg"
+                        width={40}
+                        height={40}
+                      />
+                    }
+                    selectedButton={selectedPayMethod}
+                    onClick={() => handlePayMethodChange(PaymentMethod.MOMO)}
+                  />
                 </div>
               </div>
             </div>
@@ -533,10 +540,10 @@ const CartPage = () => {
           content={
             <div className="flex flex-col items-center gap-4 mt-10">
               <CircleCheck className="w-20 h-20 text-primary" strokeWidth={1} />
-              <span className="font-bold text-3xl">
+              <span className="font-bold text-3xl text-center">
                 Thank you for your ordering!
               </span>
-              <span>
+              <span className="text-center">
                 Your order has been placed successfully.{" "}
                 <a
                   href=""
@@ -546,17 +553,19 @@ const CartPage = () => {
                 </a>
               </span>
 
-              <div className="w-1/2 flex flex-row items-center justify-between gap-4 mt-8">
+              <div className="md:w-1/2 max-md:w-full flex flex-row items-center justify-between gap-4 mt-8">
                 <TextButton
-                  content="View order"
-                  className="w-1/2 bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord"
+                  className="w-1/2 bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord whitespace-nowrap"
                   onClick={() => router.push("/")}
-                />
+                >
+                  View order
+                </TextButton>
                 <TextButton
-                  content="Continue shopping"
-                  className="w-1/2 text-nowrap"
+                  className="w-1/2 whitespace-nowrap"
                   onClick={() => router.push("/browse")}
-                />
+                >
+                  Continue shopping
+                </TextButton>
               </div>
             </div>
           }
@@ -564,7 +573,10 @@ const CartPage = () => {
       </div>
       <div
         ref={rightColRef}
-        className="w-[400px] min-h-screen bg-primary p-8 ease-linear duration-200"
+        className={cn(
+          "xl:w-[400px] max-xl:w-full min-h-screen bg-primary p-8 ease-linear duration-200",
+          selectedTab === "Order Complete" ? "hidden" : ""
+        )}
       >
         <TabContent
           contentFor="Shopping Cart"
@@ -572,7 +584,9 @@ const CartPage = () => {
           className="h-full"
           content={
             <div className="relative w-full h-full flex flex-col justify-start text-white gap-4">
-              <h1 className="text-3xl font-bold">Order Summary</h1>
+              <h1 className="text-3xl font-bold whitespace-nowrap">
+                Order Summary
+              </h1>
               <div className="flex flex-col gap-4">
                 <SummaryItem title="Subtotal" total={subtotal} />
                 <SummaryItem title="V.A.T" total={subtotal * 0.1} />
@@ -580,12 +594,13 @@ const CartPage = () => {
                 <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
-                content="Make payment"
                 className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={() => {
                   handleSelectedTabChange("Checkout Details");
                 }}
-              />
+              >
+                Make payment
+              </TextButton>
             </div>
           }
         />
@@ -629,7 +644,6 @@ const CartPage = () => {
               </div>
               <TextButton
                 iconBefore={isOrdering ? <LoadingIcon /> : null}
-                content={isOrdering ? "" : "Order"}
                 className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={async () => {
                   if (!thisUser) {
@@ -681,7 +695,9 @@ const CartPage = () => {
                     )
                     .finally(() => setIsOrdering(false));
                 }}
-              />
+              >
+                {isOrdering ? "" : "Order"}
+              </TextButton>
             </div>
           }
         />

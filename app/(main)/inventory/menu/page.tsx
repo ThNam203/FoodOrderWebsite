@@ -7,9 +7,9 @@ import { setFoods } from "@/redux/slices/food";
 import FoodService from "@/services/foodService";
 import { useEffect, useState } from "react";
 
-import CustomCarousel, {
+import ImageCarousel, {
   CarouselItem,
-} from "@/components/CustomCarousel/custom_carousel";
+} from "@/components/CustomCarousel/image_carousel";
 import {
   ConfirmDialog,
   ConfirmDialogType,
@@ -122,9 +122,9 @@ export default function DashboardMenu() {
   };
 
   return (
-    <div className="flex flex-col p-8 text-primaryWord">
+    <div className="h-screen flex flex-col p-8 text-primaryWord overflow-y-scroll">
       <div className="flex flex-row justify-between mb-4">
-        <h1 className="text-4xl font-bold text-primary">Menu</h1>
+        <h1 className="text-4xl font-bold text-primary">Inventory</h1>
       </div>
       <CustomDatatable
         data={filteredData}
@@ -134,10 +134,11 @@ export default function DashboardMenu() {
           <div key={1} className="flex flex-row items-center justify-end gap-2">
             <TextButton
               iconBefore={<Plus size={16} />}
-              content="Add new food"
               className="w-fit whitespace-nowrap gap-2 py-2"
               onClick={() => setOpenNewFoodForm(true)}
-            />
+            >
+              Add new food
+            </TextButton>
           </div>,
         ]}
         infoTabs={[
@@ -205,7 +206,7 @@ const FoodDetailTab = ({
         <div
           className={cn("w-[250px] max-h-[200px] rounded-sm overflow-hidden")}
         >
-          <CustomCarousel carouselItems={carouselItems} />
+          <ImageCarousel carouselItems={carouselItems} />
         </div>
         <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
           <div className="flex flex-1 flex-col">
@@ -231,9 +232,10 @@ const FoodDetailTab = ({
         <TextButton
           className="bg-green-500 gap-2"
           onClick={onUpdateFood}
-          content="Update food"
           iconBefore={<RefreshCw size={16} />}
-        />
+        >
+          Update food
+        </TextButton>
         <TextButton
           onClick={() => {
             setConfirmDialog(
@@ -245,8 +247,9 @@ const FoodDetailTab = ({
           }}
           className="bg-red-500 gap-2"
           iconBefore={<Trash size={16} />}
-          content="Delete"
-        />
+        >
+          Delete
+        </TextButton>
       </div>
       <ConfirmDialog
         isOpen={isOpen}

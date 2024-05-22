@@ -7,20 +7,24 @@ import { useEffect, useState } from "react";
 import Preloader from "./preloader";
 import { showErrorToast } from "./toast";
 import { disablePreloader } from "@/redux/slices/preloader";
+import { useRouter } from "next/navigation";
 
 const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
   const [searchedForUser, setSearchedForUser] = useState(false);
   const dispatch = useAppDispatch();
+  const router = useRouter();
   useEffect(() => {
     const getGlobalData = async () => {
       await UserService.getProfile().then((res) => {
-        const profile = res.data;
         dispatch(setProfile(res.data));
       });
     };
 
     getGlobalData()
-      .catch((e) => {})
+      .catch((e) => {
+        showErrorToast(e);
+        router.push("/login");
+      })
       .finally(() => {
         {
           setSearchedForUser(true);

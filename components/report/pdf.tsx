@@ -143,6 +143,7 @@ const ReportPdfContainer = ({
   const [numOfPages, setNumOfPages] = useState(1);
   const iconStyle = "bg-[transparent] text-white opacity-80 hover:opacity-100";
   const textStyle = " bg-[transparent] text-white";
+
   return (
     <>
       {/* <div className="align-center flex flex-row items-center justify-center space-x-6 bg-[#85909d] p-2">
