@@ -29,4 +29,10 @@ public class CartController {
         cartService.deleteCart(cartId);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{cartId}")
+    public ResponseEntity<?> updateCart(@PathVariable int cartId, @RequestBody CartDTO cartDTO) {
+        cartService.updateCart(cartId, cartDTO);
+        return ResponseEntity.ok().build();
+    }
 }

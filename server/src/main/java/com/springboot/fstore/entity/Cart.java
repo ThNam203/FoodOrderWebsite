@@ -21,6 +21,7 @@ public class Cart extends BaseEntity {
     private int quantity;
     private Double price;
     private boolean isOrdered;
+    private String note;
 
     @ManyToOne
     @JoinColumn(name = "order_id")

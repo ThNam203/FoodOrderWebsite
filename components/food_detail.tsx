@@ -17,6 +17,7 @@ import { ClassValue } from "clsx";
 import { ShoppingCart } from "lucide-react";
 import { ReactNode, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import { displayNumber } from "@/utils/func";
 
 enum TabTitle {
   Info = "Info",
@@ -100,7 +101,9 @@ export const FoodDetail = ({
                         />
                       </div>
                       <div className="w-full flex flex-row items-center justify-between">
-                        <p className="text-xl">{selectedSize.price + "đ"}</p>
+                        <p className="text-xl">
+                          {displayNumber(selectedSize.price, "đ")}
+                        </p>
                         <div className="w-min font-sans">
                           <NumberInput
                             className="outline-0 text-primaryWord"
@@ -182,7 +185,9 @@ export const FoodDetail = ({
                         />
                       </div>
                       <div className="w-full flex flex-row items-center justify-between">
-                        <p className="text-xl">{selectedSize.price + "đ"}</p>
+                        <p className="text-xl">
+                          {displayNumber(selectedSize.price, "đ")}
+                        </p>
                         <div className="w-min font-sans">
                           <NumberInput
                             className="outline-0 text-primaryWord"

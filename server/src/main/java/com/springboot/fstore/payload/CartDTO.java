@@ -17,4 +17,5 @@ public class CartDTO {
     private Double price;
     private FoodDTO food;
     private FoodSizeDTO foodSize;
+    private String note;
 }

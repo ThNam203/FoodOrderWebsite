@@ -23,6 +23,7 @@ import NewCategoryModal from "../new_category_modal";
 import SearchAndChooseButton from "../search_and_choose_button";
 import { showErrorToast, showSuccessToast } from "../toast";
 import { ChooseImageButton } from "./choose_image_button";
+import { displayNumber } from "@/utils/func";
 
 export type FoodFormData = {
   name: string;
@@ -312,14 +313,16 @@ export const FoodForm = ({
                             shouldValidate: true,
                           });
                         }}
-                        onPriceChanged={(val: number) => {
-                          fieldValue[index].price = val;
+                        onPriceChanged={(val: string) => {
+                          const iVal = parseInt(val.replaceAll(".", ""));
+                          fieldValue[index].price = iVal;
                           setValue("sizes", [...fieldValue], {
                             shouldValidate: true,
                           });
                         }}
-                        onWeightChanged={(val: number) => {
-                          fieldValue[index].weight = val;
+                        onWeightChanged={(val: string) => {
+                          const iVal = parseInt(val.replaceAll(".", ""));
+                          fieldValue[index].weight = iVal;
                           setValue("sizes", [...fieldValue], {
                             shouldValidate: true,
                           });
@@ -644,8 +647,8 @@ const FoodVariantView = ({
   weight: number;
   note: string;
   onSizeNameChanged: (val: string) => void;
-  onWeightChanged: (val: number) => void;
-  onPriceChanged: (val: number) => void;
+  onWeightChanged: (val: string) => void;
+  onPriceChanged: (val: string) => void;
   onNoteChanged: (val: string) => void;
   onRemoveClick: () => void;
 }) => {
@@ -666,12 +669,11 @@ const FoodVariantView = ({
           <div className="flex flex-row items-baseline">
             <p className="w-[80px] font-semibold">Price</p>
             <input
-              type="number"
-              min={0}
-              value={price === 0 ? undefined : price}
+              type="text"
+              value={price > 0 ? displayNumber(price) : undefined}
               placeholder="0"
               onChange={(e) => {
-                onPriceChanged(e.target.valueAsNumber);
+                onPriceChanged(e.target.value);
               }}
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
@@ -679,11 +681,10 @@ const FoodVariantView = ({
           <div className="flex flex-row items-baseline">
             <p className="w-[80px] font-semibold">Weight</p>
             <input
-              value={weight === 0 ? undefined : weight}
-              type="number"
-              min={0}
+              value={weight > 0 ? displayNumber(weight) : undefined}
+              type="text"
               placeholder="0"
-              onChange={(e) => onWeightChanged(e.target.valueAsNumber)}
+              onChange={(e) => onWeightChanged(e.target.value)}
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
           </div>
