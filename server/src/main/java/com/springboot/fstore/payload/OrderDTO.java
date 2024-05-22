@@ -1,6 +1,5 @@
 package com.springboot.fstore.payload;
 
-import com.springboot.fstore.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +20,5 @@ public class OrderDTO {
     private List<CartDTO> items;
     private LocalDateTime createdAt;
     private UserDTO user;
+    private FeedbackDTO feedback;
 }

@@ -12,21 +12,16 @@ import java.util.Date;
 @Builder
 
 @Entity
-@Table(name = "comments")
-public class Comment {
+@Table(name = "feedback")
+public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String title;
     private String content;
     private Date createdAt;
     private int rating;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "food_id")
-    private Food food;
+    @OneToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

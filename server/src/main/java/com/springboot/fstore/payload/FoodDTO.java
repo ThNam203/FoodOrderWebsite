@@ -27,6 +27,5 @@ public class FoodDTO {
     private List<String> images;
     private List<String> tags;
     private List<FoodSizeDTO> foodSizes;
-    private List<FoodRattingDTO> foodRattings;
     private boolean isPurchased;
 }

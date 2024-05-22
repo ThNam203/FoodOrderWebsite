@@ -49,9 +49,6 @@ public class Food extends BaseEntity {
     )
     private List<Tag> tags;
 
-    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<FoodRatting> foodRattings;
-
     @OneToMany(mappedBy = "food")
     private List<Comment> comments;
 }

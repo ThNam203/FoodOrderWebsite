@@ -10,6 +10,7 @@ public class CommentMapper {
                 .title(comment.getTitle())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
+                .rating(comment.getRating())
                 .user(UserMapper.toUserDTO(comment.getUser()))
                 .build();
     }
@@ -19,6 +20,7 @@ public class CommentMapper {
                 .id(commentDTO.getId())
                 .title(commentDTO.getTitle())
                 .content(commentDTO.getContent())
+                .rating(commentDTO.getRating())
                 .createdAt(commentDTO.getCreatedAt())
                 .build();
     }
