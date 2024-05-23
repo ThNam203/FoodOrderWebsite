@@ -2,13 +2,12 @@ package com.springboot.fstore.service.impl;
 
 import com.springboot.fstore.entity.*;
 import com.springboot.fstore.exception.CustomException;
+import com.springboot.fstore.mapper.FeedbackMapper;
 import com.springboot.fstore.mapper.OrderMapper;
 import com.springboot.fstore.payload.CartDTO;
+import com.springboot.fstore.payload.FeedbackDTO;
 import com.springboot.fstore.payload.OrderDTO;
-import com.springboot.fstore.repository.CartRepository;
-import com.springboot.fstore.repository.FoodRepository;
-import com.springboot.fstore.repository.FoodSizeRepository;
-import com.springboot.fstore.repository.OrderRepository;
+import com.springboot.fstore.repository.*;
 import com.springboot.fstore.service.OrderService;
 import com.springboot.fstore.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
     private final FoodRepository foodRepository;
     private final FoodSizeRepository foodSizeRepository;
     private final CartRepository cartRepository;
+    private final FeedbackRepository feedbackRepository;
 
     @Override
     public OrderDTO makeOrder(OrderDTO orderDTO) {
@@ -65,6 +66,19 @@ public class OrderServiceImpl implements OrderService {
         User user = userService.getAuthorizedUser();
         List<Order> orders = orderRepository.findAllByUserId(user.getId());
         return orders.stream().map(OrderMapper::toOrderDTO).toList();
+    }
+
+    @Override
+    public OrderDTO feedback(int orderId, FeedbackDTO feedBackDTO) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
+        Feedback feedback = FeedbackMapper.toFeedback(feedBackDTO);
+        feedback.setRating(feedBackDTO.getRating());
+        feedback.setContent(feedBackDTO.getContent());
+        feedback.setCreatedAt(new Date());
+        feedback.setOrder(order);
+        order.setFeedback(feedbackRepository.save(feedback));
+        orderRepository.save(order);
+        return OrderMapper.toOrderDTO(order);
     }
 }
 

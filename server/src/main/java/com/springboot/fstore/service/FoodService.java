@@ -1,7 +1,6 @@
 package com.springboot.fstore.service;
 
 import com.springboot.fstore.payload.FoodDTO;
-import com.springboot.fstore.payload.FoodRattingDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -17,5 +16,4 @@ public interface FoodService {
 
     List<FoodDTO> getFoods();
 
-    void rateFood(int foodId, FoodRattingDTO foodRattingDTO);
 }

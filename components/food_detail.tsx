@@ -15,9 +15,10 @@ import {
 } from "@nextui-org/react";
 import { ClassValue } from "clsx";
 import { ShoppingCart } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { displayNumber } from "@/utils/func";
+import CommentSection from "./comment_section";
 
 enum TabTitle {
   Info = "Info",
@@ -57,6 +58,7 @@ export const FoodDetail = ({
     if (tab === TabTitle.Info && emplaApi) emplaApi.scrollPrev();
     setSelectedTab(tab);
   };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -157,89 +159,8 @@ export const FoodDetail = ({
                     </p>
                   </ModalBody>
                 </div>
-                <div className="flex-[0_0_100%]">
-                  <div className="w-full h-72 overflow-hidden">
-                    <div
-                      className="hover:scale-125 ease-linear transition-all duration-300"
-                      style={{
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        backgroundImage: `url(${food.images[0]})`,
-                        height: "100%",
-                      }}
-                    ></div>
-                  </div>
-                  <ModalHeader className="flex flex-col gap-1 font-sans">
-                    <div className="flex flex-col items-start">
-                      <div className="flex flex-row items-center gap-2">
-                        <span>{food.name}</span>
-                        <IconButton
-                          className="rounded-full ease-linear duration-100"
-                          icon={
-                            isFavorite ? <HeartIcon /> : <OutlineHeartIcon />
-                          }
-                          onClick={() => {
-                            if (onFavoriteChange) onFavoriteChange(!isFavorite);
-                          }}
-                        />
-                      </div>
-                      <div className="w-full flex flex-row items-center justify-between">
-                        <p className="text-xl">
-                          {displayNumber(selectedSize.price, "đ")}
-                        </p>
-                        <div className="w-min font-sans">
-                          <NumberInput
-                            className="outline-0 text-primaryWord"
-                            value={foodQuantity}
-                            onDecrease={() =>
-                              onFoodQuantityChange(
-                                foodQuantity <= 1 ? 1 : foodQuantity - 1
-                              )
-                            }
-                            onIncrease={() =>
-                              onFoodQuantityChange(foodQuantity + 1)
-                            }
-                            onChange={(e) =>
-                              onFoodQuantityChange(
-                                Number.parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row gap-2 items-center">
-                      {food.foodSizes.map((size) => {
-                        return (
-                          <FoodProperty
-                            key={size.name}
-                            isSelected={selectedSize === size}
-                            name={size.name}
-                            onClick={() => onFoodSizeChange(size)}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="font-normal text-base">
-                      {selectedSize.note}
-                    </div>
-                    <div className="flex flex-row items-center">
-                      <FoodRating rating={food.rating} />
-                      {food.tags.map((tag) => {
-                        return <Tag key={tag} name={tag} />;
-                      })}
-                    </div>
-                  </ModalHeader>
-                  <ModalBody>
-                    <p className="font-sans">
-                      Food description here. Lorem ipsum dolor sit amet,
-                      consectetur adipiscing elit. Nullam pulvinar risus non
-                      risus hendrerit venenatis. Pellentesque sit amet hendrerit
-                      risus, sed porttitor quam.
-                    </p>
-                  </ModalBody>
+                <div className="flex-[0_0_100%] overflow-y-auto">
+                  <CommentSection foodId={food.id}/>
                 </div>
               </div>
             </div>

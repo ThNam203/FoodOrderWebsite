@@ -10,8 +10,8 @@ import { useDotButton } from "./carousel_dot_button";
 
 export type CarouselItem = {
   id: number;
-  text: string;
-  icon: string;
+  name: string;
+  image: string;
   quantity: number;
 };
 
@@ -65,10 +65,10 @@ export default function CategoryCarousel({
                 )}
               >
                 <div className="rounded-full flex items-center justify-center bg-white row-span-2">
-                  <img className="h-8 w-8" src={item.icon} alt="" />
+                  <img className="h-8 w-8" src={item.image} alt="" />
                 </div>
                 <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
-                  {item.text}
+                  {item.name}
                 </p>
                 <p className="text-xs text-slate-400 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
                   {item.quantity} dishes

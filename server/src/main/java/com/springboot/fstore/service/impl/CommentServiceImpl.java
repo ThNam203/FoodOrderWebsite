@@ -42,6 +42,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomException("Comment not found", HttpStatus.NOT_FOUND));
         comment.setTitle(commentDTO.getTitle());
         comment.setContent(commentDTO.getContent());
+        comment.setRating(commentDTO.getRating());
 
         return CommentMapper.toCommentDTO(commentRepository.save(comment));
     }

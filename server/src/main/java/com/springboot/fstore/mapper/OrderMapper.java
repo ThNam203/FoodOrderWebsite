@@ -14,6 +14,7 @@ public class OrderMapper {
                 .note(order.getNote() != null ? order.getNote() : "")
                 .user(order.getUser() != null ? UserMapper.toUserDTO(order.getUser()) : null)
                 .createdAt(order.getCreatedAt())
+                .feedback(order.getFeedback() != null ? FeedbackMapper.toFeedbackDTO(order.getFeedback()) : null)
                 .build();
     }
 
