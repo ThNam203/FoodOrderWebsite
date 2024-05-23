@@ -380,7 +380,7 @@ const CartPage = () => {
 
   const collapseRightColumn = () => {
     if (rightColRef.current) {
-      rightColRef.current.classList.remove("xl:w-[400px]");
+      rightColRef.current.classList.remove("w-[400px]");
       rightColRef.current.classList.add("w-0");
       rightColRef.current.classList.remove("p-8");
     }
@@ -589,12 +589,7 @@ const CartPage = () => {
               </div>
               <div className="w-full flex flex-col gap-2">
                 <Separate classname="h-[1.5px]" />
-                <Input
-                  id="discount"
-                  label="Discount code"
-                  placeholder="Your discount code here"
-                  labelColor="text-primaryWord"
-                />
+
                 <TextArea
                   id="note"
                   label="Note"
@@ -663,13 +658,13 @@ const CartPage = () => {
               <div className="md:w-1/2 max-md:w-full flex flex-row items-center justify-between gap-4 mt-8">
                 <TextButton
                   className="w-1/2 bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord whitespace-nowrap"
-                  onClick={() => router.push("/")}
+                  onClick={() => router.push("/history")}
                 >
                   View order
                 </TextButton>
                 <TextButton
                   className="w-1/2 whitespace-nowrap"
-                  onClick={() => router.push("/browse")}
+                  onClick={() => router.push("/")}
                 >
                   Continue shopping
                 </TextButton>
@@ -681,7 +676,7 @@ const CartPage = () => {
       <div
         ref={rightColRef}
         className={cn(
-          "xl:w-[400px] max-xl:w-full min-h-screen bg-primary p-8 ease-linear duration-200",
+          "w-[400px] max-xl:w-full min-h-screen bg-primary p-8 transition-all ease-linear duration-200",
           selectedTab === "Order Complete" ? "hidden" : ""
         )}
       >
@@ -769,8 +764,15 @@ const CartPage = () => {
                   const cartList = cartData.filter((cart) =>
                     selectedCardIds.includes(cart.id)
                   );
+                  //detect any item in cart has quantity = 0
+                  if (cartList.some((cart) => cart.quantity === 0)) {
+                    showDefaultToast(
+                      "Please check the quantity of each item in your cart"
+                    );
+                    return;
+                  }
                   setIsOrdering(true);
-                  const totalPrice = subtotal + subtotal * 0.1;
+                  // const totalPrice = subtotal + subtotal * 0.1;
 
                   // await MomoService.MakePayment(
                   //   CreateDataForPayment(totalPrice)

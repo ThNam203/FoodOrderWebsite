@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
                 cart.setOrdered(true);
                 cart.setOrder(order);
                 order.getItems().add(cart);
-                order.setTotal(order.getTotal() + cart.getPrice());
+                order.setTotal(order.getTotal());
             }
         }
         orderRepository.save(order);
@@ -55,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
             throw new CustomException("You are not authorized to update this order", HttpStatus.UNAUTHORIZED);
         }
         order.setStatus(orderDTO.getStatus());
+        order.setNote(orderDTO.getNote());
         orderRepository.save(order);
         return OrderMapper.toOrderDTO(order);
     }

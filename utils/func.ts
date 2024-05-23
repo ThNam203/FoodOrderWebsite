@@ -37,6 +37,11 @@ const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   return num;
 };
 
+function removeCharNAN(str: string): number {
+  const numbersOnly = str.replace(/\D/g, "");
+  return parseInt(numbersOnly, 10);
+}
+
 function handleFilterColumn<T>(
   filterInput: string,
   col: string,
@@ -560,4 +565,5 @@ export {
   getColorList,
   mapRange,
   displayNumber,
+  removeCharNAN,
 };

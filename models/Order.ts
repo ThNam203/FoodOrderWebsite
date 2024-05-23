@@ -20,7 +20,6 @@ export enum PaymentMethod {
 export enum OrderStatus {
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
   DELIVERED = "DELIVERED",
   CANCELLED = "CANCELLED",
 }

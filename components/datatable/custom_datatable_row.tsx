@@ -28,6 +28,7 @@ export default function CustomDatatableRow<TData, TValue>({
 }: CustomeDatatableRowProps<TData, TValue>) {
   const [showInfoRow, setShowInfoRow] = React.useState(false);
   const [showTabIndex, setShowTabIndex] = React.useState(0);
+  const ref = React.useRef<HTMLTableRowElement>(null);
 
   const borderWidth =
     containerRef && containerRef.current
@@ -36,17 +37,24 @@ export default function CustomDatatableRow<TData, TValue>({
         "px"
       : "100%";
 
+  const handleRowClick = (e: any) => {
+    if (ref.current && ref.current.contains(e.target)) {
+      setShowInfoRow((prev) => !prev);
+    }
+  };
+
   return (
     <React.Fragment>
       <TableRow
+        ref={ref}
         data-state={row.getIsSelected() && "selected"}
-        onClick={() => {
-          setShowInfoRow((prev) => !prev);
-        }}
         className={cn(
           "relative hover:cursor-pointer",
           showInfoRow ? "!border-b-0" : ""
         )}
+        onClick={(e) => {
+          handleRowClick(e);
+        }}
       >
         {row.getVisibleCells().map((cell: any) => (
           <TableCell
@@ -61,7 +69,7 @@ export default function CustomDatatableRow<TData, TValue>({
         ))}
         <td
           className={cn(
-            "absolute bottom-0 left-0 right-0 top-0",
+            "absolute bottom-0 left-0 right-0 top-0 pointer-events-none",
             rowBorderColor ? rowBorderColor : "border-primary",
             showInfoRow && tabs ? "border-t-2" : "hidden"
           )}

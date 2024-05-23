@@ -23,7 +23,7 @@ export const ChooseImageButton = ({
   return (
     <div
       className={cn(
-        "w-[100px] h-[80px] relative border rounded-sm select-none",
+        "w-[100px] h-[80px] relative border border-dashed rounded-sm select-none",
         className
       )}
     >

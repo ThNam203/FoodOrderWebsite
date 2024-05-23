@@ -194,6 +194,7 @@ const FoodDetailTab = ({
 }) => {
   const food = row.original;
   const carouselItems: CarouselItem[] = food.images.map((image) => {
+    console.log("image", image);
     return {
       image: image,
     };

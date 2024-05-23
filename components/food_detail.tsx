@@ -278,14 +278,16 @@ export const FoodDetail = ({
   );
 };
 
-const FoodProperty = ({
+export const FoodProperty = ({
   isSelected = false,
   name,
   onClick,
+  className,
 }: {
   isSelected?: boolean;
   name: string;
   onClick?: () => void;
+  className?: ClassValue;
 }) => {
   const defaultStyle =
     "bg-white text-primaryWord hover:bg-black hover:text-white";
@@ -293,8 +295,9 @@ const FoodProperty = ({
   return (
     <span
       className={cn(
-        "cursor-pointer rounded-lg font-semibold outline outline-black outline-1 px-2 text-xs ease-linear duration-100",
-        isSelected ? selectedStyle : defaultStyle
+        "cursor-pointer rounded-[999px] font-semibold outline outline-black outline-1 px-2 text-xs ease-linear duration-100 flex items-center capitalize",
+        isSelected ? selectedStyle : defaultStyle,
+        className
       )}
       onClick={onClick}
     >

@@ -21,6 +21,7 @@ public class Order extends BaseEntity {
     private Double total;
     private String status;
     private String paymentMethod;
+    private String note;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Cart> items;

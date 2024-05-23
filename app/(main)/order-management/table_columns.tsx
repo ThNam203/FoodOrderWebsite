@@ -101,13 +101,10 @@ const statusColumn = (
           "text-green-400 bg-green-50 hover:bg-green-100 outline-green-300";
       if (value === OrderStatus.CANCELLED)
         styleButton =
-          "text-orange-500 bg-orange-50 hover:bg-orange-100 focus:outline-orange-300";
+          "text-red-500 bg-red-50 hover:bg-red-100 focus:outline-red-300";
       if (value === OrderStatus.DELIVERED)
         styleButton =
           "text-blue-500 bg-blue-50 hover:bg-blue-100 focus:outline-blue-300";
-      if (value === OrderStatus.REJECTED)
-        styleButton =
-          "text-red-500 bg-red-50 hover:bg-red-100 focus:outline-red-300";
       const handleStatusChange = async (status: OrderStatus) => {
         const id = row.original.id;
         onStatusChange(id, status);
@@ -144,13 +141,10 @@ const statusColumn = (
                     ? "text-green-400 hover:bg-green-100"
                     : "",
                   key === OrderStatus.CANCELLED
-                    ? "text-orange-400 hover:bg-orange-100"
+                    ? "text-red-400 hover:bg-red-100"
                     : "",
                   key === OrderStatus.DELIVERED
                     ? "text-blue-400 hover:bg-blue-100"
-                    : "",
-                  key === OrderStatus.REJECTED
-                    ? "text-red-400 hover:bg-red-100"
                     : ""
                 )}
               >

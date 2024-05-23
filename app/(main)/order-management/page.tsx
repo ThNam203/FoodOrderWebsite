@@ -40,8 +40,12 @@ export default function HistoryPage() {
       dispatch(showPreloader());
       await OrderService.GetAllOrders()
         .then((res) => {
-          console.log(res);
-          const data = res.data.map((order: any) => OrderToReceive(order));
+          let data: Order[] = res.data.map((order: any) =>
+            OrderToReceive(order)
+          );
+          data = data.sort(
+            (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+          );
           dispatch(setOrders(data));
         })
         .catch((err) => {
@@ -133,7 +137,7 @@ export default function HistoryPage() {
   return (
     <div className="h-screen flex flex-col p-8 text-primaryWord overflow-y-scroll">
       <div className="flex flex-row justify-between mb-4">
-        <h1 className="text-4xl font-bold text-primary">History</h1>
+        <h1 className="text-4xl font-bold text-primary">Order management</h1>
       </div>
       <CustomDatatable
         data={filteredData}
@@ -160,10 +164,9 @@ export default function HistoryPage() {
               { value: OrderStatus.PENDING, borderColor: "border-yellow-400" },
               { value: OrderStatus.ACCEPTED, borderColor: "border-green-400" },
               { value: OrderStatus.DELIVERED, borderColor: "border-blue-400" },
-              { value: OrderStatus.REJECTED, borderColor: "border-red-400" },
               {
                 value: OrderStatus.CANCELLED,
-                borderColor: "border-orange-400",
+                borderColor: "border-red-400",
               },
             ],
           },
@@ -198,6 +201,13 @@ const OrderDetailTab = ({
       }
     }
   };
+  useEffect(() => {
+    if (order.items.length > 0) {
+      setSelectFoodItemTab(order.items[0].food.id);
+      setSelectedFood(order.items[0].food);
+      setSelectedCart(order.items[0]);
+    }
+  }, []);
   return (
     <div className="flex h-fit flex-col gap-4 px-4 py-2">
       <div className="flex flex-row">
@@ -223,16 +233,8 @@ const OrderDetailTab = ({
       <div className="flex flex-col gap-4">
         <div className="flex flex-row items-center gap-2">
           <div className="flex flex-row gap-2 items-center">
-            <TextButton
-              className={cn(
-                "text-sm rounded-md py-1",
-                selectFoodItemTab === -1
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord"
-              )}
-              onClick={() => handleSelectedFoodItemTabChange(-1)}
-            >
-              Food items
+            <TextButton className="text-sm rounded-md py-1 bg-gray-100 text-secondaryWord hover:bg-gray-100 hover:opacity-100">
+              Items
             </TextButton>
             <ChevronRight className="w-5 h-5 text-secondaryWord" />
           </div>
@@ -263,24 +265,33 @@ const RowInfo = ({
   showTextArea?: boolean;
 }) => {
   return (
-    <div
-      className={cn(
-        "mb-2 text-md",
-        showTextArea ? "" : "flex flex-row border-b"
-      )}
-    >
-      <p className="w-[150px] font-semibold">{label}</p>
+    <>
       {showTextArea ? (
-        <textarea
-          readOnly
-          disabled
-          className={cn("h-[80px] w-full resize-none border-2 p-1")}
-          defaultValue={value}
-        ></textarea>
+        <div className="text-wrap">
+          <div
+            className={cn(
+              "h-fit w-full rounded-md resize-none border-0 py-1 px-2 text-primaryWord",
+              value && value.length > 0 ? "bg-yellow-100" : "bg-gray-200 "
+            )}
+          >
+            <b>Note: </b>
+            <br />
+            <span
+              className={cn(
+                value && value.length > 0 ? "" : "italic text-secondaryWord"
+              )}
+            >
+              {value && value.length > 0 ? value : "Empty"}
+            </span>
+          </div>
+        </div>
       ) : (
-        <p className="max-w-[300px] whitespace-nowrap text-ellipsis">{value}</p>
+        <div className={cn("mb-2 text-md flex flex-row border-b")}>
+          <label className={cn("w-[120px] font-semibold")}>{label}</label>
+          <p className={cn("w-[300px] truncate")}>{value}</p>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
@@ -299,7 +310,7 @@ const FoodItemTab = ({
   onClick?: () => void;
   disabled?: boolean;
 }) => {
-  const selectedStyle = "bg-primary text-white";
+  const selectedStyle = "bg-primary text-white hover:opacity-100";
   const defaultStyle =
     "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord";
   return (
@@ -349,7 +360,7 @@ const FoodItemContent = ({
             <RowInfo label="Price:" value={displayNumber(cart.price, "đ")} />
           </div>
           <div className="flex flex-1 flex-col">
-            <RowInfo label="Note:" value={cart.note} showTextArea />
+            <RowInfo label="Note:" value={cart.note} showTextArea={true} />
           </div>
         </div>
       </div>

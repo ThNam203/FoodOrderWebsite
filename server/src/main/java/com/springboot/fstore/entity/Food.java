@@ -22,6 +22,7 @@ public class Food extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+    @Column(length = 3000, columnDefinition = "LONGTEXT")
     private String description;
     private String status;
     private Boolean isDeleted;
