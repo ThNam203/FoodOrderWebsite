@@ -25,6 +25,10 @@ import { usePathname } from "next/navigation";
 import AuthService from "@/services/authService";
 import { showErrorToast, showSuccessToast } from "./toast";
 import { Home, LayoutList } from "lucide-react";
+import { Tooltip } from "@nextui-org/react";
+import CartService from "@/services/cartService";
+import { CartToReceive } from "@/convertor/cartConvertor";
+import { setCartItems } from "@/redux/slices/cart";
 
 const CustomLink = ({
   className,
@@ -33,6 +37,8 @@ const CustomLink = ({
   content,
   selectedLink,
   onClick,
+  isSidebarOpen,
+  notification,
 }: {
   className?: ClassValue;
   href?: string;
@@ -40,20 +46,69 @@ const CustomLink = ({
   selectedLink: string;
   icon?: ReactNode;
   onClick?: () => void;
+  isSidebarOpen: boolean;
+  notification?: number;
 }) => {
   return (
-    <Link
-      href={href}
-      className={cn(
-        style["nav__link"],
-        selectedLink === href ? style["active"] : "",
-        className
+    <div>
+      {isSidebarOpen ? (
+        <Link
+          href={href}
+          className={cn(
+            style["nav__link"],
+            selectedLink === href ? style["active"] : "",
+            className
+          )}
+          onClick={onClick}
+        >
+          <div className="relative">
+            <div
+              className={cn(
+                "absolute -right-2 -top-1 w-4 h-4 rounded-full shrink-0 text-xs bg-red-600 text-white flex items-center justify-center",
+                notification ? "" : "hidden"
+              )}
+            >
+              {notification && notification > 0 && notification}
+            </div>
+            {icon}
+          </div>
+          <span className={style["nav__name"]}>{content}</span>
+        </Link>
+      ) : (
+        <Tooltip
+          content={<span className="px-2">{content}</span>}
+          closeDelay={0}
+          placement="right"
+          className={cn(
+            "text-white font-sans px-1 border-0 rounded-[999px]",
+            content === "Log out" ? "bg-red-400" : "bg-blue-500"
+          )}
+        >
+          <Link
+            href={href}
+            className={cn(
+              style["nav__link"],
+              selectedLink === href ? style["active"] : "",
+              className
+            )}
+            onClick={onClick}
+          >
+            <div className="relative">
+              <div
+                className={cn(
+                  "absolute -right-2 -top-1 w-4 h-4 rounded-full shrink-0 text-xs bg-red-600 text-white flex items-center justify-center",
+                  notification ? "" : "hidden"
+                )}
+              >
+                {notification && notification > 0 && notification}
+              </div>
+              {icon}
+            </div>
+            <span className={style["nav__name"]}>{content}</span>
+          </Link>
+        </Tooltip>
       )}
-      onClick={onClick}
-    >
-      {icon}
-      <span className={style["nav__name"]}>{content}</span>
-    </Link>
+    </div>
   );
 };
 
@@ -65,6 +120,7 @@ export default function Sidebar({
   onSidebarToggle: () => void;
 }) {
   const isLogin = useAppSelector((state) => state.profile.isLogin);
+  const cart = useAppSelector((state) => state.cart.cartItems);
   const selectedLink = usePathname();
 
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -119,12 +175,14 @@ export default function Sidebar({
               icon={<Home size={20} />}
               selectedLink={usePathname()}
               className="sm:hidden"
+              isSidebarOpen={isSidebarOpen}
             />
             <CustomLink
               href="/dashboard"
               content="Dashboard"
               icon={<DashBoardIcon />}
               selectedLink={usePathname()}
+              isSidebarOpen={isSidebarOpen}
             />
             {/* <a href="/" className={twMerge(style["nav__link"])}>
               <svg
@@ -149,6 +207,7 @@ export default function Sidebar({
               content="Inventory"
               icon={<LayoutList strokeWidth={1} />}
               selectedLink={usePathname()}
+              isSidebarOpen={isSidebarOpen}
             />
 
             <CustomLink
@@ -156,6 +215,8 @@ export default function Sidebar({
               content="Your cart"
               icon={<CartIcon />}
               selectedLink={selectedLink}
+              isSidebarOpen={isSidebarOpen}
+              notification={cart.length}
             />
 
             <CustomLink
@@ -163,18 +224,21 @@ export default function Sidebar({
               content="Favourites"
               icon={<FavouriteIcon />}
               selectedLink={selectedLink}
+              isSidebarOpen={isSidebarOpen}
             />
             <CustomLink
               href="/order-management"
               content="Orders"
               icon={<OrderIcon />}
               selectedLink={selectedLink}
+              isSidebarOpen={isSidebarOpen}
             />
             <CustomLink
               href="/history"
               content="History"
               icon={<HistoryIcon />}
               selectedLink={selectedLink}
+              isSidebarOpen={isSidebarOpen}
             />
           </div>
         </div>
@@ -186,6 +250,7 @@ export default function Sidebar({
               content="User setting"
               icon={<SettingIcon />}
               selectedLink={selectedLink}
+              isSidebarOpen={isSidebarOpen}
             />
             <CustomLink
               content="Log out"
@@ -194,6 +259,7 @@ export default function Sidebar({
               selectedLink={selectedLink}
               className={cn("hover:bg-red-400")}
               onClick={handleLogout}
+              isSidebarOpen={isSidebarOpen}
             />
           </div>
         )}
@@ -204,6 +270,7 @@ export default function Sidebar({
               content="Login"
               icon={<LoginIcon />}
               selectedLink={selectedLink}
+              isSidebarOpen={isSidebarOpen}
             />
           </div>
         )}

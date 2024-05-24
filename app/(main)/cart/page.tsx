@@ -99,7 +99,7 @@ const TitleBar = ({
         }}
       />
       <Title content="Food" className="w-1/2 flex" />
-      <Title content="Size" className="w-[150px] text-center" />
+      <Title content="Size" className="w-[150px] text-center max-lg:hidden" />
       <Title content="Quantity" className="w-[150px] text-center px-8" />
       <Title content="Price" className="w-[150px] text-center max-lg:hidden" />
       <Title content="Total" className="w-[150px] text-center" />
@@ -180,7 +180,7 @@ const CartItem = ({
         />
         <span className="md:ml-10">{foodName}</span>
       </div>
-      <span className="w-[150px] text-center">{size}</span>
+      <span className="w-[150px] text-center max-lg:hidden">{size}</span>
       <div className="w-[150px] px-2">
         <NumberInput
           value={foodQuantity}
@@ -676,8 +676,7 @@ const CartPage = () => {
       <div
         ref={rightColRef}
         className={cn(
-          "w-[400px] max-xl:w-full min-h-screen bg-primary p-8 transition-all ease-linear duration-200",
-          selectedTab === "Order Complete" ? "hidden" : ""
+          "w-[400px] max-xl:w-full min-h-screen bg-primary p-8 ease-linear duration-200 max-lg:hidden"
         )}
       >
         <TabContent
@@ -691,9 +690,9 @@ const CartPage = () => {
               </h1>
               <div className="flex flex-col gap-4">
                 <SummaryItem title="Subtotal" total={subtotal} />
-                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
+                <SummaryItem title="V.A.T" total={0} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
+                <SummaryItem title="Total" total={subtotal} />
               </div>
               <TextButton
                 className="absolute bottom-0 w-full bg-third hover:bg-third/90"
@@ -740,9 +739,9 @@ const CartPage = () => {
               <div className="flex flex-col gap-4">
                 <Separate classname="h-[1.5px]" />
                 <SummaryItem title="Subtotal" total={subtotal} />
-                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
+                <SummaryItem title="V.A.T" total={0} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
+                <SummaryItem title="Total" total={subtotal} />
               </div>
               <TextButton
                 iconBefore={isOrdering ? <LoadingIcon /> : null}
@@ -792,11 +791,11 @@ const CartPage = () => {
                     .then(() => {
                       handleSelectedTabChange("Order Complete");
                       setHasCompletedOrder(true);
-                      setCartData(
-                        cartData.filter(
-                          (cart) => !selectedCardIds.includes(cart.id)
-                        )
+                      const newCartData = cartData.filter(
+                        (cart) => !selectedCardIds.includes(cart.id)
                       );
+                      setCartData(newCartData);
+                      dispatch(setCartItems(newCartData));
                       setSelectedCartIds([]);
                     })
                     .catch((err) =>
