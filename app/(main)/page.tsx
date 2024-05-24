@@ -7,6 +7,7 @@ import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { FoodToReceive } from "@/convertor/foodConvertor";
 import { Cart } from "@/models/Cart";
 import { Food, FoodSize } from "@/models/Food";
+import { FoodReport } from "@/models/Report";
 import default_user_image from "@/public/images/default_user.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addCartItem } from "@/redux/slices/cart";
@@ -31,7 +32,9 @@ export default function Home() {
   const categories = useAppSelector((state) => state.foodCategory.value);
   const thisUser = useAppSelector((state) => state.profile.value);
   const [topFoods, setTopFoods] = useState<Food[]>([]);
-  const [favoriteFoodList, setFavoriteFoodList] = useState<number[]>([]);
+  const [bestRatedFoods, setBestRatedFoods] = useState<Food[]>([]);
+  const [favoriteFoodIds, setFavoriteFoodIds] = useState<number[]>([]);
+  const [favoriteFoodList, setFavoriteFoodList] = useState<Food[]>([]);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
@@ -52,9 +55,8 @@ export default function Home() {
 
       await FoodService.getTopFoodInMonthRange()
         .then((res) => {
-          const data = res.data[0].values.map((food: any) =>
-            FoodToReceive(food)
-          );
+          const data = res.data[0].data.map((item) => FoodToReceive(item.food));
+
           data.slice(0, data.length > 4 ? 4 : data.length - 1);
           setTopFoods(data);
         })
@@ -74,10 +76,23 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    setFavoriteFoodList(
-      thisUser && thisUser.listFavorite ? thisUser.listFavorite : []
-    );
+    if (!thisUser || !thisUser.listFavorite) return;
+    console.log("favorite", thisUser.listFavorite);
+    setFavoriteFoodIds(thisUser.listFavorite);
   }, [thisUser]);
+
+  useEffect(() => {
+    const sorted = food.toSorted((a, b) => a.rating - b.rating);
+    setBestRatedFoods(sorted.slice(0, sorted.length > 4 ? 4 : sorted.length));
+  }, [food]);
+
+  useEffect(() => {
+    if (!favoriteFoodIds || favoriteFoodIds.length === 0) return;
+    const newFavoriteFoodList = food.filter((f) =>
+      favoriteFoodIds.includes(f.id)
+    );
+    setFavoriteFoodList(newFavoriteFoodList);
+  }, [favoriteFoodIds, food]);
 
   const handleFavoriteFoodIdsChange = async (id: number) => {
     await FoodService.addFavouriteFood(id)
@@ -90,13 +105,13 @@ export default function Home() {
   };
 
   const onFavoriteFoodIdsChange = (id: number) => {
-    if (favoriteFoodList.includes(id)) {
-      const newFavoriteFoodList = favoriteFoodList.filter((foodId) => {
+    if (favoriteFoodIds.includes(id)) {
+      const newFavoriteFoodList = favoriteFoodIds.filter((foodId) => {
         return foodId !== id;
       });
-      setFavoriteFoodList(newFavoriteFoodList);
+      setFavoriteFoodIds(newFavoriteFoodList);
     } else {
-      setFavoriteFoodList([...favoriteFoodList, id]);
+      setFavoriteFoodIds([...favoriteFoodIds, id]);
     }
   };
 
@@ -110,7 +125,7 @@ export default function Home() {
           backgroundAttachment: "fixed",
         }}
       >
-        <div className="w-full px-8 border-gray-200">
+        <div className="w-full h-fit px-8 border-gray-200 pb-8">
           <div className="h-12 mt-8 flex items-center justify-between">
             <div className="flex items-center rounded-md bg-gray-100 self-stretch px-4 w-2/3">
               <svg
@@ -171,43 +186,48 @@ export default function Home() {
               className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
             />
           </div>
-          <section>
-            <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
+          {topFoods && topFoods.length > 0 && (
+            <section>
+              <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
+              <FoodListComponent
+                foods={topFoods}
+                favoriteFoodIds={favoriteFoodIds}
+                onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+              />
+            </section>
+          )}
 
-            <FoodListComponent
-              foods={topFoods}
-              favoriteFoodIds={favoriteFoodList}
-              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-            />
-          </section>
-          <section>
-            <h3 className="text-4xl font-semibold my-8">Best rated</h3>
+          {bestRatedFoods && bestRatedFoods.length > 0 && (
+            <section>
+              <h3 className="text-4xl font-semibold my-8">Best rated</h3>
 
-            <FoodListComponent
-              foods={(() => {
-                const sorted = food.toSorted((a, b) => a.rating - b.rating);
-                return sorted.splice(
-                  0,
-                  sorted.length > 4 ? 4 : sorted.length - 1
-                );
-              })()}
-              favoriteFoodIds={favoriteFoodList}
-              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-            />
-          </section>
-          <section className="mb-8 space-y-4">
+              <FoodListComponent
+                foods={bestRatedFoods}
+                favoriteFoodIds={favoriteFoodIds}
+                onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+              />
+            </section>
+          )}
+
+          <section>
             <CategoryCarousel
               carouselItems={categories.map((item) => ({
                 ...item,
                 quantity: food.filter((f) => f.category.id === item.id).length,
               }))}
             />
-            <FoodListComponent
-              foods={food}
-              favoriteFoodIds={favoriteFoodList}
-              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-            />
           </section>
+
+          {favoriteFoodList && favoriteFoodList.length > 0 && (
+            <section>
+              <h3 className="text-4xl font-semibold my-8">Favorite</h3>
+              <FoodListComponent
+                foods={favoriteFoodList}
+                favoriteFoodIds={favoriteFoodIds}
+                onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+              />
+            </section>
+          )}
         </div>
       </section>
     </>
@@ -223,6 +243,7 @@ const FoodListComponent = ({
   favoriteFoodIds?: number[];
   onFavoriteFoodIdsChange?: (id: number) => void;
 }) => {
+  console.log(foods);
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
   const dispatch = useAppDispatch();
   const [isOpen, setOpen] = useState(false);

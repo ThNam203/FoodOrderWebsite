@@ -521,7 +521,12 @@ const mapRange = (
     outputLower + ((value - inputLower) / INPUT_RANGE) * OUTPUT_RANGE || 0;
 };
 
-const displayNumber = (number: number, unit: "%" | string = "") => {
+const displayNumber = (
+  number: number,
+  unit: "%" | string = "",
+  spaceBetweenNumAndUnit: boolean = false
+) => {
+  if (!number) return;
   if (unit === "%") {
     if (number < 1000) {
       return (
@@ -536,7 +541,9 @@ const displayNumber = (number: number, unit: "%" | string = "") => {
   return (
     number.toLocaleString("vi-VN", {
       maximumFractionDigits: 0,
-    }) + unit
+    }) +
+    (spaceBetweenNumAndUnit ? " " : "") +
+    unit
   );
 };
 

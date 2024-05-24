@@ -6,6 +6,7 @@ import { FoodPrice } from "./food_price";
 import { IconButton } from "./buttons";
 import { cn } from "@/utils/cn";
 import { HeartIcon, OutlineHeartIcon } from "./icons";
+import { useEffect, useState } from "react";
 
 export default function MainPageItem({
   food,
@@ -20,9 +21,14 @@ export default function MainPageItem({
   isFavorite?: boolean;
   onFavoriteChange?: (isFavorite: boolean) => void;
 }) {
-  const sortedPriceList = food.foodSizes
-    .map((foodSize) => foodSize.price)
-    .sort();
+  const [sortedPriceList, setSortedPriceList] = useState<number[]>([]);
+
+  useEffect(() => {
+    const tempSortedPriceList = food.foodSizes
+      .map((foodSize) => foodSize.price)
+      .sort();
+    setSortedPriceList(tempSortedPriceList);
+  }, [food]);
 
   return (
     <div

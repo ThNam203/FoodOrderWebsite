@@ -66,7 +66,7 @@ const FoodToReceive = (data: any): Food => {
     isDeleted: data.isDeleted,
     foodSizes: data.foodSizes,
     category: data.category,
-    rating: data.rating,
+    rating: data.totalRating,
     tags: data.tags,
     status: data.status === "true" ? FoodStatus.ACTIVE : FoodStatus.DISABLE,
     createdAt: new Date(data.createdAt),

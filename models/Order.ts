@@ -23,3 +23,10 @@ export enum OrderStatus {
   DELIVERED = "DELIVERED",
   CANCELLED = "CANCELLED",
 }
+
+export type Feedback = {
+  id: number;
+  content: string;
+  createAt: Date;
+  rating: number;
+};

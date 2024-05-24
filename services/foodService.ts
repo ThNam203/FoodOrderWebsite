@@ -1,6 +1,12 @@
 import { Food, FoodCategory } from "@/models/Food";
 import AxiosService from "./axiosService";
 import { Comment } from "@/models/Comment";
+import { format } from "date-fns";
+import { ToFoodReport, ToMonthlyReport } from "@/convertor/reportConvertor";
+
+const dateToUrlPath = (date: Date) => {
+  return format(date, "yyyy-MM-dd");
+};
 
 const createNewCategory = (data: any) => {
   return AxiosService.post<FoodCategory>("/api/categories", data, {
@@ -16,16 +22,25 @@ const getAllFood = () => {
   return AxiosService.get<Food[]>("/api/foods");
 };
 
+// const getTopFoodInMonthRange = () => {
+//   const today = new Date();
+//   const first = new Date(today.getFullYear(), today.getMonth(), 1);
+//   return AxiosService.get<any>(
+//     `/api/reports/top-food-by-order?start=${first.getFullYear()}-${
+//       first.getMonth() + 1
+//     }-${first.getDate()}&end=${today.getFullYear()}-${
+//       today.getMonth() + 1
+//     }-${today.getDate()}`
+//   );
+// };
+
 const getTopFoodInMonthRange = () => {
   const today = new Date();
   const first = new Date(today.getFullYear(), today.getMonth(), 1);
-  return AxiosService.get<any>(
-    `/api/reports/top-food-by-order?start=${first.getFullYear()}-${
-      first.getMonth() + 1
-    }-${first.getDate()}&end=${today.getFullYear()}-${
-      today.getMonth() + 1
-    }-${today.getDate()}`
-  );
+  const url = `/api/reports/top-food-by-order?start=${dateToUrlPath(
+    first
+  )}&end=${dateToUrlPath(today)}`;
+  return AxiosService.get<any>(url).then((res) => ToFoodReport(res.data));
 };
 
 const createNewFood = (data: any) => {

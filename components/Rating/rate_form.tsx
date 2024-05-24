@@ -36,15 +36,14 @@ import { User } from "@/models/User";
 import { color } from "framer-motion";
 import MotionWrapper from "../visualEffect/motion-wrapper";
 import { Separate } from "../separate";
+import OrderService from "@/services/orderService";
 
 export type RateFormData = {
   comment: string;
-  images: (string | null)[];
 };
 
 const rateSchema: z.ZodType<RateFormData> = z.object({
   comment: z.string(),
-  images: z.array(z.string()),
 });
 
 const faces = [
@@ -116,109 +115,25 @@ export const RateForm = ({
   food?: Food;
   closeForm: () => any;
 }) => {
-  const dispatch = useAppDispatch();
-  const thisUser = useAppSelector((state) => state.profile.value);
-  const [chosenImageFiles, setChosenImageFiles] = useState<File[]>([]);
-
   const [isUploadingFood, setIsUploadingFood] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number>(-1);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    resetField,
-    watch,
-  } = useForm<z.infer<typeof rateSchema>>({
+  const { register, handleSubmit } = useForm<z.infer<typeof rateSchema>>({
     resolver: zodResolver(rateSchema),
     defaultValues: {
       comment: "",
-      images: [],
     },
   });
 
-  // const setInitialValues = () => {
-  //   if (food) {
-  //     console.log("food: ", food);
-  //     setValue("name", food.name);
-  //     setValue("status", food.status ? "true" : "false");
-  //     setValue("category", food.category.name);
-  //     setValue("images", food.images);
-  //     setValue(
-  //       "sizes",
-  //       food.foodSizes.map((size) => {
-  //         return {
-  //           sizeName: size.name,
-  //           price: size.price,
-  //           weight: size.weight,
-  //           note: size.note,
-  //         };
-  //       })
-  //     );
-  //     setValue("description", food.description);
-  //     setValue("tags", food.tags);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (food) setInitialValues();
-  // }, []);
-
-  // if newFileUrl == null, it means the user removed image
-  const handleImageChosen = (newFileUrl: File | null, index: number) => {
-    if (newFileUrl === null) chosenImageFiles.splice(index, 1);
-    else chosenImageFiles.push(newFileUrl);
-    setChosenImageFiles(chosenImageFiles);
-
-    const newImages = [...watch("images")];
-    if (newFileUrl) newImages[index] = URL.createObjectURL(newFileUrl);
-    else newImages.splice(index, 1);
-
-    setValue("images", newImages);
-  };
-
   const onSubmit = async (values: RateFormData) => {
-    // const selectedCategory = categories.find(
-    //   (cat: any) => cat.name === values.category
-    // );
-    // const newFood = FoodFormDataToFood(values, selectedCategory!);
-    // const dataForm: any = new FormData();
-    // dataForm.append(
-    //   "data",
-    //   new Blob([JSON.stringify(FoodToSend(newFood))], {
-    //     type: "application/json",
-    //   })
-    // );
-    // chosenImageFiles
-    //   .filter((file) => file != null)
-    //   .forEach((imageFile) => dataForm.append("files", imageFile));
-    // setIsUploadingFood(true);
-    // if (food) {
-    //   await FoodService.updateFood(food.id, dataForm)
-    //     .then((result) => {
-    //       const updatedFood = FoodToReceive(result.data);
-    //       dispatch(updateFood(updatedFood));
-    //       showSuccessToast("Food updated successfully");
+    // await OrderService.SendFeedback()
+    //     .then((res) => {
     //     })
     //     .catch((e) => console.error(e))
     //     .finally(() => {
     //       setIsUploadingFood(false);
     //       closeForm();
     //     });
-    // } else {
-    //   await FoodService.createNewFood(dataForm)
-    //     .then((result) => {
-    //       const newFood = FoodToReceive(result.data);
-    //       dispatch(addFood(newFood));
-    //       showSuccessToast("New food added successfully");
-    //     })
-    //     .catch((e) => console.error(e))
-    //     .finally(() => {
-    //       setIsUploadingFood(false);
-    //       closeForm();
-    //     });
-    // }
   };
 
   return (
@@ -285,12 +200,12 @@ export const RateForm = ({
               placeholder="Leave your feedback here to build trust and help other customers know more about this food"
               className="w-full h-[100px] outline-0 border-0 resize-none"
             />
-            <ImagesInput
+            {/* <ImagesInput
               fileUrls={watch("images")}
               onImageChanged={handleImageChosen}
               {...register("images", { required: true })}
               error={errors.images as FieldError}
-            />
+            /> */}
           </div>
 
           <div className="flex flex-row items-center justify-center gap-4 mt-4">
@@ -307,48 +222,6 @@ export const RateForm = ({
           </div>
         </form>
       </MotionWrapper>
-    </div>
-  );
-};
-
-const ImagesInput = ({
-  fileUrls,
-  onImageChanged,
-  error,
-}: {
-  fileUrls: (string | null)[];
-  onImageChanged: (file: File | null, index: number) => void;
-  error?: FieldError;
-}) => {
-  const [displayFileUrls, setDisplayFileUrls] = useState<(string | null)[]>([
-    null,
-    null,
-    null,
-    null,
-    null,
-  ]);
-  useEffect(() => {
-    let temp: (string | null)[] = [null, null, null, null, null];
-    fileUrls.forEach((fileUrl, index) => {
-      temp[index] = fileUrl;
-    });
-    setDisplayFileUrls(temp);
-  }, [fileUrls]);
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-row w-full items-center h-20 justify-between">
-        {displayFileUrls.map((fileUrl, index) => (
-          <ChooseImageButton
-            key={index}
-            fileUrl={fileUrl}
-            onImageChanged={(imageFile) => {
-              console.log(imageFile, " ", index);
-              onImageChanged(imageFile, index);
-            }}
-            className="rounded-md"
-          />
-        ))}
-      </div>
     </div>
   );
 };
