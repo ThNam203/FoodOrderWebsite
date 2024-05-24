@@ -28,6 +28,7 @@ import {
 import { ConfirmDialog, useConfirmDialog } from "@/components/confirm_dialog";
 import { RateForm } from "@/components/Rating/rate_form";
 import { FoodProperty } from "@/components/food_detail";
+import useEmblaCarousel from "embla-carousel-react";
 
 export default function HistoryPage() {
   const dispatch = useAppDispatch();
@@ -39,7 +40,7 @@ export default function HistoryPage() {
     .filter((key) => key !== "images")
     .map((key) => key);
   const { isOpen, setOpen } = useConfirmDialog();
-  const [foodToRate, setFoodToRate] = useState<Food | undefined>();
+  const [orderToRate, setOrderToRate] = useState<Order | undefined>();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,8 +131,8 @@ export default function HistoryPage() {
     setDataStatusChange({ id, status });
     setOpen(true);
   };
-  const handleRateFood = (food: Food) => {
-    setFoodToRate(food);
+  const handleRateOrder = (food: Order) => {
+    setOrderToRate(food);
   };
 
   const onStatusChange = async (id: number, status: OrderStatus) => {
@@ -170,7 +171,7 @@ export default function HistoryPage() {
               return (
                 <DetailTab
                   row={row}
-                  setFoodToRate={handleRateFood}
+                  setOrderToRate={handleRateOrder}
                   setShowTabs={setShowTabs}
                 />
               );
@@ -211,10 +212,10 @@ export default function HistoryPage() {
         }}
         onCancel={() => setOpen(false)}
       />
-      {foodToRate && (
+      {orderToRate && (
         <RateForm
-          food={foodToRate}
-          closeForm={() => setFoodToRate(undefined)}
+          order={orderToRate}
+          closeForm={() => setOrderToRate(undefined)}
         />
       )}
     </div>
@@ -223,17 +224,18 @@ export default function HistoryPage() {
 
 const DetailTab = ({
   row,
-  setFoodToRate,
+  setOrderToRate,
   setShowTabs,
 }: {
   row: Row<Order>;
-  setFoodToRate: (food: Food) => void;
+  setOrderToRate: (order: Order) => void;
   setShowTabs: (value: boolean) => any;
 }) => {
   const order = row.original;
   const [selectFoodItemTab, setSelectFoodItemTab] = useState<number>(-1);
   const [selectedFood, setSelectedFood] = useState<Food | undefined>();
   const [selectedCart, setSelectedCart] = useState<Cart | undefined>();
+  const [emblaRef, emplaApi] = useEmblaCarousel({ loop: false });
 
   const handleSelectedFoodItemTabChange = (id: number) => {
     setSelectFoodItemTab(id);
@@ -259,25 +261,32 @@ const DetailTab = ({
     <div className="flex h-fit flex-col gap-4 px-4 py-2">
       <div className="flex flex-col gap-4">
         <div className="flex flex-row items-center gap-2">
-          <div className="flex flex-row gap-4">
-            {order.items.map((cart) => (
-              <FoodItemTab
-                key={cart.food.id}
-                cart={cart}
-                selectedTab={selectFoodItemTab}
-                setSelectedTab={handleSelectedFoodItemTabChange}
-              />
-            ))}
+          <div className="flex-1 overflow-hidden" ref={emblaRef}>
+            <div className="w-full flex flex-row gap-2 select-none">
+              {order.items.map((cart) => (
+                <FoodItemTab
+                  key={cart.food.id}
+                  cart={cart}
+                  selectedTab={selectFoodItemTab}
+                  setSelectedTab={handleSelectedFoodItemTabChange}
+                  orderStatus={order.status}
+                />
+              ))}
+            </div>
           </div>
+          {order.status === OrderStatus.DELIVERED && (
+            <TextButton
+              onClick={() => {
+                setOrderToRate(order);
+              }}
+              disabled={order.feedback ? true : false}
+              className="py-1 disabled:opacity-100"
+            >
+              {order.feedback ? "Rated" : "Rate this order"}
+            </TextButton>
+          )}
         </div>
-        <FoodItemContent
-          food={selectedFood}
-          onRateFood={() => {
-            if (selectedFood) setFoodToRate(selectedFood);
-          }}
-          cart={selectedCart}
-          order={row.original}
-        />
+        <FoodItemContent food={selectedFood} cart={selectedCart} />
       </div>
     </div>
   );
@@ -290,6 +299,7 @@ const FoodItemTab = ({
   setSelectedTab,
   onClick,
   disabled = false,
+  orderStatus,
 }: {
   className?: ClassValue;
   cart: Cart;
@@ -297,14 +307,19 @@ const FoodItemTab = ({
   setSelectedTab: (id: number) => void;
   onClick?: () => void;
   disabled?: boolean;
+  orderStatus: OrderStatus;
 }) => {
-  const selectedStyle = "bg-primary text-white";
+  let selectedStyle = "text-white ";
+  if (orderStatus === OrderStatus.PENDING) selectedStyle += "bg-yellow-400";
+  if (orderStatus === OrderStatus.ACCEPTED) selectedStyle += "bg-green-400";
+  if (orderStatus === OrderStatus.CANCELLED) selectedStyle += "bg-red-500";
+  if (orderStatus === OrderStatus.DELIVERED) selectedStyle += "bg-blue-500";
   const defaultStyle =
     "flex flex-row items-center bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord";
   return (
     <TextButton
       className={cn(
-        "text-sm rounded-md py-1 space-x-1",
+        "text-sm rounded-[999px] py-1 space-x-1 whitespace-nowrap",
         selectedTab === cart.food.id ? selectedStyle : defaultStyle
       )}
       onClick={() => {
@@ -313,7 +328,7 @@ const FoodItemTab = ({
       }}
     >
       <span className="max-w-[100px] truncate">{cart.food.name}</span>
-      <span>{"x " + cart.quantity.toString()}</span>
+      <span className="text-nowrap">{"x " + cart.quantity.toString()}</span>
     </TextButton>
   );
 };
@@ -321,12 +336,9 @@ const FoodItemTab = ({
 const FoodItemContent = ({
   food,
   cart,
-  onRateFood,
-  order,
 }: {
   food: Food | undefined;
   cart: Cart | undefined;
-  order: Order | undefined;
   onRateFood?: () => void;
 }) => {
   if (!food || !cart) return null;
@@ -373,17 +385,6 @@ const FoodItemContent = ({
                 {cart.note}
               </span>
             </div>
-            <TextButton
-              onClick={() => {
-                if (onRateFood) onRateFood();
-              }}
-              className={cn(
-                "absolute bottom-0 right-0",
-                order && order.status === OrderStatus.DELIVERED ? "" : "hidden"
-              )}
-            >
-              Rate this item
-            </TextButton>
           </div>
         </div>
       </div>

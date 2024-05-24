@@ -1,6 +1,4 @@
 "use client";
-import MenuTable from "@/components/menu_table";
-import { NewFoodForm } from "@/components/NewFoodForm/new_food_form";
 import { TextButton } from "@/components/buttons";
 import { CustomDatatable } from "@/components/datatable/custom_datatable";
 import { Food } from "@/models/Food";
@@ -12,6 +10,7 @@ import { useEffect, useState } from "react";
 import ImageCarousel, {
   CarouselItem,
 } from "@/components/CustomCarousel/image_carousel";
+import { FoodForm } from "@/components/NewFoodForm/food_form";
 import {
   ConfirmDialog,
   ConfirmDialogType,
@@ -30,7 +29,6 @@ import {
   menuDefaultVisibilityState,
   menuTableColumns,
 } from "./table_columns";
-import { FoodForm } from "@/components/NewFoodForm/food_form";
 // import CustomCarousel, { CarouselItem } from "@/components/custom_carousel";
 
 export default function DashboardMenu() {

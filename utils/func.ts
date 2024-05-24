@@ -526,14 +526,16 @@ const displayNumber = (
   unit: "%" | string = "",
   spaceBetweenNumAndUnit: boolean = false
 ) => {
-  if (!number) return;
+  if (!number) return "";
   if (unit === "%") {
     if (number < 1000) {
       return (
         number.toLocaleString("vi-VN", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }) + unit
+        }) +
+        (spaceBetweenNumAndUnit ? " " : "") +
+        unit
       );
     }
   }

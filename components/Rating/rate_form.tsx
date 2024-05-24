@@ -1,42 +1,20 @@
 "use client";
 
-import {
-  FoodFormDataToFood,
-  FoodToReceive,
-  FoodToSend,
-} from "@/convertor/foodConvertor";
-import { Food, FoodCategory, FoodStatus } from "@/models/Food";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addFoodCategory } from "@/redux/slices/category";
-import { addFood, updateFood } from "@/redux/slices/food";
-import FoodService from "@/services/foodService";
+import { Food } from "@/models/Food";
+import { Feedback, Order } from "@/models/Order";
+import OrderService from "@/services/orderService";
 import { cn } from "@/utils/cn";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ClassValue } from "clsx";
-import {
-  Annoyed,
-  Frown,
-  Laugh,
-  Meh,
-  Smile,
-  TextCursorInput,
-  X,
-} from "lucide-react";
-import { useEffect, useId, useState } from "react";
-import { FieldError, Path, UseFormRegister, useForm } from "react-hook-form";
+import { Annoyed, Frown, Laugh, Meh, Smile, X } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { TextButton } from "../buttons";
-import { Input, TextArea } from "../input";
-import NewCategoryModal from "../new_category_modal";
-import SearchAndChooseButton from "../search_and_choose_button";
-import { showErrorToast, showSuccessToast } from "../toast";
-import { ChooseImageButton } from "../NewFoodForm/choose_image_button";
-import { displayNumber, removeCharNAN } from "@/utils/func";
-import { User } from "@/models/User";
-import { color } from "framer-motion";
-import MotionWrapper from "../visualEffect/motion-wrapper";
+import { TextArea } from "../input";
 import { Separate } from "../separate";
-import OrderService from "@/services/orderService";
+import { showErrorToast, showSuccessToast } from "../toast";
+import MotionWrapper from "../visualEffect/motion-wrapper";
+import { watch } from "fs";
 
 export type RateFormData = {
   comment: string;
@@ -110,30 +88,41 @@ export const useRateForm = () => {
 
 export const RateForm = ({
   closeForm,
-  food,
+  order,
 }: {
-  food?: Food;
+  order?: Order;
   closeForm: () => any;
 }) => {
-  const [isUploadingFood, setIsUploadingFood] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number>(-1);
 
-  const { register, handleSubmit } = useForm<z.infer<typeof rateSchema>>({
-    resolver: zodResolver(rateSchema),
-    defaultValues: {
-      comment: "",
-    },
-  });
+  const { register, handleSubmit, watch } = useForm<z.infer<typeof rateSchema>>(
+    {
+      resolver: zodResolver(rateSchema),
+      defaultValues: {
+        comment: "",
+      },
+    }
+  );
 
   const onSubmit = async (values: RateFormData) => {
-    // await OrderService.SendFeedback()
-    //     .then((res) => {
-    //     })
-    //     .catch((e) => console.error(e))
-    //     .finally(() => {
-    //       setIsUploadingFood(false);
-    //       closeForm();
-    //     });
+    console.log("values", values);
+    if (!order) return;
+    const newFeedback: Feedback = {
+      id: -1,
+      content: values.comment,
+      rating: selectedOption,
+      createAt: new Date(),
+    };
+    console.log("new feedback", newFeedback);
+
+    await OrderService.SendFeedback(order.id, newFeedback)
+      .then((res) => {
+        showSuccessToast("Feedback was sent successfully!");
+      })
+      .catch((e) => showErrorToast("Failed to send feedback"))
+      .finally(() => {
+        closeForm();
+      });
   };
 
   return (
@@ -200,22 +189,13 @@ export const RateForm = ({
               placeholder="Leave your feedback here to build trust and help other customers know more about this food"
               className="w-full h-[100px] outline-0 border-0 resize-none"
             />
-            {/* <ImagesInput
-              fileUrls={watch("images")}
-              onImageChanged={handleImageChosen}
-              {...register("images", { required: true })}
-              error={errors.images as FieldError}
-            /> */}
           </div>
 
           <div className="flex flex-row items-center justify-center gap-4 mt-4">
             <TextButton
               type="submit"
               className="px-10 text-white rounded-[999px]"
-              disabled={isUploadingFood || selectedOption === -1}
-              onClick={() => {
-                closeForm();
-              }}
+              disabled={selectedOption === -1}
             >
               Submit
             </TextButton>
