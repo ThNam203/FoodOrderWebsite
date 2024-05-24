@@ -33,7 +33,6 @@ import useEmblaCarousel from "embla-carousel-react";
 export default function HistoryPage() {
   const dispatch = useAppDispatch();
   const data: Order[] = useAppSelector((state) => state.order.orders);
-  const thisUser = useAppSelector((state) => state.profile.value);
   const [rowUpdating, setRowUpdating] = useState<number[]>([]);
   const [filteredData, setFilteredData] = useState<Order[]>(data);
   const filterOptionKeys = Object.keys(orderColumnTitles)

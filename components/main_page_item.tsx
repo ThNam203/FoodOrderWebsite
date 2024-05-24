@@ -63,7 +63,7 @@ export default function MainPageItem({
         <FoodPrice
           currency="đ"
           defaultPrice={sortedPriceList[0]}
-          secondPrice={sortedPriceList[1]}
+          secondPrice={sortedPriceList[sortedPriceList.length - 1]}
         />
         <div className="flex items-center">
           <FoodRating rating={food.rating} className="mt-2" />

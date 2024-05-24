@@ -12,7 +12,7 @@ import default_user_image from "@/public/images/default_user.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addCartItem } from "@/redux/slices/cart";
 import { setFoodCategories } from "@/redux/slices/category";
-import { setFoods } from "@/redux/slices/food";
+import { getActiveFood, setFoods } from "@/redux/slices/food";
 import CartService from "@/services/cartService";
 import FoodService from "@/services/foodService";
 import emblaStyle from "@/styles/embla_carousel.module.css";
@@ -55,8 +55,7 @@ export default function Home() {
 
       await FoodService.getTopFoodInMonthRange()
         .then((res) => {
-          const data = res.data[0].data.map((item) => FoodToReceive(item.food));
-
+          const data = getActiveFood(res.data[0].data.map((item) => item.food));
           data.slice(0, data.length > 4 ? 4 : data.length - 1);
           setTopFoods(data);
         })
@@ -93,6 +92,10 @@ export default function Home() {
     );
     setFavoriteFoodList(newFavoriteFoodList);
   }, [favoriteFoodIds, food]);
+
+  useEffect(() => {
+    console.log("top foods", topFoods);
+  }, [topFoods]);
 
   const handleFavoriteFoodIdsChange = async (id: number) => {
     await FoodService.addFavouriteFood(id)

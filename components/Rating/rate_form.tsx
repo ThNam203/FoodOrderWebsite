@@ -15,6 +15,8 @@ import { Separate } from "../separate";
 import { showErrorToast, showSuccessToast } from "../toast";
 import MotionWrapper from "../visualEffect/motion-wrapper";
 import { watch } from "fs";
+import { updateOrder } from "@/redux/slices/order";
+import { useAppDispatch } from "@/redux/hooks";
 
 export type RateFormData = {
   comment: string;
@@ -93,8 +95,8 @@ export const RateForm = ({
   order?: Order;
   closeForm: () => any;
 }) => {
+  const dispatch = useAppDispatch();
   const [selectedOption, setSelectedOption] = useState<number>(-1);
-
   const { register, handleSubmit, watch } = useForm<z.infer<typeof rateSchema>>(
     {
       resolver: zodResolver(rateSchema),
@@ -117,6 +119,8 @@ export const RateForm = ({
 
     await OrderService.SendFeedback(order.id, newFeedback)
       .then((res) => {
+        const updatedOrder = res.data;
+        dispatch(updateOrder(updatedOrder));
         showSuccessToast("Feedback was sent successfully!");
       })
       .catch((e) => showErrorToast("Failed to send feedback"))

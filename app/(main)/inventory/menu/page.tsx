@@ -284,12 +284,12 @@ const RowInfo = ({
         showTextArea ? "" : "flex flex-row border-b"
       )}
     >
-      <p className="w-[100px] font-normal">{label}</p>
+      <p className="w-[100px] font-semibold">{label}</p>
       {showTextArea ? (
         <textarea
           readOnly
           disabled
-          className={cn("h-[80px] w-full resize-none border-2 p-1")}
+          className={cn("h-[120px] w-full resize-none border-2 p-1")}
           defaultValue={value}
         ></textarea>
       ) : (
