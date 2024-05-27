@@ -7,8 +7,6 @@ import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { FoodToReceive } from "@/convertor/foodConvertor";
 import { Cart } from "@/models/Cart";
 import { Food, FoodSize } from "@/models/Food";
-import { FoodReport } from "@/models/Report";
-import default_user_image from "@/public/images/default_user.png";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { addCartItem } from "@/redux/slices/cart";
 import { setFoodCategories } from "@/redux/slices/category";
@@ -19,7 +17,6 @@ import emblaStyle from "@/styles/embla_carousel.module.css";
 import { cn } from "@/utils/cn";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -146,28 +143,6 @@ export default function Home() {
                 type="text"
                 className="px-4 self-stretch bg-transparent flex-grow outline-none"
                 placeholder="Search"
-              />
-            </div>
-            <div
-              className="flex flex-row items-center gap-4 cursor-pointer sm:hover:bg-gray-50/20 rounded-md sm:px-4 sm:py-1 ease-linear duration-200"
-              onClick={() => {
-                router.push("/user-setting");
-              }}
-            >
-              <p className="text-sm text-white font-semibold max-sm:hidden">
-                {thisUser ? thisUser.name : ""}
-              </p>
-              <Image
-                width={500}
-                height={400}
-                sizes="100vw"
-                src={
-                  thisUser && thisUser.profileImage
-                    ? thisUser.profileImage
-                    : default_user_image
-                }
-                alt="image"
-                className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer"
               />
             </div>
           </div>
@@ -322,6 +297,14 @@ const FoodListComponent = ({
           />
         )}
       </div>
+    </div>
+  );
+};
+
+const Option = ({ children, onClick }: { children: any; onClick: any }) => {
+  return (
+    <div className="cursor-pointer hover:bg-gray-100 p-2" onClick={onClick}>
+      {children}
     </div>
   );
 };

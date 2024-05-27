@@ -51,7 +51,7 @@ const FoodRow = ({ food, count }: { food: Food; count: number }) => {
       if (foodSize.price > maxPrice) maxPrice = foodSize.price;
     });
     formattedPrice =
-      displayNumber(minPrice, "đ") + " - " + displayNumber(maxPrice, "đ");
+      displayNumber(minPrice, "$") + " - " + displayNumber(maxPrice, "$");
   }
   return (
     <div className="rounded-md bg-white hover:bg-white/10 flex flex-row justify-between py-3 pr-4 text-primaryWord">

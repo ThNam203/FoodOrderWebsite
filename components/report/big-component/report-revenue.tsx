@@ -42,7 +42,7 @@ const ReportRevenue = ({ report }: { report: RevenueReport }) => {
       Math.abs(((value - prevValue) / prevValue) * 100),
       "%"
     );
-  else formattedOffset = displayNumber(value, "đ");
+  else formattedOffset = displayNumber(value, "$");
 
   return (
     <ReportCard>
@@ -54,7 +54,7 @@ const ReportRevenue = ({ report }: { report: RevenueReport }) => {
             </span>
             <div className="w-fit flex flex-row gap-10">
               <div className="flex-1 text-xl text-secondaryWord">
-                {displayNumber(value, "đ")}
+                {displayNumber(value, "$")}
               </div>
               <div
                 className={cn(

@@ -220,7 +220,7 @@ const OrderDetailTab = ({
             <RowInfo label="Address:" value={order.user.address} />
           </div>
           <div className="flex flex-1 flex-col">
-            <RowInfo label="Total:" value={order.total.toString() + "đ"} />
+            <RowInfo label="Total:" value={order.total.toString() + "$"} />
             <RowInfo
               label="Order date:"
               value={formatDate(order.createdAt, "datetime")}
@@ -357,7 +357,7 @@ const FoodItemContent = ({
             <RowInfo label="Food ID:" value={food.id.toString()} />
             <RowInfo label="Food name:" value={food.name} />
             <RowInfo label="Size:" value={cart.foodSize.name} />
-            <RowInfo label="Price:" value={displayNumber(cart.price, "đ")} />
+            <RowInfo label="Price:" value={displayNumber(cart.price, "$")} />
           </div>
           <div className="flex flex-1 flex-col">
             <RowInfo label="Note:" value={cart.note} showTextArea={true} />

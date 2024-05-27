@@ -40,8 +40,7 @@ export default function RootLayout({
       />
       <div
         className={cn(
-          "relative w-[calc(100%-92px-6rem)] transition-[0.5] ease-linear duration-300 relative",
-          isSidebarOpen ? "w-[calc(100%-92px-6rem)]" : "w-[calc(100%-92px)]",
+          "relative flex-1 transition-[0.5] ease-linear duration-300",
           "max-sm:w-[calc(100%-92px)]"
         )}
       >

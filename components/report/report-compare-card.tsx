@@ -15,7 +15,7 @@ interface ReportCompareCardProps {
   title: string;
   valueOffset: number;
   value: number;
-  unit: "đ" | "order" | "orders" | "%";
+  unit: "$" | "order" | "orders" | "%" | string;
   isInvertColor?: boolean;
   icon?: ReactNode;
 }
@@ -30,7 +30,7 @@ const ReportCompareCard: FC<ReportCompareCardProps> = ({
 }) => {
   let formattedValue;
   let formattedOffset;
-  if (unit === "đ" || unit === "orders" || unit === "order") {
+  if (unit === "$" || unit === "orders" || unit === "order") {
     formattedValue =
       value
         .toLocaleString("vi-VN", {

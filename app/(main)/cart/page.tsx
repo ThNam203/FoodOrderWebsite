@@ -124,7 +124,7 @@ const SummaryItem = ({
         <X className={cn("inline-block", quantity ? "" : "hidden")} size={16} />
         {quantity}
       </div>
-      <span>{total.toFixed(0) + "đ"}</span>
+      <span>{total.toFixed(0) + "$"}</span>
     </div>
   );
 };
@@ -193,10 +193,10 @@ const CartItem = ({
       </div>
 
       <span className="w-[150px] text-center max-lg:hidden">
-        {displayNumber(foodPrice, "đ")}
+        {displayNumber(foodPrice, "$")}
       </span>
       <span className="w-[150px] text-center">
-        {displayNumber(foodPrice * foodQuantity, "đ")}
+        {displayNumber(foodPrice * foodQuantity, "$")}
       </span>
 
       <Tooltip

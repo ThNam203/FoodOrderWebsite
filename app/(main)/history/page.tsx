@@ -370,7 +370,7 @@ const FoodItemContent = ({
               <FoodProperty name={cart.foodSize.name} isSelected={true} />
 
               <span className="w-fit text-primary text-lg">
-                {displayNumber(cart.price, "đ")}
+                {displayNumber(cart.price, "$")}
               </span>
             </div>
             <div

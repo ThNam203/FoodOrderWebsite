@@ -161,7 +161,7 @@ const ReportPage = () => {
                         averageRevenueEachOrderReport.data[0].value
                       : 0
                   }
-                  unit="đ"
+                  unit="$"
                   className="border-0 p-0"
                   icon={
                     <div className="flex flex-row items-center justify-center w-10 h-10 bg-yellow-300 rounded-full justify-self-end text-white border-2 border-white outline outline-2 outline-yellow-300">

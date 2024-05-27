@@ -61,7 +61,7 @@ export default function MainPageItem({
           />
         </div>
         <FoodPrice
-          currency="đ"
+          currency="$"
           defaultPrice={sortedPriceList[0]}
           secondPrice={sortedPriceList[sortedPriceList.length - 1]}
         />

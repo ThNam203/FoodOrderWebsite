@@ -130,7 +130,7 @@ const totalColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
     cell: ({ row }) => {
       let value: number = row.getValue(accessorKey);
 
-      return <p className="px-2">{value + "đ"}</p>;
+      return <p className="px-2">{value + "$"}</p>;
     },
     enableSorting: true,
   };

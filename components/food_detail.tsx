@@ -104,7 +104,7 @@ export const FoodDetail = ({
                       </div>
                       <div className="w-full flex flex-row items-center justify-between">
                         <p className="text-xl">
-                          {displayNumber(selectedSize.price, "đ")}
+                          {displayNumber(selectedSize.price, "$")}
                         </p>
                         <div className="w-min font-sans">
                           <NumberInput
@@ -160,7 +160,7 @@ export const FoodDetail = ({
                   </ModalBody>
                 </div>
                 <div className="flex-[0_0_100%] overflow-y-auto">
-                  <CommentSection foodId={food.id}/>
+                  <CommentSection foodId={food.id} />
                 </div>
               </div>
             </div>

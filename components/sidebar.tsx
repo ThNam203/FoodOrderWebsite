@@ -1,34 +1,35 @@
 "use client";
 
+import Logo from "@/public/images/logo.png";
+import { useAppSelector } from "@/redux/hooks";
+import AuthService from "@/services/authService";
 import style from "@/styles/sidebar.module.css";
-import { ReactNode, use, useEffect, useState } from "react";
+import { cn } from "@/utils/cn";
 import {
-  BrowseIcon,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Tooltip,
+} from "@nextui-org/react";
+import { ClassValue } from "clsx";
+import { Home, LayoutDashboard, LayoutList } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useState } from "react";
+import {
   CartIcon,
-  DashBoardIcon,
   FavouriteIcon,
   HistoryIcon,
-  IntroIcon,
   LoadingIcon,
   LoginIcon,
   LogoutIcon,
   OrderIcon,
   SettingIcon,
 } from "./icons";
-import { getCookie, getCookies, setCookie } from "cookies-next";
-import { cn } from "@/utils/cn";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { ClassValue } from "clsx";
-import Link from "next/link";
-import { cookies } from "next/headers";
-import { usePathname } from "next/navigation";
-import AuthService from "@/services/authService";
 import { showErrorToast, showSuccessToast } from "./toast";
-import { Home, LayoutList } from "lucide-react";
-import { Tooltip } from "@nextui-org/react";
-import CartService from "@/services/cartService";
-import { CartToReceive } from "@/convertor/cartConvertor";
-import { setCartItems } from "@/redux/slices/cart";
+import default_user_image from "@/public/images/default_user.png";
+import { Separate } from "./separate";
 
 const CustomLink = ({
   className,
@@ -119,16 +120,19 @@ export default function Sidebar({
   isSidebarOpen: boolean;
   onSidebarToggle: () => void;
 }) {
+  const router = useRouter();
   const isLogin = useAppSelector((state) => state.profile.isLogin);
+  const thisUser = useAppSelector((state) => state.profile.value);
   const cart = useAppSelector((state) => state.cart.cartItems);
   const selectedLink = usePathname();
-
+  const [showPopover, setShowPopover] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const handleLogout = async () => {
     setIsLoggingOut(true);
     await AuthService.logOut()
       .then(() => {
         showSuccessToast("Logout successfully");
+        router.push("/login");
       })
       .catch((err) => showErrorToast(err.message))
       .finally(() => {
@@ -147,67 +151,57 @@ export default function Sidebar({
     >
       <nav className={style.nav}>
         <div>
-          <div className={style["nav__brand"]}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="3rem"
-              height="3rem"
-              viewBox="0 0 24 24"
-              className={cn(style["nav__toggle"], "max-sm:hidden")}
-              id="nav-toggle"
-              onClick={() => {
-                onSidebarToggle();
-              }}
-            >
-              <path
-                fill="white"
-                d="M4 17.27v-1h16v1zm0-4.77v-1h16v1zm0-4.77v-1h16v1z"
-              />
-            </svg>
-            <a href="/" className={cn(style["nav__logo"], "max-sm:hidden")}>
-              FFOOD
+          {thisUser && thisUser.isAdmin === true ? (
+            <div className={cn(style["nav__brand"], "select-none pl-1")}>
+              <Image src={Logo} alt="logo" width={40} height={40} />
+              <span
+                className={cn(style["nav__logo"], "text-nowrap max-sm:hidden")}
+              >
+                Fresh Mart
+              </span>
+            </div>
+          ) : (
+            <a href="/" className={cn(style["nav__brand"], "cursor-pointer")}>
+              <Image src={Logo} alt="logo" width={40} height={40} />
+              <span
+                className={cn(style["nav__logo"], "text-nowrap max-sm:hidden")}
+              >
+                Fresh Mart
+              </span>
             </a>
-          </div>
+          )}
+
           <div className={style["nav__list"]}>
             <CustomLink
               href="/"
               content=""
               icon={<Home size={20} />}
               selectedLink={usePathname()}
-              className="sm:hidden"
               isSidebarOpen={isSidebarOpen}
+              className={cn(
+                "sm:hidden",
+                thisUser && thisUser.isAdmin === false ? "" : "hidden"
+              )}
             />
             <CustomLink
               href="/dashboard"
               content="Dashboard"
-              icon={<DashBoardIcon />}
+              icon={<LayoutDashboard />}
               selectedLink={usePathname()}
               isSidebarOpen={isSidebarOpen}
+              className={cn(
+                thisUser && thisUser.isAdmin === true ? "" : "hidden"
+              )}
             />
-            {/* <a href="/" className={twMerge(style["nav__link"])}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20px"
-                height="20px"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="white"
-                  stroke="white"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M11.235 2.374c-.368.152-.697.482-1.356 1.14c-.659.66-.989.989-1.14 1.356a2 2 0 0 0 0 1.531c.151.368.48.697 1.14 1.356c.658.659.988.989 1.356 1.14a2 2 0 0 0 1.53 0c.368-.151.697-.48 1.356-1.14c.66-.659.988-.988 1.14-1.356a2 2 0 0 0 0-1.53c-.152-.368-.48-.697-1.14-1.356c-.659-.66-.988-.989-1.356-1.141a2 2 0 0 0-1.53 0M4.87 8.738c-.367.152-.697.481-1.355 1.14c-.66.66-.989.989-1.141 1.356a2 2 0 0 0 0 1.531c.152.368.482.697 1.14 1.356c.66.659.989.988 1.356 1.14a2 2 0 0 0 1.531 0c.368-.152.697-.481 1.356-1.14c.66-.659.988-.988 1.14-1.356a2 2 0 0 0 0-1.53c-.152-.368-.48-.698-1.14-1.357c-.659-.659-.988-.988-1.356-1.14a2 2 0 0 0-1.53 0m11.372 1.14c-.659.66-.988.989-1.14 1.356a2 2 0 0 0 0 1.531c.152.368.481.697 1.14 1.356c.659.659.989.988 1.356 1.14a2 2 0 0 0 1.53 0c.368-.152.698-.481 1.357-1.14c.659-.659.987-.988 1.14-1.356a2 2 0 0 0 0-1.53c-.153-.368-.481-.698-1.14-1.357c-.66-.659-.989-.988-1.356-1.14a2 2 0 0 0-1.531 0c-.367.152-.697.481-1.356 1.14m-5.008 5.224c-.368.152-.697.482-1.356 1.14c-.659.66-.989.989-1.14 1.357a2 2 0 0 0 0 1.53c.151.368.48.697 1.14 1.356c.658.659.988.989 1.356 1.14a2 2 0 0 0 1.53 0c.368-.151.697-.48 1.356-1.14c.66-.659.988-.988 1.14-1.356c.203-.49.203-1.04 0-1.53c-.152-.368-.48-.698-1.14-1.356c-.659-.66-.988-.989-1.356-1.141a2 2 0 0 0-1.53 0"
-                />
-              </svg>
-              <span className={style["nav__name"]}>Intro</span>
-            </a> */}
             <CustomLink
               href="/inventory/menu"
               content="Inventory"
-              icon={<LayoutList strokeWidth={1} />}
+              icon={<LayoutList />}
               selectedLink={usePathname()}
               isSidebarOpen={isSidebarOpen}
+              className={cn(
+                thisUser && thisUser.isAdmin === true ? "" : "hidden"
+              )}
             />
 
             <CustomLink
@@ -217,6 +211,9 @@ export default function Sidebar({
               selectedLink={selectedLink}
               isSidebarOpen={isSidebarOpen}
               notification={cart.length}
+              className={cn(
+                thisUser && thisUser.isAdmin === false ? "" : "hidden"
+              )}
             />
 
             <CustomLink
@@ -225,6 +222,9 @@ export default function Sidebar({
               icon={<FavouriteIcon />}
               selectedLink={selectedLink}
               isSidebarOpen={isSidebarOpen}
+              className={cn(
+                thisUser && thisUser.isAdmin === false ? "" : "hidden"
+              )}
             />
             <CustomLink
               href="/order-management"
@@ -232,6 +232,9 @@ export default function Sidebar({
               icon={<OrderIcon />}
               selectedLink={selectedLink}
               isSidebarOpen={isSidebarOpen}
+              className={cn(
+                thisUser && thisUser.isAdmin === true ? "" : "hidden"
+              )}
             />
             <CustomLink
               href="/history"
@@ -239,41 +242,129 @@ export default function Sidebar({
               icon={<HistoryIcon />}
               selectedLink={selectedLink}
               isSidebarOpen={isSidebarOpen}
+              className={cn(
+                thisUser && thisUser.isAdmin === false ? "" : "hidden"
+              )}
             />
           </div>
         </div>
+        <div className="space-y-2">
+          <Popover
+            isOpen={showPopover}
+            onOpenChange={setShowPopover}
+            placement="right-end"
+          >
+            <PopoverTrigger>
+              <div className="flex flex-row gap-2 items-center hover:bg-white/10 rounded-lg py-3 pl-2 cursor-pointer shrink-0">
+                <Image
+                  width={400}
+                  height={400}
+                  src={
+                    thisUser && thisUser.profileImage
+                      ? thisUser.profileImage
+                      : default_user_image
+                  }
+                  alt="image"
+                  className="w-[30px] h-[30px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer select-none"
+                />
+                <span className="font-semibold">
+                  {thisUser ? thisUser.name : ""}
+                </span>
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="font-sans text-primaryWord">
+              <div className="w-[200px] py-2 rounded-md flex flex-col">
+                <div className="flex flex-row gap-2 items-center">
+                  <Image
+                    width={400}
+                    height={400}
+                    sizes="100vw"
+                    src={
+                      thisUser && thisUser.profileImage
+                        ? thisUser.profileImage
+                        : default_user_image
+                    }
+                    alt="image"
+                    className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer select-none"
+                  />
+                  <span className="font-semibold">
+                    {thisUser ? thisUser.name : ""}
+                  </span>
+                </div>
 
-        {isLogin && (
-          <div className={style["nav__list"]}>
-            <CustomLink
-              href="/user-setting"
-              content="User setting"
-              icon={<SettingIcon />}
-              selectedLink={selectedLink}
-              isSidebarOpen={isSidebarOpen}
-            />
-            <CustomLink
-              content="Log out"
-              href="/login"
-              icon={isLoggingOut ? <LoadingIcon /> : <LogoutIcon />}
-              selectedLink={selectedLink}
-              className={cn("hover:bg-red-400")}
-              onClick={handleLogout}
-              isSidebarOpen={isSidebarOpen}
-            />
-          </div>
-        )}
-        {!isLogin && (
-          <div className={style["nav__list"]}>
-            <CustomLink
-              href="/login"
-              content="Login"
-              icon={<LoginIcon />}
-              selectedLink={selectedLink}
-              isSidebarOpen={isSidebarOpen}
-            />
-          </div>
-        )}
+                <Separate classname="my-2" />
+                <div
+                  className="flex flex-row gap-2 items-center cursor-pointer hover:bg-gray-100 rounded-lg p-2 select-none"
+                  onClick={() => {
+                    router.push("/user-setting");
+                    setShowPopover(false);
+                  }}
+                >
+                  <SettingIcon />
+                  <span>Setting</span>
+                </div>
+
+                <Separate classname="my-2" />
+                <div
+                  className="flex flex-row gap-2 items-center text-red-500 cursor-pointer hover:bg-gray-100 rounded-lg p-2 select-none"
+                  onClick={() => {
+                    handleLogout();
+                    setShowPopover(false);
+                  }}
+                >
+                  <LogoutIcon />
+                  <span>Log Out</span>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Tooltip
+            content={
+              <span className="px-2">
+                {isSidebarOpen ? "Minimize the navbar" : "Expand the navbar"}
+              </span>
+            }
+            closeDelay={0}
+            placement="right"
+            className={cn(
+              "text-white font-sans px-1 border-0 rounded-[999px] bg-blue-500"
+            )}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="3rem"
+              height="3rem"
+              viewBox="0 0 24 24"
+              id="nav-toggle"
+              className={cn(
+                style["nav__toggle"],
+                "max-sm:hidden",
+                "flex flex-row items-center ease-linear duration-100 rounded-lg cursor-pointer"
+              )}
+              onClick={() => {
+                onSidebarToggle();
+              }}
+            >
+              <path
+                fill="white"
+                d="M4 17.27v-1h16v1zm0-4.77v-1h16v1zm0-4.77v-1h16v1z"
+              />
+            </svg>
+          </Tooltip>
+
+          {!isLogin && (
+            <div className={style["nav__list"]}>
+              <CustomLink
+                href="/login"
+                content="Login"
+                icon={<LoginIcon />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+              />
+            </div>
+          )}
+        </div>
       </nav>
     </div>
   );
