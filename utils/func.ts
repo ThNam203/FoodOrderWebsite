@@ -530,7 +530,7 @@ const displayNumber = (
   if (unit === "%") {
     if (number < 1000) {
       return (
-        number.toLocaleString("vi-VN", {
+        number.toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         }) +
