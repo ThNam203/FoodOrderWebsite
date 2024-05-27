@@ -272,7 +272,7 @@ export default function Sidebar({
                 </span>
               </div>
             </PopoverTrigger>
-            <PopoverContent className="font-sans text-primaryWord">
+            <PopoverContent className="font-sans text-primaryWord select-none">
               <div className="w-[200px] py-2 rounded-md flex flex-col">
                 <div className="flex flex-row gap-2 items-center">
                   <Image
@@ -285,7 +285,7 @@ export default function Sidebar({
                         : default_user_image
                     }
                     alt="image"
-                    className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer select-none"
+                    className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden"
                   />
                   <span className="font-semibold">
                     {thisUser ? thisUser.name : ""}
@@ -294,7 +294,7 @@ export default function Sidebar({
 
                 <Separate classname="my-2" />
                 <div
-                  className="flex flex-row gap-2 items-center cursor-pointer hover:bg-gray-100 rounded-lg p-2 select-none"
+                  className="flex flex-row gap-2 items-center cursor-pointer hover:bg-gray-100 rounded-lg p-2"
                   onClick={() => {
                     router.push("/user-setting");
                     setShowPopover(false);
@@ -306,7 +306,7 @@ export default function Sidebar({
 
                 <Separate classname="my-2" />
                 <div
-                  className="flex flex-row gap-2 items-center text-red-500 cursor-pointer hover:bg-gray-100 rounded-lg p-2 select-none"
+                  className="flex flex-row gap-2 items-center text-red-500 cursor-pointer hover:bg-gray-100 rounded-lg p-2"
                   onClick={() => {
                     handleLogout();
                     setShowPopover(false);

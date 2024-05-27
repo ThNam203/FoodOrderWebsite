@@ -5,7 +5,7 @@ import { nanoid } from "nanoid";
 import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
 import default_user_image from "@/public/images/default_user.png";
-import { Camera } from "lucide-react";
+import { Camera, ImageMinus } from "lucide-react";
 
 export const ChooseAvatarButton = ({
   fileUrl,
@@ -18,8 +18,15 @@ export const ChooseAvatarButton = ({
 }) => {
   const id = nanoid();
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0)
+    if (
+      e.target.files &&
+      e.target.files.length > 0 &&
+      e.target.files[0].size < 1000000
+    )
       onImageChanged(e.target.files[0]);
+    else {
+      alert("Image size should be less than 1MB");
+    }
   };
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -40,7 +47,18 @@ export const ChooseAvatarButton = ({
           htmlFor={id}
           className="absolute top-0 left-0 right-0 flex flex-row items-center justify-center w-full h-full cursor-pointer bg-gray-200/60 text-white opacity-0 hover:opacity-100 ease-linear duration-100"
         >
-          <Camera />
+          <div
+            className="h-full w-1/2 flex items-center justify-center hover:bg-gray-200/20 ease-linear duration-100"
+            onClick={(e) => {
+              e.preventDefault();
+              onImageChanged(null);
+            }}
+          >
+            <ImageMinus />
+          </div>
+          <div className="h-full w-1/2 flex items-center justify-center hover:bg-gray-200/20 ease-linear duration-100">
+            <Camera />
+          </div>
         </label>
         <input
           ref={inputRef}

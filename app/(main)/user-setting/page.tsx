@@ -1,18 +1,20 @@
 "use client";
 import { TextButton } from "@/components/buttons";
 import { Input } from "@/components/input";
-import { Separate } from "@/components/separate";
-import { Tab, TabContent } from "@/components/tab";
 import {
   showDefaultToast,
   showErrorToast,
   showSuccessToast,
 } from "@/components/toast";
 import AddressService from "@/services/addressService";
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ChooseAvatarButton } from "@/components/UserSetting/choose_avatar_button";
+import { LoadingIcon } from "@/components/icons";
+import { UserToUpdate } from "@/convertor/userConvertor";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setProfile } from "@/redux/slices/profile";
+import UserService from "@/services/userService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dropdown,
@@ -22,11 +24,6 @@ import {
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import { ZodType, z } from "zod";
-import UserService from "@/services/userService";
-import { setProfile } from "@/redux/slices/profile";
-import { User } from "@/models/User";
-import { UserToUpdate } from "@/convertor/userConvertor";
-import { LoadingIcon } from "@/components/icons";
 
 export type UserSettingFormData = {
   name: string;
@@ -74,7 +71,6 @@ const splitAddress = (address: string) => {
 
 export default function UserSettingPage() {
   const dispatch = useAppDispatch();
-  const [selectedTab, setSelectedTab] = useState("General");
   const [provincesData, setProvincesData] = useState<
     { province_id: number; province_name: string; province_type: string }[]
   >([]);
@@ -125,6 +121,7 @@ export default function UserSettingPage() {
     const { name, email, phoneNumber, address } = thisUser;
     const { houseNumber, street, district, province } = splitAddress(address);
     return (
+      chosenImage !== null ||
       name !== watch("name") ||
       email !== watch("email") ||
       phoneNumber !== watch("phonenumber") ||
@@ -141,7 +138,7 @@ export default function UserSettingPage() {
   const handleFormSubmit = async (data: UserSettingFormData) => {
     if (!thisUser) return;
     if (!isFormValuesChange) {
-      showDefaultToast("Nothing to change");
+      showDefaultToast("No changes to save");
       return;
     }
 
@@ -446,6 +443,10 @@ export default function UserSettingPage() {
                 className="w-[100px] text-sm font-extrabold text-white bg-primary hover:bg-primary/80"
                 iconAfter={isSaving ? <LoadingIcon /> : null}
                 disabled={isSaving}
+                onClick={() => {
+                  console.log("chosen image", chosenImage);
+                  console.log("chosen image url", chosenImageUrl);
+                }}
               >
                 {isSaving ? "" : "Save"}
               </TextButton>
