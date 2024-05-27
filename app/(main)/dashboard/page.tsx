@@ -113,6 +113,10 @@ const ReportPage = () => {
     fetchData().catch((err) => showErrorToast(err));
   }, []);
 
+  useEffect(() => {
+    console.log("Cancellation rate report", cancellationRateReport);
+  }, [cancellationRateReport]);
+
   return (
     <div className="w-full h-screen bg-white p-10 overflow-y-scroll scrollbar-none space-y-6">
       <h1 className="text-4xl font-bold text-primary">Dashboard</h1>
@@ -139,6 +143,7 @@ const ReportPage = () => {
                       : 0
                   }
                   unit="orders"
+                  hasSpace={true}
                   className="border-0 p-0 "
                   icon={
                     <div className="flex flex-row items-center justify-center w-10 h-10 bg-green-300 rounded-full justify-self-end text-white border-2 border-white outline outline-2 outline-green-300">
@@ -185,6 +190,7 @@ const ReportPage = () => {
                       : 0
                   }
                   unit="orders"
+                  hasSpace={true}
                   className="border-0 p-0"
                   isInvertColor={true}
                   icon={

@@ -21,7 +21,7 @@ import { TextButton } from "../buttons";
 import { Input } from "../input";
 import NewCategoryModal from "../new_category_modal";
 import SearchAndChooseButton from "../search_and_choose_button";
-import { showErrorToast, showSuccessToast } from "../toast";
+import { showDefaultToast, showErrorToast, showSuccessToast } from "../toast";
 import { ChooseImageButton } from "./choose_image_button";
 import { displayNumber, removeCharNAN } from "@/utils/func";
 
@@ -243,12 +243,7 @@ export const FoodForm = ({
             />
           </svg>
         </div>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") e.preventDefault();
-          }}
-        >
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex h-full w-full flex-col gap-4">
             <DefaultInput
               label="name"
@@ -585,8 +580,11 @@ const TagsInput = ({
           onChange={(e) => setCurInput(e.currentTarget.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              onValueChanged([...value, curInput]);
-              setCurInput("");
+              e.preventDefault();
+              if (curInput.length > 0) {
+                onValueChanged([...value, curInput]);
+                setCurInput("");
+              } else showDefaultToast("Tag name is empty");
             }
           }}
           className="h-[35px] min-w-[150px] flex-1 rounded-none border-0 outline-none"

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Rating } from "react-simple-star-rating";
 import { showErrorToast } from "./toast";
 import { cn } from "@/utils/cn";
+import { Input, TextArea } from "./input";
 
 const StarsIcon = ({ rating }: { rating: number }) => {
   const starSVG = (
@@ -34,11 +35,7 @@ const FoodComment = ({
   isFromUser?: boolean;
 }) => {
   return (
-    <div
-      className={
-        "mb-2 p-3 border-2 rounded-lg border-gray-200"
-      }
-    >
+    <div className={"mb-2 p-3 border-2 rounded-lg border-gray-200"}>
       <div className={"flex"}>
         <img
           src={comment.user.profileImage}
@@ -47,7 +44,14 @@ const FoodComment = ({
         />
         <div className="flex flex-col justify-start h-full">
           <div className="flex items-center gap-4 mb-1">
-            <h4 className={cn("text-sm font-semibold text-gray-700", isFromUser ? "text-purple-700" : "")}>sen1or</h4>
+            <h4
+              className={cn(
+                "text-sm font-semibold text-gray-700",
+                isFromUser ? "text-purple-700" : ""
+              )}
+            >
+              sen1or
+            </h4>
             {<StarsIcon rating={comment.rating} />}
           </div>
           <p className="text-xs text-gray-600">{comment.createdAt}</p>
@@ -118,29 +122,28 @@ const CommentSection = ({ foodId }: { foodId: number }) => {
   };
 
   return (
-    <div className="w-3/5 mx-auto h-full bg-white text-black rounded-lg overflow-y-auto">
+    <div className="w-3/5 mx-auto h-full bg-white text-black rounded-lg overflow-y-auto px-2">
       <h2 className="text-3xl font-bold mb-2 text-gray-800">Comments</h2>
       {!hasCommented ? (
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="mb-2">
-            <input
+            <Input
               type="text"
               name="title"
               placeholder="Title"
               value={newComment.title}
               onChange={handleInputChange}
-              className="mt-1 py-2 px-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 py-2 px-2 w-full rounded-lg border focus:border-blue-500 outline-0"
               required
             />
           </div>
           <div className="mb-2">
-            <textarea
+            <TextArea
               name="content"
               placeholder="Your comment"
               value={newComment.content}
               onChange={handleInputChange}
-              className="mt-1 py-2 px-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              rows={4}
+              className="mt-1 py-2 px-2 w-full rounded-lg resize-none border focus:border-blue-500 outline-0"
               required
             />
           </div>
@@ -162,7 +165,11 @@ const CommentSection = ({ foodId }: { foodId: number }) => {
       <div>
         {comments.length > 0 ? (
           comments.map((comment, index) => (
-            <FoodComment key={index} comment={comment} isFromUser={hasCommented && index === 0} />
+            <FoodComment
+              key={index}
+              comment={comment}
+              isFromUser={hasCommented && index === 0}
+            />
           ))
         ) : (
           <div className="w-full h-20 flex items-center justify-center">

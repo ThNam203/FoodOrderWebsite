@@ -19,6 +19,8 @@ import { ReactNode, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { displayNumber } from "@/utils/func";
 import CommentSection from "./comment_section";
+import ImageCarousel from "./CustomCarousel/image_carousel";
+import { useDotButton } from "./CustomCarousel/carousel_dot_button";
 
 enum TabTitle {
   Info = "Info",
@@ -50,14 +52,12 @@ export const FoodDetail = ({
   onAddToCart?: () => void;
   className?: ClassValue;
 }) => {
-  const [emblaRef, emplaApi] = useEmblaCarousel({ loop: false });
-  const [selectedTab, setSelectedTab] = useState<TabTitle>(TabTitle.Info);
-  const handleSelectedTabChange = (tab: TabTitle) => {
-    if (tab === selectedTab) return;
-    if (tab === TabTitle.Review && emplaApi) emplaApi.scrollNext();
-    if (tab === TabTitle.Info && emplaApi) emplaApi.scrollPrev();
-    setSelectedTab(tab);
-  };
+  const [emblaRef, emplaApi] = useEmblaCarousel({
+    loop: false,
+    watchDrag: false,
+  });
+  const { selectedIndex, scrollSnaps, onDotButtonClick } =
+    useDotButton(emplaApi);
 
   return (
     <Modal
@@ -74,19 +74,17 @@ export const FoodDetail = ({
         {(onClose) => (
           <>
             <div className="w-full overflow-hidden rounded-md" ref={emblaRef}>
-              <div className="w-full flex items-start pt-2">
-                <div className="flex-[0_0_100%] overflow-y-scroll scrollbar scrollbar-hide h-[60vh]">
+              <div className="w-full flex items-start">
+                <div
+                  className="flex-[0_0_100%] overflow-y-scroll scrollbar scrollbar-hide h-[60vh] pt-2"
+                  draggable={false}
+                >
                   <ModalHeader className="flex flex-row gap-2 font-sans">
-                    <div className="w-1/3 lg:h-48 max-lg:h-40 max-sm:h-28 overflow-hidden rounded-md">
-                      <div
-                        className="hover:scale-125 ease-linear transition-all duration-300 "
-                        style={{
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                          backgroundImage: `url(${food.images[0]})`,
-                          height: "100%",
-                        }}
+                    <div className="w-1/3 lg:h-48 max-lg:h-40 max-sm:h-28">
+                      <ImageCarousel
+                        carouselItems={food.images.map((image) => {
+                          return { image: image };
+                        })}
                       />
                     </div>
                     <div className="w-2/3 flex flex-col gap-1">
@@ -153,6 +151,7 @@ export const FoodDetail = ({
                       </div>
                     </div>
                   </ModalHeader>
+
                   <ModalBody className="font-sans">
                     <span className="font-semibold">Desciption</span>
                     <p>
@@ -161,7 +160,7 @@ export const FoodDetail = ({
                     </p>
                   </ModalBody>
                 </div>
-                <div className="flex-[0_0_100%] overflow-y-auto">
+                <div className="flex-[0_0_100%] overflow-y-scroll font-sans pt-4">
                   <CommentSection foodId={food.id} />
                 </div>
               </div>
@@ -170,17 +169,15 @@ export const FoodDetail = ({
             <ModalFooter className="relative w-full flex flex-row items-center font-sans">
               <div className="absolute left-1/2 -translate-x-1/2 w-fit h-fit flex flex-row items-center justify-center rounded-2xl overflow-hidden border-2 border-black">
                 <Tab
-                  selectedTab={selectedTab}
-                  setSelectedTab={(tab) =>
-                    handleSelectedTabChange(tab as TabTitle)
-                  }
+                  selectedIndex={selectedIndex}
+                  index={0}
+                  setSelectedIndex={(index) => onDotButtonClick(index)}
                   content={TabTitle.Info}
                 />
                 <Tab
-                  selectedTab={selectedTab}
-                  setSelectedTab={(tab) =>
-                    handleSelectedTabChange(tab as TabTitle)
-                  }
+                  selectedIndex={selectedIndex}
+                  index={1}
+                  setSelectedIndex={(index) => onDotButtonClick(index)}
                   content={TabTitle.Review}
                 />
               </div>
@@ -236,14 +233,16 @@ const Tag = ({ name }: { name: string }) => (
 const Tab = ({
   className,
   content,
-  selectedTab,
-  setSelectedTab,
+  selectedIndex,
+  index,
+  setSelectedIndex,
   onClick,
 }: {
   className?: ClassValue;
   content: string;
-  selectedTab?: string;
-  setSelectedTab: (selectedTab: string) => void;
+  selectedIndex: number;
+  index: number;
+  setSelectedIndex: (index: number) => void;
   onClick?: () => void;
 }) => {
   const defaultTabStyle = "text-white bg-black hover:text-primary";
@@ -253,11 +252,11 @@ const Tab = ({
     <span
       className={cn(
         "min-w-[100px] px-4 ease-linear duration-200 cursor-pointer text-center",
-        selectedTab === content ? selectedTabStyle : defaultTabStyle,
+        selectedIndex === index ? selectedTabStyle : defaultTabStyle,
         className
       )}
       onClick={() => {
-        setSelectedTab(content);
+        setSelectedIndex(index);
         if (onClick) onClick();
       }}
     >

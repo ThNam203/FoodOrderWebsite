@@ -443,6 +443,7 @@ const CartPage = () => {
     });
     setSubtotal(tempSubtotal);
   }, [selectedCardIds, cartData, foodData]);
+  console.log("cartData", cartData);
 
   return (
     <div className="w-full h-screen font-sans flex xl:flex-row xl:justify-between max-xl:flex-col max-xl:overflow-y-scroll">
@@ -519,10 +520,14 @@ const CartPage = () => {
                     (food) => food.id === cart.food.id
                   );
                   if (!food) return null;
+                  console.log("food", food);
                   const foodSize = food.foodSizes.find(
                     (size) => size.id === cart.foodSize.id
                   );
+                  console.log("foodSize", foodSize);
+                  console.log("cart", cart);
                   if (!foodSize) return null;
+
                   return (
                     <CartItem
                       key={cart.id}

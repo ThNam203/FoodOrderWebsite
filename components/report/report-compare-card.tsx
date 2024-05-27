@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import React, { FC, ReactNode } from "react";
 import { RoundedIconButton } from "../buttons";
+import { displayNumber } from "@/utils/func";
 
 interface ReportCompareCardProps {
   children?: React.ReactNode;
@@ -16,6 +17,7 @@ interface ReportCompareCardProps {
   valueOffset: number;
   value: number;
   unit: "$" | "order" | "orders" | "%" | string;
+  hasSpace?: boolean;
   isInvertColor?: boolean;
   icon?: ReactNode;
 }
@@ -26,37 +28,9 @@ const ReportCompareCard: FC<ReportCompareCardProps> = ({
   title,
   valueOffset,
   isInvertColor = false,
+  hasSpace = false,
   icon,
 }) => {
-  let formattedValue;
-  let formattedOffset;
-  if (unit === "$" || unit === "orders" || unit === "order") {
-    formattedValue =
-      value
-        .toLocaleString("vi-VN", {
-          maximumFractionDigits: 0,
-        })
-        .toString() +
-      " " +
-      unit;
-    formattedOffset =
-      valueOffset.toLocaleString("vi-VN", {
-        maximumFractionDigits: 0,
-      }) +
-      " " +
-      unit;
-  } else if (unit === "%") {
-    formattedValue =
-      value.toLocaleString("vi-VN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }) + "%";
-    formattedOffset =
-      valueOffset.toLocaleString("vi-VN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }) + "%";
-  }
   return (
     <div
       className={cn(
@@ -77,7 +51,7 @@ const ReportCompareCard: FC<ReportCompareCardProps> = ({
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex-1 text-secondaryWord text-xl font-semibold">
-          {formattedValue}
+          {displayNumber(unit !== "%" ? value : value * 100, unit, hasSpace)}
         </div>
         <div
           className={cn(
@@ -97,7 +71,11 @@ const ReportCompareCard: FC<ReportCompareCardProps> = ({
           {valueOffset === 0 && <MoveRight />}
           {valueOffset < 0 && <TrendingDownIcon />}
           {valueOffset >= 0 && "+"}
-          {formattedOffset}
+          {displayNumber(
+            unit !== "%" ? valueOffset : valueOffset * 100,
+            unit,
+            hasSpace
+          )}
         </div>
       </div>
     </div>

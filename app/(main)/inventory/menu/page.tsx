@@ -204,9 +204,7 @@ const FoodDetailTab = ({
   return (
     <div className="flex h-fit flex-col gap-4 px-4 py-4">
       <div className="flex flex-row gap-4">
-        <div
-          className={cn("w-[250px] max-h-[200px] rounded-sm overflow-hidden")}
-        >
+        <div className={cn("w-[250px] max-h-[200px]")}>
           <ImageCarousel carouselItems={carouselItems} />
         </div>
         <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">

@@ -42,7 +42,8 @@ export default function LoginPage() {
       .then((res) => {
         console.log(res);
         showSuccessToast("Login Successfully");
-        router.push("/intro");
+        if (data.email === "admin@gmail.com") router.push("/dashboard");
+        else router.push("/intro");
       })
       .catch((err) => {
         showErrorToast("Wrong email or password");
