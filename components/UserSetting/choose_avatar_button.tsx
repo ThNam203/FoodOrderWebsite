@@ -6,6 +6,7 @@ import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
 import default_user_image from "@/public/images/default_user.png";
 import { Camera, ImageMinus } from "lucide-react";
+import { showDefaultToast, showWarningToast } from "../toast";
 
 export const ChooseAvatarButton = ({
   fileUrl,
@@ -25,7 +26,7 @@ export const ChooseAvatarButton = ({
     )
       onImageChanged(e.target.files[0]);
     else {
-      alert("Image size should be less than 1MB");
+      showWarningToast("Image size should be less than 1MB");
     }
   };
   const inputRef = useRef<HTMLInputElement>(null);
