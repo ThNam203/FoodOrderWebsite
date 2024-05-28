@@ -18,7 +18,11 @@ export type CarouselItem = {
 export default function CategoryCarousel({
   carouselItems,
   className,
+  selectedCategory,
+  setSelectedCategory
 }: {
+  selectedCategory: number;
+  setSelectedCategory: (num: number) => any;
   carouselItems: CarouselItem[];
   className?: ClassValue;
 }) {
@@ -27,10 +31,9 @@ export default function CategoryCarousel({
   ]);
   // const { selectedIndex, scrollSnaps, onDotButtonClick } =
   //   useDotButton(emplaApi);
-  const [selectedCategory, setSelectedCategory] = useState<number>();
 
   return (
-    <div className={cn("relative group", className)}>
+    <div className={cn("relative group mb-8", className)}>
       <TextButton
         iconBefore={<ChevronLeft className="text-white" />}
         className={cn(
@@ -53,27 +56,23 @@ export default function CategoryCarousel({
         }}
       />
       <div className="overflow-hidden rounded-md" ref={emblaRef}>
-        <div className="flex items-center">
+        <div className="flex items-center gap-1">
+          <CategoryAll
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            allDishesCount={carouselItems.reduce(
+              (pre, cur, idx, arr) => (pre = pre + arr[idx].quantity),
+              0
+            )}
+          />
           {carouselItems.map((item, index) => {
             return (
-              <div
+              <Category
                 key={index}
-                onClick={() => setSelectedCategory(item.id)}
-                className={cn(
-                  "rounded-md p-2 grid grid-cols-3 grid-rows-2 gap-2 shadow-xl cursor-pointer transition-colors duration-500 ease-in-out h-16 min-w-40",
-                  selectedCategory === item.id ? "bg-primary" : ""
-                )}
-              >
-                <div className="rounded-full flex items-center justify-center bg-white row-span-2">
-                  <img className="h-8 w-8" src={item.image} alt="" />
-                </div>
-                <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
-                  {item.name}
-                </p>
-                <p className="text-xs text-slate-400 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
-                  {item.quantity} dishes
-                </p>
-              </div>
+                item={item}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
             );
           })}
         </div>
@@ -96,3 +95,73 @@ export default function CategoryCarousel({
     </div>
   );
 }
+
+const Category = ({
+  setSelectedCategory,
+  selectedCategory,
+  item,
+}: {
+  item: CarouselItem;
+  selectedCategory: number;
+  setSelectedCategory: (num: number) => any;
+}) => {
+  return (
+    <div
+      onClick={() => setSelectedCategory(item.id)}
+      className={cn(
+        "rounded-md p-2 grid grid-cols-3 grid-rows-2 gap-2 shadow-xl cursor-pointer transition-colors duration-500 ease-in-out h-16 min-w-40",
+        selectedCategory === item.id
+          ? "bg-primary"
+          : "bg-orange-100 bg-opacity-20"
+      )}
+    >
+      <div className="rounded-full flex items-center justify-center row-span-2">
+        <img
+          className="h-12 w-12 object-cover rounded-full"
+          src={item.image}
+          alt=""
+        />
+      </div>
+      <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+        {item.name}
+      </p>
+      <p className="text-xs text-slate-200 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+        {item.quantity} dishes
+      </p>
+    </div>
+  );
+};
+
+const CategoryAll = ({
+  setSelectedCategory,
+  selectedCategory,
+  allDishesCount,
+}: {
+  allDishesCount: number;
+  selectedCategory: number;
+  setSelectedCategory: (num: number) => any;
+}) => {
+  return (
+    <div
+      onClick={() => setSelectedCategory(-1)}
+      className={cn(
+        "rounded-md p-2 grid grid-cols-3 grid-rows-2 gap-2 shadow-xl cursor-pointer transition-colors duration-500 ease-in-out h-16 min-w-40",
+        selectedCategory === -1 ? "bg-primary" : "bg-orange-100 bg-opacity-20"
+      )}
+    >
+      <div className="rounded-full flex items-center justify-center row-span-2">
+        <img
+          className="h-12 w-12 object-cover rounded-full"
+          src={"/images/category_all.png"}
+          alt=""
+        />
+      </div>
+      <p className="font-bold text-xs col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+        All
+      </p>
+      <p className="text-xs text-slate-200 col-span-2 text-ellipsis whitespace-nowrap overflow-hidden">
+        {allDishesCount} dishes
+      </p>
+    </div>
+  );
+};

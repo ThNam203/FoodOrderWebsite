@@ -2,7 +2,7 @@
 
 import CategoryCarousel from "@/components/CustomCarousel/category_carousel";
 import { FoodDetail } from "@/components/food_detail";
-import MainPageItem from "@/components/main_page_item";
+import MainPageItem, { Tag } from "@/components/main_page_item";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
 import { FoodToReceive } from "@/convertor/foodConvertor";
 import { Cart } from "@/models/Cart";
@@ -19,16 +19,24 @@ import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import default_food_image from "@/public/images/default_food.jpg";
+import Image from "next/image";
+import { formatNumberInput } from "@/utils/func";
+import { FoodPrice } from "@/components/food_price";
+import FoodRating from "@/components/food_rating";
 
 export default function Home() {
   const dispatch = useAppDispatch();
   const [activeCategory, setActiveCategory] = useState("All");
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
+  const [selectedCategory, setSelectedCategory] = useState<number>(-1);
   const router = useRouter();
   const food = useAppSelector((state) => state.food.activeFood);
   const categories = useAppSelector((state) => state.foodCategory.value);
   const thisUser = useAppSelector((state) => state.profile.value);
   const [topFoods, setTopFoods] = useState<Food[]>([]);
+  const [searchFocus, setSearchFocus] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
   const [bestRatedFoods, setBestRatedFoods] = useState<Food[]>([]);
   const [favoriteFoodIds, setFavoriteFoodIds] = useState<number[]>([]);
   const [favoriteFoodList, setFavoriteFoodList] = useState<Food[]>([]);
@@ -73,7 +81,6 @@ export default function Home() {
 
   useEffect(() => {
     if (!thisUser || !thisUser.listFavorite) return;
-    console.log("favorite", thisUser.listFavorite);
     setFavoriteFoodIds(thisUser.listFavorite);
   }, [thisUser]);
 
@@ -126,7 +133,7 @@ export default function Home() {
         }}
       >
         <div className="w-full h-fit px-8 border-gray-200 pb-8">
-          <div className="h-12 mt-8 flex items-center justify-between">
+          <div className="h-12 mt-8 flex items-center justify-between relative">
             <div className="flex items-center rounded-md bg-gray-100 self-stretch px-4 w-2/3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -141,10 +148,25 @@ export default function Home() {
               </svg>
               <input
                 type="text"
-                className="px-4 self-stretch bg-transparent flex-grow outline-none"
+                className="px-4 self-stretch bg-transparent flex-grow text-black outline-none"
                 placeholder="Search"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onFocus={() => setSearchFocus(true)}
+                onBlur={() => setSearchFocus(false)}
               />
             </div>
+            {searchFocus && searchInput.length > 0 ? (
+              <div className="absolute bg-slate-700 top-full left-0 w-2/3 mt-1 rounded-md">
+                {food
+                  .filter((f) =>
+                    f.name.toLowerCase().includes(searchInput.toLowerCase())
+                  )
+                  .map((f) => (
+                    <FoodItemSearch food={f} key={f.name} />
+                  ))}
+              </div>
+            ) : null}
           </div>
           {/* <ImageCarousel carouselItems={data.adImages} className="mt-12" /> */}
           <div className="grid grid-cols-6 lg:grid-rows-2 max-lg:grid-rows-3 mt-12 rounded-lg gap-1">
@@ -187,25 +209,42 @@ export default function Home() {
             </section>
           )}
 
-          <section>
-            <CategoryCarousel
-              carouselItems={categories.map((item) => ({
-                ...item,
-                quantity: food.filter((f) => f.category.id === item.id).length,
-              }))}
-            />
-          </section>
-
-          {favoriteFoodList && favoriteFoodList.length > 0 && (
+          {/* {favoriteFoodList && favoriteFoodList.length > 0 && (
             <section>
-              <h3 className="text-4xl font-semibold my-8">Favorite</h3>
+              <h3 className="text-4xl font-semibold mb-8">Favorite</h3>
               <FoodListComponent
                 foods={favoriteFoodList}
                 favoriteFoodIds={favoriteFoodIds}
                 onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
               />
             </section>
-          )}
+          )} */}
+
+          <section>
+            <CategoryCarousel
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              carouselItems={categories.map((item) => ({
+                ...item,
+                quantity: food.filter((f) => f.category.id === item.id).length,
+              }))}
+            />
+
+            <FoodListComponent
+              foods={food.filter(
+                (f) =>
+                  selectedCategory === -1 || f.category.id === selectedCategory
+              )}
+              favoriteFoodIds={food
+                .filter(
+                  (f) =>
+                    selectedCategory === -1 ||
+                    f.category.id === selectedCategory
+                )
+                .map((f) => f.id)}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
+          </section>
         </div>
       </section>
     </>
@@ -221,7 +260,6 @@ const FoodListComponent = ({
   favoriteFoodIds?: number[];
   onFavoriteFoodIdsChange?: (id: number) => void;
 }) => {
-  console.log(foods);
   const [emblaRef] = useEmblaCarousel({}, [Autoplay()]);
   const dispatch = useAppDispatch();
   const [isOpen, setOpen] = useState(false);
@@ -301,10 +339,38 @@ const FoodListComponent = ({
   );
 };
 
-const Option = ({ children, onClick }: { children: any; onClick: any }) => {
+const FoodItemSearch = ({ food }: { food: Food }) => {
+  const imageSrc =
+    food.images && food.images.length > 0 ? food.images[0] : default_food_image;
+  const foodPriceRange = food.foodSizes.toSorted((a, b) => a.price - b.price);
+
   return (
-    <div className="cursor-pointer hover:bg-gray-100 p-2" onClick={onClick}>
-      {children}
+    <div
+      onMouseDown={() => {
+        console.log("please show food detail");
+      }}
+      className="px-4 py-2 text-sm flex flex-row items-center hover:bg-slate-600 hover:cursor-pointer"
+    >
+      <div className="rounded-md overflow-hidden">
+        <Image
+          alt="food image"
+          width={70}
+          height={60}
+          src={imageSrc}
+          className="object-cover w-[70px] h-[60px] rounded-md"
+        />
+      </div>
+      <div className="flex flex-col m-2 gap-2">
+        <div className="flex flex-row items-center gap-4">
+          <p className="font-semibold">{food.name}</p>
+          <FoodRating rating={food.rating} />
+        </div>
+        <FoodPrice
+          currency="$"
+          defaultPrice={foodPriceRange[0].price}
+          secondPrice={foodPriceRange[foodPriceRange.length - 1].price}
+        />
+      </div>
     </div>
   );
 };

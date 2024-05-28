@@ -81,8 +81,9 @@ export default function MainPageItem({
     </div>
   );
 }
-const Tag = ({ name }: { name: string }) => (
-  <span className="hover:cursor-pointer hover:bg-slate-500 hover:text-slate-200 rounded-md font-semibold bg-slate-200 px-2 py-1 text-gray-700 font-hairline text-xs ml-1">
+
+export const Tag = ({ name }: { name: string }) => (
+  <span className="hover:cursor-pointer hover:bg-blue-500 text-white rounded-md font-medium bg-blue-300 px-2 py-1  font-hairline text-xs ml-1">
     {name}
   </span>
 );

@@ -36,7 +36,7 @@ function imageColumn(accessorKey: string, title: string): ColumnDef<Food> {
     ),
     cell: ({ row }) => {
       const values: string[] = row.getValue(accessorKey);
-      let imageSrc = values.length > 0 ? values[0] : default_food_image;
+      let imageSrc = values && values.length > 0 ? values[0] : default_food_image;
 
       return (
         <div className="w-fit px-2">
