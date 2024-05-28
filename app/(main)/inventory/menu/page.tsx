@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import ImageCarousel, {
   CarouselItem,
 } from "@/components/CustomCarousel/image_carousel";
+import { FoodForm } from "@/components/NewFoodForm/food_form";
 import {
   ConfirmDialog,
   ConfirmDialogType,
@@ -28,7 +29,6 @@ import {
   menuDefaultVisibilityState,
   menuTableColumns,
 } from "./table_columns";
-import { FoodForm } from "@/components/NewFoodForm/food_form";
 // import CustomCarousel, { CarouselItem } from "@/components/custom_carousel";
 
 export default function DashboardMenu() {
@@ -194,6 +194,7 @@ const FoodDetailTab = ({
 }) => {
   const food = row.original;
   const carouselItems: CarouselItem[] = food.images.map((image) => {
+    console.log("image", image);
     return {
       image: image,
     };
@@ -203,9 +204,7 @@ const FoodDetailTab = ({
   return (
     <div className="flex h-fit flex-col gap-4 px-4 py-4">
       <div className="flex flex-row gap-4">
-        <div
-          className={cn("w-[250px] max-h-[200px] rounded-sm overflow-hidden")}
-        >
+        <div className={cn("w-[250px] max-h-[200px]")}>
           <ImageCarousel carouselItems={carouselItems} />
         </div>
         <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
@@ -283,12 +282,12 @@ const RowInfo = ({
         showTextArea ? "" : "flex flex-row border-b"
       )}
     >
-      <p className="w-[100px] font-normal">{label}</p>
+      <p className="w-[100px] font-semibold">{label}</p>
       {showTextArea ? (
         <textarea
           readOnly
           disabled
-          className={cn("h-[80px] w-full resize-none border-2 p-1")}
+          className={cn("h-[120px] w-full resize-none border-2 p-1")}
           defaultValue={value}
         ></textarea>
       ) : (

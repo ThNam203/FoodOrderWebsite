@@ -15,9 +15,12 @@ import {
 } from "@nextui-org/react";
 import { ClassValue } from "clsx";
 import { ShoppingCart } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { displayNumber } from "@/utils/func";
+import CommentSection from "./comment_section";
+import ImageCarousel from "./CustomCarousel/image_carousel";
+import { useDotButton } from "./CustomCarousel/carousel_dot_button";
 
 enum TabTitle {
   Info = "Info",
@@ -49,14 +52,13 @@ export const FoodDetail = ({
   onAddToCart?: () => void;
   className?: ClassValue;
 }) => {
-  const [emblaRef, emplaApi] = useEmblaCarousel({ loop: false });
-  const [selectedTab, setSelectedTab] = useState<TabTitle>(TabTitle.Info);
-  const handleSelectedTabChange = (tab: TabTitle) => {
-    if (tab === selectedTab) return;
-    if (tab === TabTitle.Review && emplaApi) emplaApi.scrollNext();
-    if (tab === TabTitle.Info && emplaApi) emplaApi.scrollPrev();
-    setSelectedTab(tab);
-  };
+  const [emblaRef, emplaApi] = useEmblaCarousel({
+    loop: false,
+    watchDrag: false,
+  });
+  const { selectedIndex, scrollSnaps, onDotButtonClick } =
+    useDotButton(emplaApi);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -72,196 +74,112 @@ export const FoodDetail = ({
         {(onClose) => (
           <>
             <div className="w-full overflow-hidden rounded-md" ref={emblaRef}>
-              <div className="w-full flex items-center">
-                <div className="flex-[0_0_100%]">
-                  <div className="w-full h-72 overflow-hidden">
-                    <div
-                      className="hover:scale-125 ease-linear transition-all duration-300"
-                      style={{
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        backgroundImage: `url(${food.images[0]})`,
-                        height: "100%",
-                      }}
-                    ></div>
-                  </div>
-                  <ModalHeader className="flex flex-col gap-1 font-sans">
-                    <div className="flex flex-col items-start">
-                      <div className="flex flex-row items-center gap-2">
-                        <span>{food.name}</span>
-                        <IconButton
-                          className="rounded-full ease-linear duration-100"
-                          icon={
-                            isFavorite ? <HeartIcon /> : <OutlineHeartIcon />
-                          }
-                          onClick={() => {
-                            if (onFavoriteChange) onFavoriteChange(!isFavorite);
-                          }}
-                        />
-                      </div>
-                      <div className="w-full flex flex-row items-center justify-between">
-                        <p className="text-xl">
-                          {displayNumber(selectedSize.price, "đ")}
-                        </p>
-                        <div className="w-min font-sans">
-                          <NumberInput
-                            className="outline-0 text-primaryWord"
-                            value={foodQuantity}
-                            onDecrease={() =>
-                              onFoodQuantityChange(
-                                foodQuantity <= 1 ? 1 : foodQuantity - 1
-                              )
+              <div className="w-full flex items-start">
+                <div
+                  className="flex-[0_0_100%] overflow-y-scroll scrollbar scrollbar-hide h-[60vh] pt-2"
+                  draggable={false}
+                >
+                  <ModalHeader className="flex flex-row gap-2 font-sans">
+                    <div className="w-1/3 lg:h-48 max-lg:h-40 max-sm:h-28">
+                      <ImageCarousel
+                        carouselItems={food.images.map((image) => {
+                          return { image: image };
+                        })}
+                      />
+                    </div>
+                    <div className="w-2/3 flex flex-col gap-1">
+                      <div className="flex flex-col items-start">
+                        <div className="flex flex-row items-center gap-2">
+                          <span>{food.name}</span>
+                          <IconButton
+                            className="rounded-full ease-linear duration-100"
+                            icon={
+                              isFavorite ? <HeartIcon /> : <OutlineHeartIcon />
                             }
-                            onIncrease={() =>
-                              onFoodQuantityChange(foodQuantity + 1)
-                            }
-                            onChange={(e) =>
-                              onFoodQuantityChange(
-                                Number.parseInt(e.target.value)
-                              )
-                            }
+                            onClick={() => {
+                              if (onFavoriteChange)
+                                onFavoriteChange(!isFavorite);
+                            }}
                           />
                         </div>
+                        <div className="w-full flex flex-row items-center justify-between">
+                          <p className="text-xl">
+                            {displayNumber(selectedSize.price, "$")}
+                          </p>
+                          <div className="w-min font-sans">
+                            <NumberInput
+                              className="outline-0 text-primaryWord"
+                              value={foodQuantity}
+                              onDecrease={() =>
+                                onFoodQuantityChange(
+                                  foodQuantity <= 1 ? 1 : foodQuantity - 1
+                                )
+                              }
+                              onIncrease={() =>
+                                onFoodQuantityChange(foodQuantity + 1)
+                              }
+                              onChange={(e) =>
+                                onFoodQuantityChange(
+                                  Number.parseInt(e.target.value)
+                                )
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-row gap-2 items-center">
+                        {food.foodSizes.map((size) => {
+                          return (
+                            <FoodProperty
+                              key={size.name}
+                              isSelected={selectedSize === size}
+                              name={size.name}
+                              onClick={() => onFoodSizeChange(size)}
+                            />
+                          );
+                        })}
+                      </div>
+                      <div className="font-normal text-base">
+                        {selectedSize.note}
+                      </div>
+                      <div className="flex flex-row items-center">
+                        <FoodRating rating={food.rating} />
+                        {food.tags.map((tag) => {
+                          return <Tag key={tag} name={tag} />;
+                        })}
                       </div>
                     </div>
-
-                    <div className="flex flex-row gap-2 items-center">
-                      {food.foodSizes.map((size) => {
-                        return (
-                          <FoodProperty
-                            key={size.name}
-                            isSelected={selectedSize === size}
-                            name={size.name}
-                            onClick={() => onFoodSizeChange(size)}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="font-normal text-base">
-                      {selectedSize.note}
-                    </div>
-                    <div className="flex flex-row items-center">
-                      <FoodRating rating={food.rating} />
-                      {food.tags.map((tag) => {
-                        return <Tag key={tag} name={tag} />;
-                      })}
-                    </div>
                   </ModalHeader>
-                  <ModalBody>
-                    <p className="font-sans">
-                      Food description here. Lorem ipsum dolor sit amet,
-                      consectetur adipiscing elit. Nullam pulvinar risus non
-                      risus hendrerit venenatis. Pellentesque sit amet hendrerit
-                      risus, sed porttitor quam.
+
+                  <ModalBody className="font-sans">
+                    <span className="font-semibold">Desciption</span>
+                    <p>
+                      {food.description}
+                      {food.description}
                     </p>
                   </ModalBody>
                 </div>
-                <div className="flex-[0_0_100%]">
-                  <div className="w-full h-72 overflow-hidden">
-                    <div
-                      className="hover:scale-125 ease-linear transition-all duration-300"
-                      style={{
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        backgroundImage: `url(${food.images[0]})`,
-                        height: "100%",
-                      }}
-                    ></div>
-                  </div>
-                  <ModalHeader className="flex flex-col gap-1 font-sans">
-                    <div className="flex flex-col items-start">
-                      <div className="flex flex-row items-center gap-2">
-                        <span>{food.name}</span>
-                        <IconButton
-                          className="rounded-full ease-linear duration-100"
-                          icon={
-                            isFavorite ? <HeartIcon /> : <OutlineHeartIcon />
-                          }
-                          onClick={() => {
-                            if (onFavoriteChange) onFavoriteChange(!isFavorite);
-                          }}
-                        />
-                      </div>
-                      <div className="w-full flex flex-row items-center justify-between">
-                        <p className="text-xl">
-                          {displayNumber(selectedSize.price, "đ")}
-                        </p>
-                        <div className="w-min font-sans">
-                          <NumberInput
-                            className="outline-0 text-primaryWord"
-                            value={foodQuantity}
-                            onDecrease={() =>
-                              onFoodQuantityChange(
-                                foodQuantity <= 1 ? 1 : foodQuantity - 1
-                              )
-                            }
-                            onIncrease={() =>
-                              onFoodQuantityChange(foodQuantity + 1)
-                            }
-                            onChange={(e) =>
-                              onFoodQuantityChange(
-                                Number.parseInt(e.target.value)
-                              )
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row gap-2 items-center">
-                      {food.foodSizes.map((size) => {
-                        return (
-                          <FoodProperty
-                            key={size.name}
-                            isSelected={selectedSize === size}
-                            name={size.name}
-                            onClick={() => onFoodSizeChange(size)}
-                          />
-                        );
-                      })}
-                    </div>
-                    <div className="font-normal text-base">
-                      {selectedSize.note}
-                    </div>
-                    <div className="flex flex-row items-center">
-                      <FoodRating rating={food.rating} />
-                      {food.tags.map((tag) => {
-                        return <Tag key={tag} name={tag} />;
-                      })}
-                    </div>
-                  </ModalHeader>
-                  <ModalBody>
-                    <p className="font-sans">
-                      Food description here. Lorem ipsum dolor sit amet,
-                      consectetur adipiscing elit. Nullam pulvinar risus non
-                      risus hendrerit venenatis. Pellentesque sit amet hendrerit
-                      risus, sed porttitor quam.
-                    </p>
-                  </ModalBody>
+                <div className="flex-[0_0_100%] overflow-y-scroll font-sans pt-4">
+                  <CommentSection foodId={food.id} />
                 </div>
               </div>
             </div>
 
-            <ModalFooter className="w-full flex flex-row items-center font-sans">
-              <div className="h-fit flex-1 items-center">
-                <div className="mx-auto w-fit h-fit flex flex-row items-center justify-center rounded-2xl overflow-hidden border-2 border-black">
-                  <Tab
-                    selectedTab={selectedTab}
-                    setSelectedTab={(tab) =>
-                      handleSelectedTabChange(tab as TabTitle)
-                    }
-                    content={TabTitle.Info}
-                  />
-                  <Tab
-                    selectedTab={selectedTab}
-                    setSelectedTab={(tab) =>
-                      handleSelectedTabChange(tab as TabTitle)
-                    }
-                    content={TabTitle.Review}
-                  />
-                </div>
+            <ModalFooter className="relative w-full flex flex-row items-center font-sans">
+              <div className="absolute left-1/2 -translate-x-1/2 w-fit h-fit flex flex-row items-center justify-center rounded-2xl overflow-hidden border-2 border-black">
+                <Tab
+                  selectedIndex={selectedIndex}
+                  index={0}
+                  setSelectedIndex={(index) => onDotButtonClick(index)}
+                  content={TabTitle.Info}
+                />
+                <Tab
+                  selectedIndex={selectedIndex}
+                  index={1}
+                  setSelectedIndex={(index) => onDotButtonClick(index)}
+                  content={TabTitle.Review}
+                />
               </div>
               <TextButton
                 iconAfter={<ShoppingCart className="w-4 h-4" />}
@@ -278,14 +196,16 @@ export const FoodDetail = ({
   );
 };
 
-const FoodProperty = ({
+export const FoodProperty = ({
   isSelected = false,
   name,
   onClick,
+  className,
 }: {
   isSelected?: boolean;
   name: string;
   onClick?: () => void;
+  className?: ClassValue;
 }) => {
   const defaultStyle =
     "bg-white text-primaryWord hover:bg-black hover:text-white";
@@ -293,8 +213,9 @@ const FoodProperty = ({
   return (
     <span
       className={cn(
-        "cursor-pointer rounded-lg font-semibold outline outline-black outline-1 px-2 text-xs ease-linear duration-100",
-        isSelected ? selectedStyle : defaultStyle
+        "cursor-pointer rounded-[999px] font-semibold outline outline-black outline-1 px-2 text-xs ease-linear duration-100 flex items-center capitalize",
+        isSelected ? selectedStyle : defaultStyle,
+        className
       )}
       onClick={onClick}
     >
@@ -312,14 +233,16 @@ const Tag = ({ name }: { name: string }) => (
 const Tab = ({
   className,
   content,
-  selectedTab,
-  setSelectedTab,
+  selectedIndex,
+  index,
+  setSelectedIndex,
   onClick,
 }: {
   className?: ClassValue;
   content: string;
-  selectedTab?: string;
-  setSelectedTab: (selectedTab: string) => void;
+  selectedIndex: number;
+  index: number;
+  setSelectedIndex: (index: number) => void;
   onClick?: () => void;
 }) => {
   const defaultTabStyle = "text-white bg-black hover:text-primary";
@@ -329,11 +252,11 @@ const Tab = ({
     <span
       className={cn(
         "min-w-[100px] px-4 ease-linear duration-200 cursor-pointer text-center",
-        selectedTab === content ? selectedTabStyle : defaultTabStyle,
+        selectedIndex === index ? selectedTabStyle : defaultTabStyle,
         className
       )}
       onClick={() => {
-        setSelectedTab(content);
+        setSelectedIndex(index);
         if (onClick) onClick();
       }}
     >

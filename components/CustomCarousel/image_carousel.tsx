@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { ClassValue } from "clsx";
@@ -16,15 +16,18 @@ export type CarouselItem = {
 export default function ImageCarousel({
   carouselItems,
   className,
+  loop = true,
 }: {
   carouselItems: CarouselItem[];
   className?: ClassValue;
+  loop?: boolean;
+  active?: boolean;
 }) {
-  const [emblaRef, emplaApi] = useEmblaCarousel({ loop: true }, [
+  const [emblaRef, emplaApi] = useEmblaCarousel({ loop: loop }, [
     Autoplay({ delay: 3000 }),
   ]);
-  // const { selectedIndex, scrollSnaps, onDotButtonClick } =
-  //   useDotButton(emplaApi);
+  const { selectedIndex, scrollSnaps, onDotButtonClick } =
+    useDotButton(emplaApi);
 
   return (
     <div className={cn("relative group", className)}>
@@ -49,7 +52,11 @@ export default function ImageCarousel({
           if (emplaApi) emplaApi.scrollNext();
         }}
       />
-      <div className="overflow-hidden rounded-md" ref={emblaRef}>
+      <div
+        className="overflow-hidden rounded-md"
+        ref={emblaRef}
+        draggable={false}
+      >
         <div className="flex items-center">
           {carouselItems.map((item, index) => {
             return (
@@ -67,21 +74,20 @@ export default function ImageCarousel({
           })}
         </div>
       </div>
-      {/* <div className="absolute w-full bottom-4 flex flex-row items-center bg-red-200 z-50">
+      <div className="absolute w-full top-[105%] flex flex-row items-center justify-center gap-1 z-50">
         {scrollSnaps.map((snap, index) => {
           return (
-            <TextButton
+            <div
               key={index}
               className={cn(
-                "w-2 h-2 rounded-full bg-transparent",
-                selectedIndex === index ? "" : ""
+                "w-2 h-2 rounded-full border border-black hover:bg-black ease-linear duration-100 cursor-pointer",
+                selectedIndex === index ? "bg-black" : "bg-white"
               )}
               onClick={() => onDotButtonClick(index)}
-              iconBefore={<Circle className="text-gray-400" />}
             />
           );
         })}
-      </div> */}
+      </div>
     </div>
   );
 }

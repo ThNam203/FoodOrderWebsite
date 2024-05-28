@@ -11,6 +11,7 @@ public class OrderMapper {
                 .status(order.getStatus())
                 .paymentMethod(order.getPaymentMethod())
                 .items(order.getItems() != null ? order.getItems().stream().map(CartMapper::toCartDTO).toList() : null)
+                .note(order.getNote() != null ? order.getNote() : "")
                 .user(order.getUser() != null ? UserMapper.toUserDTO(order.getUser()) : null)
                 .createdAt(order.getCreatedAt())
                 .feedback(order.getFeedback() != null ? FeedbackMapper.toFeedbackDTO(order.getFeedback()) : null)
@@ -22,6 +23,7 @@ public class OrderMapper {
                 .total(orderDTO.getTotal())
                 .status(orderDTO.getStatus())
                 .paymentMethod(orderDTO.getPaymentMethod())
+                .note(orderDTO.getNote())
                 .build();
     }
 }

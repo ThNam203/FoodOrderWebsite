@@ -1,7 +1,7 @@
 import { CartToSend } from "@/convertor/cartConvertor";
 import { Cart } from "@/models/Cart";
 import AxiosService from "./axiosService";
-import { Order, OrderStatus, PaymentMethod } from "@/models/Order";
+import { Feedback, Order, OrderStatus, PaymentMethod } from "@/models/Order";
 import { CartsToOrder, OrderToSend } from "@/convertor/orderConvertor";
 import { User } from "@/models/User";
 
@@ -39,12 +39,19 @@ const DeleteOrder = (id: number) => {
   return AxiosService.delete(`/api/orders/${id}`, { withCredentials: true });
 };
 
+const SendFeedback = (id: number, feedback: Feedback) => {
+  return AxiosService.post(`/api/orders/${id}/feedback`, feedback, {
+    withCredentials: true,
+  });
+};
+
 const OrderService = {
   AddOrder,
   GetAllOrders,
   GetOrder,
   DeleteOrder,
   UpdateOrder,
+  SendFeedback,
 };
 
 export default OrderService;

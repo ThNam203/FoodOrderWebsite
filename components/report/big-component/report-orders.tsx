@@ -43,7 +43,12 @@ const ReportOrder = ({ report }: { report: TotalOrderReport }) => {
       Math.abs(((value - prevValue) / prevValue) * 100),
       "%"
     );
-  else formattedOffset = displayNumber(value, value > 1 ? "orders" : "order");
+  else
+    formattedOffset = displayNumber(
+      value,
+      value > 1 ? "orders" : "order",
+      true
+    );
 
   return (
     <ReportCard>

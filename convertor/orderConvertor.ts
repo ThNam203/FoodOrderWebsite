@@ -46,6 +46,7 @@ const OrderToReceive = (data: any): Order => {
     createdAt: new Date(data.createdAt),
     paymentMethod: data.paymentMethod,
     user: data.user,
+    feedback: data.feedback,
   };
   return orderReceived;
 };

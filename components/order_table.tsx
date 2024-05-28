@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
-export default function MenuTable({
+export default function OrderTable({
   data,
   onDeleteClick,
   onEditClick,
@@ -203,8 +203,10 @@ export default function MenuTable({
             </tr>
           ))}
         </tbody>
-        <tfoot>
-          {table.getFooterGroups().map((footerGroup) => (
+        {/* <tfoot>
+          {table.getFooterGroups().map((footerGroup) => {
+            console.log(footerGroup)
+            return (
             <tr key={footerGroup.id}>
               {footerGroup.headers.map((header) => (
                 <th key={header.id}>
@@ -217,8 +219,8 @@ export default function MenuTable({
                 </th>
               ))}
             </tr>
-          ))}
-        </tfoot>
+          )})}
+        </tfoot> */}
       </table>
     </>
   );

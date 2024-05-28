@@ -4,6 +4,7 @@ import { Toast } from "@/components/toast";
 import ReduxProvider from "@/redux/provider";
 import "@/styles/globals.css";
 import { cn } from "@/utils/cn";
+import { Metadata } from "next";
 import { Lato } from "next/font/google";
 
 const lato = Lato({
@@ -12,10 +13,10 @@ const lato = Lato({
   variable: "--font-lato",
 });
 
-// export const metadata: Metadata = {
-//   title: "Fooddddddd",
-//   description: "Food selling website",
-// };
+export const metadata: Metadata = {
+  title: "Fresh Mart",
+  description: "Food selling website",
+};
 
 export default function RootLayout({
   children,

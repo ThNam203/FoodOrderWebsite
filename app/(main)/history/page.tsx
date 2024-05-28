@@ -16,7 +16,7 @@ import { setOrders } from "@/redux/slices/order";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import OrderService from "@/services/orderService";
 import { cn } from "@/utils/cn";
-import { formatDate, handleFilterColumn } from "@/utils/func";
+import { displayNumber, formatDate, handleFilterColumn } from "@/utils/func";
 import { Row } from "@tanstack/react-table";
 import { ClassValue } from "clsx";
 import { ChevronRight } from "lucide-react";
@@ -25,8 +25,12 @@ import {
   orderDefaultVisibilityState,
   orderTableColumns,
 } from "./table_columns";
+import { ConfirmDialog, useConfirmDialog } from "@/components/confirm_dialog";
+import { RateForm } from "@/components/Rating/rate_form";
+import { FoodProperty } from "@/components/food_detail";
+import useEmblaCarousel from "embla-carousel-react";
 
-export default function OrderManagement() {
+export default function HistoryPage() {
   const dispatch = useAppDispatch();
   const data: Order[] = useAppSelector((state) => state.order.orders);
   const [rowUpdating, setRowUpdating] = useState<number[]>([]);
@@ -34,14 +38,20 @@ export default function OrderManagement() {
   const filterOptionKeys = Object.keys(orderColumnTitles)
     .filter((key) => key !== "images")
     .map((key) => key);
+  const { isOpen, setOpen } = useConfirmDialog();
+  const [orderToRate, setOrderToRate] = useState<Order | undefined>();
 
   useEffect(() => {
     const fetchData = async () => {
       dispatch(showPreloader());
       await OrderService.GetAllOrders()
         .then((res) => {
-          console.log(res);
-          const data = res.data.map((order: any) => OrderToReceive(order));
+          let data: Order[] = res.data.map((order: any) =>
+            OrderToReceive(order)
+          );
+          data = data.sort(
+            (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+          );
           dispatch(setOrders(data));
         })
         .catch((err) => {
@@ -112,6 +122,18 @@ export default function OrderManagement() {
     return filteredData;
   };
 
+  const [dataStatusChange, setDataStatusChange] = useState<{
+    id: number;
+    status: OrderStatus;
+  }>();
+  const handleConfirmBeforeStatusChange = (id: number, status: OrderStatus) => {
+    setDataStatusChange({ id, status });
+    setOpen(true);
+  };
+  const handleRateOrder = (food: Order) => {
+    setOrderToRate(food);
+  };
+
   const onStatusChange = async (id: number, status: OrderStatus) => {
     setRowUpdating([...rowUpdating, id]);
     await OrderService.UpdateOrder(id, status)
@@ -133,16 +155,25 @@ export default function OrderManagement() {
   return (
     <div className="h-screen flex flex-col p-8 text-primaryWord overflow-y-scroll">
       <div className="flex flex-row justify-between mb-4">
-        <h1 className="text-4xl font-bold text-primary">Order management</h1>
+        <h1 className="text-4xl font-bold text-primary">History</h1>
       </div>
       <CustomDatatable
         data={filteredData}
-        columns={orderTableColumns(rowUpdating, onStatusChange)}
+        columns={orderTableColumns(
+          rowUpdating,
+          handleConfirmBeforeStatusChange
+        )}
         columnTitles={orderColumnTitles}
         infoTabs={[
           {
             render(row, setShowTabs) {
-              return <OrderDetailTab row={row} setShowTabs={setShowTabs} />;
+              return (
+                <DetailTab
+                  row={row}
+                  setOrderToRate={handleRateOrder}
+                  setShowTabs={setShowTabs}
+                />
+              );
             },
             tabName: "Order details",
           },
@@ -160,114 +191,102 @@ export default function OrderManagement() {
               { value: OrderStatus.PENDING, borderColor: "border-yellow-400" },
               { value: OrderStatus.ACCEPTED, borderColor: "border-green-400" },
               { value: OrderStatus.DELIVERED, borderColor: "border-blue-400" },
-              { value: OrderStatus.REJECTED, borderColor: "border-red-400" },
               {
                 value: OrderStatus.CANCELLED,
-                borderColor: "border-orange-400",
+                borderColor: "border-red-400",
               },
             ],
           },
         }}
       />
+      <ConfirmDialog
+        isOpen={isOpen}
+        onOpenChange={setOpen}
+        title="Cancel order"
+        content="Are you sure you want to cancel this order ?"
+        onAccept={() => {
+          setOpen(false);
+          if (dataStatusChange)
+            onStatusChange(dataStatusChange.id, dataStatusChange.status);
+        }}
+        onCancel={() => setOpen(false)}
+      />
+      {orderToRate && (
+        <RateForm
+          order={orderToRate}
+          closeForm={() => setOrderToRate(undefined)}
+        />
+      )}
     </div>
   );
 }
 
-const OrderDetailTab = ({
+const DetailTab = ({
   row,
+  setOrderToRate,
   setShowTabs,
 }: {
   row: Row<Order>;
+  setOrderToRate: (order: Order) => void;
   setShowTabs: (value: boolean) => any;
 }) => {
   const order = row.original;
-  const [selectFoodItemTab, setSelectFoodItemTab] = useState<string>(""); //use food name as tab name
+  const [selectFoodItemTab, setSelectFoodItemTab] = useState<number>(-1);
   const [selectedFood, setSelectedFood] = useState<Food | undefined>();
+  const [selectedCart, setSelectedCart] = useState<Cart | undefined>();
+  const [emblaRef, emplaApi] = useEmblaCarousel({ loop: false });
 
-  const handleSelectedFoodItemTabChange = (tab: string) => {
-    setSelectFoodItemTab(tab);
-    const selectedFood = order.items.find((cart) => cart.food.name === tab);
-    setSelectedFood(selectedFood?.food);
+  const handleSelectedFoodItemTabChange = (id: number) => {
+    setSelectFoodItemTab(id);
+    if (id === -1) {
+      setSelectedFood(undefined);
+      setSelectedCart(undefined);
+    } else {
+      const cart = order.items.find((cart) => cart.food.id === id);
+      if (cart) {
+        setSelectedCart(cart);
+        setSelectedFood(cart.food);
+      }
+    }
   };
+  useEffect(() => {
+    if (order.items.length > 0) {
+      setSelectFoodItemTab(order.items[0].food.id);
+      setSelectedFood(order.items[0].food);
+      setSelectedCart(order.items[0]);
+    }
+  }, []);
   return (
     <div className="flex h-fit flex-col gap-4 px-4 py-2">
-      <div className="flex flex-row">
-        <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
-          <div className="flex flex-1 flex-col">
-            <RowInfo label="Order ID:" value={order.id.toString()} />
-            <RowInfo label="Customer:" value={order.user.name} />
-            <RowInfo label="Contact:" value={order.user.phoneNumber} />
-            <RowInfo label="Email:" value={order.user.email} />
-            <RowInfo label="Address:" value={order.user.address} />
-          </div>
-          <div className="flex flex-1 flex-col">
-            <RowInfo label="Total:" value={order.total.toString() + "đ"} />
-            <RowInfo label="Order date:" value={formatDate(order.createdAt)} />
-            <RowInfo label="Payment method:" value={order.paymentMethod} />
-            <RowInfo label="Status:" value={order.status} />
-          </div>
-        </div>
-      </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-row items-center gap-2">
-          <div className="flex flex-row gap-2 items-center">
+          <div className="flex-1 overflow-hidden" ref={emblaRef}>
+            <div className="w-full flex flex-row gap-2 select-none">
+              {order.items.map((cart) => (
+                <FoodItemTab
+                  key={cart.food.id}
+                  cart={cart}
+                  selectedTab={selectFoodItemTab}
+                  setSelectedTab={handleSelectedFoodItemTabChange}
+                  orderStatus={order.status}
+                />
+              ))}
+            </div>
+          </div>
+          {order.status === OrderStatus.DELIVERED && (
             <TextButton
-              className={cn(
-                "text-sm rounded-md py-1",
-                selectFoodItemTab === ""
-                  ? "bg-primary text-white"
-                  : "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord"
-              )}
-              onClick={() => handleSelectedFoodItemTabChange("")}
+              onClick={() => {
+                setOrderToRate(order);
+              }}
+              disabled={order.feedback ? true : false}
+              className="py-1 disabled:opacity-100"
             >
-              Food items
+              {order.feedback ? "Rated" : "Rate this order"}
             </TextButton>
-            <ChevronRight className="w-5 h-5 text-secondaryWord" />
-          </div>
-          <div className="flex flex-row gap-4">
-            {order.items.map((cart) => (
-              <FoodItemTab
-                key={cart.food.id}
-                cart={cart}
-                selectedTab={selectFoodItemTab}
-                setSelectedTab={handleSelectedFoodItemTabChange}
-              />
-            ))}
-          </div>
+          )}
         </div>
-        <FoodItemContent food={selectedFood} />
+        <FoodItemContent food={selectedFood} cart={selectedCart} />
       </div>
-    </div>
-  );
-};
-
-const RowInfo = ({
-  label,
-  value,
-  showTextArea = false,
-}: {
-  label: string;
-  value: string;
-  showTextArea?: boolean;
-}) => {
-  return (
-    <div
-      className={cn(
-        "mb-2 text-md",
-        showTextArea ? "" : "flex flex-row border-b"
-      )}
-    >
-      <p className="w-[150px] font-semibold">{label}</p>
-      {showTextArea ? (
-        <textarea
-          readOnly
-          disabled
-          className={cn("h-[80px] w-full resize-none border-2 p-1")}
-          defaultValue={value}
-        ></textarea>
-      ) : (
-        <p className="max-w-[300px] whitespace-nowrap text-ellipsis">{value}</p>
-      )}
     </div>
   );
 };
@@ -279,35 +298,49 @@ const FoodItemTab = ({
   setSelectedTab,
   onClick,
   disabled = false,
+  orderStatus,
 }: {
   className?: ClassValue;
   cart: Cart;
-  selectedTab: string;
-  setSelectedTab: (selectedTab: string) => void;
+  selectedTab: number;
+  setSelectedTab: (id: number) => void;
   onClick?: () => void;
   disabled?: boolean;
+  orderStatus: OrderStatus;
 }) => {
-  const selectedStyle = "bg-primary text-white";
+  let selectedStyle = "text-white ";
+  if (orderStatus === OrderStatus.PENDING) selectedStyle += "bg-yellow-400";
+  if (orderStatus === OrderStatus.ACCEPTED) selectedStyle += "bg-green-400";
+  if (orderStatus === OrderStatus.CANCELLED) selectedStyle += "bg-red-500";
+  if (orderStatus === OrderStatus.DELIVERED) selectedStyle += "bg-blue-500";
   const defaultStyle =
-    "bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord";
+    "flex flex-row items-center bg-gray-100 hover:bg-gray-100 text-secondaryWord hover:text-primaryWord";
   return (
     <TextButton
       className={cn(
-        "text-sm rounded-md py-1",
-        selectedTab === cart.food.name ? selectedStyle : defaultStyle
+        "text-sm rounded-[999px] py-1 space-x-1 whitespace-nowrap",
+        selectedTab === cart.food.id ? selectedStyle : defaultStyle
       )}
       onClick={() => {
-        setSelectedTab(cart.food.name);
+        setSelectedTab(cart.food.id);
         if (onClick) onClick();
       }}
     >
-      {cart.food.name + " x " + cart.quantity.toString()}
+      <span className="max-w-[100px] truncate">{cart.food.name}</span>
+      <span className="text-nowrap">{"x " + cart.quantity.toString()}</span>
     </TextButton>
   );
 };
 
-const FoodItemContent = ({ food }: { food: Food | undefined }) => {
-  if (!food) return <></>;
+const FoodItemContent = ({
+  food,
+  cart,
+}: {
+  food: Food | undefined;
+  cart: Cart | undefined;
+  onRateFood?: () => void;
+}) => {
+  if (!food || !cart) return null;
 
   const carouselItems: CarouselItem[] = food.images.map((image) => {
     return {
@@ -319,27 +352,38 @@ const FoodItemContent = ({ food }: { food: Food | undefined }) => {
     <div className="flex h-fit flex-col gap-4">
       <div className="flex flex-row gap-4">
         <div
-          className={cn("w-[250px] max-h-[200px] rounded-sm overflow-hidden")}
+          className={cn(
+            "w-[250px] h-[200px] shrink-0 rounded-sm overflow-hidden"
+          )}
         >
           <CustomCarousel carouselItems={carouselItems} />
         </div>
-        <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
-          <div className="flex flex-1 flex-col">
-            <RowInfo label="Food ID:" value={food.id.toString()} />
-            <RowInfo label="Food name:" value={food.name} />
-            <RowInfo
-              label="Status:"
-              value={food.status ? "Active" : "Disable"}
-            />
-            <RowInfo label="Category:" value={food.category.name} />
-            <RowInfo label="Tags:" value={food.tags.join(", ")} />
-          </div>
-          <div className="flex flex-1 flex-col">
-            <RowInfo
-              label="Description:"
-              value={food.description}
-              showTextArea
-            />
+        <div className="relative flex-1">
+          <div className="w-auto flex flex-col gap-2 justify-start">
+            <div className="w-[60vw] text-primaryWord text-2xl font-semibold capitalize truncate">
+              {food.name}
+            </div>
+            <div className="w-[40vw] text-secondaryWord text-lg capitalize truncate">
+              {food.description}
+            </div>
+            <div className="flex flex-row gap-2 justify-between">
+              <FoodProperty name={cart.foodSize.name} isSelected={true} />
+
+              <span className="w-fit text-primary text-lg">
+                {displayNumber(cart.price, "$")}
+              </span>
+            </div>
+            <div
+              className={cn(
+                "w-[50vw] flex flex-row gap-2",
+                cart.note && cart.note.length > 0 ? "" : "opacity-0"
+              )}
+            >
+              <span className="text-cyan-500 font-semibold">Note:</span>
+              <span className="w-full text-primaryWord line-clamp-3 overflow-hidden text-ellipsis">
+                {cart.note}
+              </span>
+            </div>
           </div>
         </div>
       </div>

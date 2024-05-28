@@ -28,7 +28,6 @@ export function CustomDataTablePagination<TData>({
   table,
   config,
 }: DataTablePaginationProps<TData>) {
-  console.log("CustomDataTablePagination pagecount", table.getPageCount());
   return (
     <div
       className={cn(

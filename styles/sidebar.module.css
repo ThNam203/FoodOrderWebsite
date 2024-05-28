@@ -1,13 +1,10 @@
 .l-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 92px;
   height: 100vh;
-  background-color: #12192C;
-  color: #FFF;
+  background-color: #12192c;
+  color: #fff;
   padding: 1.5rem 1.5rem 2rem;
-  transition: .5s;
+  transition: 0.5s;
   z-index: 100;
 }
 
@@ -22,37 +19,39 @@
 .nav__brand {
   display: grid;
   grid-template-columns: max-content max-content;
-  justify-content: space-between;
+  justify-content: start;
   align-items: center;
   margin-bottom: 2rem;
+  gap: 0.5rem;
 }
 
 .nav__toggle {
   font-size: 1.25rem;
-  padding: .75rem;
+  padding: 0.75rem;
   cursor: pointer;
 }
 
 .nav__logo {
-  color: #FFF;
+  color: #fff;
   font-weight: 600;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 
 .nav__link {
   display: grid;
   grid-template-columns: max-content max-content;
   align-items: center;
-  column-gap: .75rem;
-  padding: .75rem;
-  color: #FFF;
-  border-radius: .5rem;
+  column-gap: 0.75rem;
+  padding: 0.75rem;
+  color: #fff;
+  border-radius: 0.5rem;
   margin-bottom: 1rem;
-  transition: .3s;
+  transition: 0.3s;
   cursor: pointer;
 }
 
 .nav__link:hover {
-  background-color: #0C5DF4;
+  background-color: #0c5df4;
 }
 
 .nav__icon {
@@ -60,7 +59,7 @@
 }
 
 .nav__name {
-  font-size: .875rem;
+  font-size: 0.875rem;
 }
 
 /*Expander menu*/
@@ -70,7 +69,7 @@
 
 /*Active links menu*/
 .active {
-  background-color: #0C5DF4;
+  background-color: #0c5df4;
 }
 
 /*===== COLLAPSE =====*/
@@ -80,21 +79,21 @@
 
 .collapse__link {
   justify-self: flex-end;
-  transition: .5s;
+  transition: 0.5s;
 }
 
 .collapse__menu {
   display: none;
-  padding: .75rem 2.25rem;
+  padding: 0.75rem 2.25rem;
 }
 
 .collapse__sublink {
-  color: #B6CEFC;
-  font-size: .875rem;
+  color: #b6cefc;
+  font-size: 0.875rem;
 }
 
 .collapse__sublink:hover {
-  color: #FFF;
+  color: #fff;
 }
 
 /*Show collapse*/

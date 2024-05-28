@@ -4,6 +4,7 @@ import { ChangeEvent, useState } from "react";
 import { nanoid } from "nanoid";
 import { ClassValue } from "clsx";
 import { cn } from "@/utils/cn";
+import { showDefaultToast, showWarningToast } from "../toast";
 
 export const ChooseImageButton = ({
   fileUrl,
@@ -16,14 +17,21 @@ export const ChooseImageButton = ({
 }) => {
   const id = nanoid();
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files.length > 0)
+    if (
+      e.target.files &&
+      e.target.files.length > 0 &&
+      e.target.files[0].size < 1000000
+    )
       onImageChanged(e.target.files[0]);
+    else {
+      showWarningToast("Image size should be less than 1MB");
+    }
   }
 
   return (
     <div
       className={cn(
-        "w-[100px] h-[80px] relative border rounded-sm select-none",
+        "w-[100px] h-[80px] relative border border-dashed rounded-sm select-none",
         className
       )}
     >

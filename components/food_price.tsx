@@ -1,7 +1,7 @@
 import { displayNumber } from "@/utils/func";
 
 export const FoodPrice = ({
-  currency = "đ",
+  currency = "$",
   defaultPrice,
   secondPrice,
 }: {

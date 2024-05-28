@@ -37,6 +37,11 @@ const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   return num;
 };
 
+function removeCharNAN(str: string): number {
+  const numbersOnly = str.replace(/\D/g, "");
+  return parseInt(numbersOnly, 10);
+}
+
 function handleFilterColumn<T>(
   filterInput: string,
   col: string,
@@ -516,14 +521,21 @@ const mapRange = (
     outputLower + ((value - inputLower) / INPUT_RANGE) * OUTPUT_RANGE || 0;
 };
 
-const displayNumber = (number: number, unit: "%" | string = "") => {
+const displayNumber = (
+  number: number,
+  unit: "%" | string = "",
+  spaceBetweenNumAndUnit: boolean = false
+) => {
+  if (!number) return "";
   if (unit === "%") {
     if (number < 1000) {
       return (
-        number.toLocaleString("vi-VN", {
+        number.toLocaleString("en-US", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }) + unit
+        }) +
+        (spaceBetweenNumAndUnit ? " " : "") +
+        unit
       );
     }
   }
@@ -531,7 +543,9 @@ const displayNumber = (number: number, unit: "%" | string = "") => {
   return (
     number.toLocaleString("vi-VN", {
       maximumFractionDigits: 0,
-    }) + unit
+    }) +
+    (spaceBetweenNumAndUnit ? " " : "") +
+    unit
   );
 };
 
@@ -560,4 +574,5 @@ export {
   getColorList,
   mapRange,
   displayNumber,
+  removeCharNAN,
 };

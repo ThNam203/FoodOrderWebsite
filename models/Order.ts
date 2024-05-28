@@ -10,6 +10,7 @@ export type Order = {
   createdAt: Date;
   paymentMethod: PaymentMethod;
   user: User;
+  feedback?: Feedback;
 };
 
 export enum PaymentMethod {
@@ -20,7 +21,13 @@ export enum PaymentMethod {
 export enum OrderStatus {
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
   DELIVERED = "DELIVERED",
   CANCELLED = "CANCELLED",
 }
+
+export type Feedback = {
+  id: number;
+  content: string;
+  createAt: Date;
+  rating: number;
+};

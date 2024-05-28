@@ -21,9 +21,9 @@ import { TextButton } from "../buttons";
 import { Input } from "../input";
 import NewCategoryModal from "../new_category_modal";
 import SearchAndChooseButton from "../search_and_choose_button";
-import { showErrorToast, showSuccessToast } from "../toast";
+import { showDefaultToast, showErrorToast, showSuccessToast } from "../toast";
 import { ChooseImageButton } from "./choose_image_button";
-import { displayNumber } from "@/utils/func";
+import { displayNumber, removeCharNAN } from "@/utils/func";
 
 export type FoodFormData = {
   name: string;
@@ -60,14 +60,20 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
           .min(1, { message: "Missing size name" })
           .max(100, { message: "Size name must be less than 100" }),
         price: z
-          .number({ required_error: "Missing price!" })
-          .min(0, { message: "Price must be at least 0" })
+          .number({
+            required_error: "Missing price!",
+            invalid_type_error: "Missing price!",
+          })
+          .min(1, { message: "Price must be at least 1" })
           .max(Number.MAX_VALUE, {
             message: `Price must be less than ${Number.MAX_VALUE}`,
           }),
         weight: z
-          .number({ required_error: "Missing price!" })
-          .min(0, { message: "Weight must be at least 0" })
+          .number({
+            required_error: "Missing weight!",
+            invalid_type_error: "Missing weight!",
+          })
+          .min(1, { message: "Weight must be at least 1" })
           .max(Number.MAX_VALUE, {
             message: `Weight must be less than ${Number.MAX_VALUE}`,
           }),
@@ -93,6 +99,7 @@ export const FoodForm = ({
   const [chosenImageFiles, setChosenImageFiles] = useState<File[]>([]);
 
   const [isUploadingFood, setIsUploadingFood] = useState(false);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
   const {
     register,
@@ -236,12 +243,7 @@ export const FoodForm = ({
             />
           </svg>
         </div>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") e.preventDefault();
-          }}
-        >
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex h-full w-full flex-col gap-4">
             <DefaultInput
               label="name"
@@ -307,22 +309,21 @@ export const FoodForm = ({
                         price={value.price}
                         weight={value.weight}
                         note={value.note}
+                        errors={errors.sizes ? errors.sizes[index] : undefined}
                         onSizeNameChanged={(val: string) => {
                           fieldValue[index].sizeName = val;
                           setValue("sizes", [...fieldValue], {
                             shouldValidate: true,
                           });
                         }}
-                        onPriceChanged={(val: string) => {
-                          const iVal = parseInt(val.replaceAll(".", ""));
-                          fieldValue[index].price = iVal;
+                        onPriceChanged={(val: number) => {
+                          fieldValue[index].price = val;
                           setValue("sizes", [...fieldValue], {
                             shouldValidate: true,
                           });
                         }}
-                        onWeightChanged={(val: string) => {
-                          const iVal = parseInt(val.replaceAll(".", ""));
-                          fieldValue[index].weight = iVal;
+                        onWeightChanged={(val: number) => {
+                          fieldValue[index].weight = val;
                           setValue("sizes", [...fieldValue], {
                             shouldValidate: true,
                           });
@@ -338,6 +339,7 @@ export const FoodForm = ({
                             shouldValidate: false,
                           });
                         }}
+                        isFormSubmitted={isFormSubmitted}
                       />
                     );
                   })}
@@ -369,6 +371,7 @@ export const FoodForm = ({
               type="submit"
               className="w-[100px] px-4 text-white"
               disabled={isUploadingFood}
+              onClick={() => setIsFormSubmitted(true)}
             >
               {food ? "Update" : "Add"}
             </TextButton>
@@ -577,8 +580,11 @@ const TagsInput = ({
           onChange={(e) => setCurInput(e.currentTarget.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              onValueChanged([...value, curInput]);
-              setCurInput("");
+              e.preventDefault();
+              if (curInput.length > 0) {
+                onValueChanged([...value, curInput]);
+                setCurInput("");
+              } else showDefaultToast("Tag name is empty");
             }
           }}
           className="h-[35px] min-w-[150px] flex-1 rounded-none border-0 outline-none"
@@ -641,23 +647,36 @@ const FoodVariantView = ({
   onPriceChanged,
   onNoteChanged,
   onRemoveClick,
+  errors,
+  isFormSubmitted,
 }: {
   sizeName: string;
   price: number;
   weight: number;
   note: string;
   onSizeNameChanged: (val: string) => void;
-  onWeightChanged: (val: string) => void;
-  onPriceChanged: (val: string) => void;
+  onWeightChanged: (val: number) => void;
+  onPriceChanged: (val: number) => void;
   onNoteChanged: (val: string) => void;
   onRemoveClick: () => void;
+  errors?: any;
+  isFormSubmitted: boolean;
 }) => {
   return (
-    <div className="relative px-2 text-[0.85rem] py-4 rounded-md bg-white shadow-lg">
+    <div className="relative px-2 text-[0.85rem] py-4 pb-6 rounded-md bg-white shadow-lg">
       <div className="flex flex-row gap-4">
         <div className="flex flex-col gap-4 justify-between">
-          <div className="flex flex-row items-baseline">
-            <p className="w-[80px] font-semibold">Size name</p>
+          <div className="relative flex flex-row items-baseline">
+            <p
+              className={cn(
+                "w-[80px] font-semibold",
+                errors && errors["sizeName"] && isFormSubmitted
+                  ? "text-red-500"
+                  : ""
+              )}
+            >
+              Size name
+            </p>
             <input
               type="text"
               value={sizeName}
@@ -665,28 +684,60 @@ const FoodVariantView = ({
               placeholder="Size name"
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
+            <span className="absolute top-full w-full text-red-500 text-end text-xs">
+              {errors && errors["sizeName"] && isFormSubmitted
+                ? errors["sizeName"].message
+                : null}
+            </span>
           </div>
-          <div className="flex flex-row items-baseline">
-            <p className="w-[80px] font-semibold">Price</p>
+          <div className="relative flex flex-row items-baseline">
+            <p
+              className={cn(
+                "w-[80px] font-semibold",
+                errors && errors["price"] && isFormSubmitted
+                  ? "text-red-500"
+                  : ""
+              )}
+            >
+              Price
+            </p>
             <input
               type="text"
               value={price > 0 ? displayNumber(price) : undefined}
               placeholder="0"
-              onChange={(e) => {
-                onPriceChanged(e.target.value);
-              }}
+              onChange={(e) => onPriceChanged(removeCharNAN(e.target.value))}
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
+            <span className="absolute top-full w-full text-red-500 text-end text-xs">
+              {errors && errors["price"] && isFormSubmitted
+                ? errors["price"].message
+                : null}
+            </span>
           </div>
-          <div className="flex flex-row items-baseline">
-            <p className="w-[80px] font-semibold">Weight</p>
+
+          <div className="relative flex flex-row items-baseline">
+            <p
+              className={cn(
+                "w-[80px] font-semibold",
+                errors && errors["weight"] && isFormSubmitted
+                  ? "text-red-500"
+                  : ""
+              )}
+            >
+              Weight
+            </p>
             <input
               value={weight > 0 ? displayNumber(weight) : undefined}
               type="text"
               placeholder="0"
-              onChange={(e) => onWeightChanged(e.target.value)}
+              onChange={(e) => onWeightChanged(removeCharNAN(e.target.value))}
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
+            <span className="absolute top-full w-full text-red-500 text-end text-xs">
+              {errors && errors["weight"] && isFormSubmitted
+                ? errors["weight"].message
+                : null}
+            </span>
           </div>
         </div>
         <textarea

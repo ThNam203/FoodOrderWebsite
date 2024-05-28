@@ -8,6 +8,9 @@ import Preloader from "./preloader";
 import { showErrorToast } from "./toast";
 import { disablePreloader } from "@/redux/slices/preloader";
 import { useRouter } from "next/navigation";
+import CartService from "@/services/cartService";
+import { CartToReceive } from "@/convertor/cartConvertor";
+import { setCartItems } from "@/redux/slices/cart";
 
 const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
   const [searchedForUser, setSearchedForUser] = useState(false);
@@ -17,6 +20,10 @@ const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
     const getGlobalData = async () => {
       await UserService.getProfile().then((res) => {
         dispatch(setProfile(res.data));
+      });
+      await CartService.GetCart().then((res) => {
+        const convertedData = res.data.map((cart: any) => CartToReceive(cart));
+        dispatch(setCartItems(convertedData));
       });
     };
 

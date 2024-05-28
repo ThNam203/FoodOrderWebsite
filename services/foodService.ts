@@ -1,5 +1,12 @@
 import { Food, FoodCategory } from "@/models/Food";
 import AxiosService from "./axiosService";
+import { Comment } from "@/models/Comment";
+import { format } from "date-fns";
+import { ToFoodReport, ToMonthlyReport } from "@/convertor/reportConvertor";
+
+const dateToUrlPath = (date: Date) => {
+  return format(date, "yyyy-MM-dd");
+};
 
 const createNewCategory = (data: any) => {
   return AxiosService.post<FoodCategory>("/api/categories", data, {
@@ -13,6 +20,27 @@ const getCategories = () => {
 
 const getAllFood = () => {
   return AxiosService.get<Food[]>("/api/foods");
+};
+
+// const getTopFoodInMonthRange = () => {
+//   const today = new Date();
+//   const first = new Date(today.getFullYear(), today.getMonth(), 1);
+//   return AxiosService.get<any>(
+//     `/api/reports/top-food-by-order?start=${first.getFullYear()}-${
+//       first.getMonth() + 1
+//     }-${first.getDate()}&end=${today.getFullYear()}-${
+//       today.getMonth() + 1
+//     }-${today.getDate()}`
+//   );
+// };
+
+const getTopFoodInMonthRange = () => {
+  const today = new Date();
+  const first = new Date(today.getFullYear(), today.getMonth(), 1);
+  const url = `/api/reports/top-food-by-order?start=${dateToUrlPath(
+    first
+  )}&end=${dateToUrlPath(today)}`;
+  return AxiosService.get<any>(url).then((res) => ToFoodReport(res.data));
 };
 
 const createNewFood = (data: any) => {
@@ -30,6 +58,16 @@ const updateFood = (id: number, data: any) => {
 
 const deleteFood = (id: number) => {
   return AxiosService.delete(`/api/foods/${id}`);
+};
+
+const getAllComments = (foodId: number) => {
+  return AxiosService.get<Comment[]>(`/api/comments/${foodId}`);
+};
+
+const uploadNewComment = (foodId: number, data: any) => {
+  return AxiosService.post<Comment>(`/api/comments/${foodId}`, data, {
+    withCredentials: true,
+  });
 };
 
 const getFavouriteFoods = () => {
@@ -54,6 +92,9 @@ const FoodService = {
   getFavouriteFoods,
   addFavouriteFood,
   removeFavouriteFood,
+  getTopFoodInMonthRange,
+  getAllComments,
+  uploadNewComment,
 };
 
 export default FoodService;

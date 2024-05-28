@@ -27,6 +27,12 @@ module.exports = {
         momoBorderColor: "#d82d8b",
         momoBgColor: "#fff0f6",
       },
+      backgroundImage: {
+        "forward-image": "url('/images/fast-forward.png')",
+        "forward-gif": "url('/images/fast-forward.gif')",
+        "backward-image": "url('/images/fast-backward.png')",
+        "backward-gif": "url('/images/fast-backward.gif')",
+      },
       boxShadow: {
         primaryShadow: "0 0 45px -15px rgba(0,0,0,0.3)",
         hoverShadow:

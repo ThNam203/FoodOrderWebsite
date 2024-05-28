@@ -55,7 +55,7 @@ export default function FavouriteFood({
           />
         </div>
         <FoodPrice
-          currency="đ"
+          currency="$"
           defaultPrice={sortedPriceList[0]}
           secondPrice={sortedPriceList[1]}
         />

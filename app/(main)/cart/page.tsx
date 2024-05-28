@@ -99,7 +99,7 @@ const TitleBar = ({
         }}
       />
       <Title content="Food" className="w-1/2 flex" />
-      <Title content="Size" className="w-[150px] text-center" />
+      <Title content="Size" className="w-[150px] text-center max-lg:hidden" />
       <Title content="Quantity" className="w-[150px] text-center px-8" />
       <Title content="Price" className="w-[150px] text-center max-lg:hidden" />
       <Title content="Total" className="w-[150px] text-center" />
@@ -124,7 +124,7 @@ const SummaryItem = ({
         <X className={cn("inline-block", quantity ? "" : "hidden")} size={16} />
         {quantity}
       </div>
-      <span>{total.toFixed(0) + "đ"}</span>
+      <span>{total.toFixed(0) + "$"}</span>
     </div>
   );
 };
@@ -180,7 +180,7 @@ const CartItem = ({
         />
         <span className="md:ml-10">{foodName}</span>
       </div>
-      <span className="w-[150px] text-center">{size}</span>
+      <span className="w-[150px] text-center max-lg:hidden">{size}</span>
       <div className="w-[150px] px-2">
         <NumberInput
           value={foodQuantity}
@@ -193,10 +193,10 @@ const CartItem = ({
       </div>
 
       <span className="w-[150px] text-center max-lg:hidden">
-        {displayNumber(foodPrice, "đ")}
+        {displayNumber(foodPrice, "$")}
       </span>
       <span className="w-[150px] text-center">
-        {displayNumber(foodPrice * foodQuantity, "đ")}
+        {displayNumber(foodPrice * foodQuantity, "$")}
       </span>
 
       <Tooltip
@@ -380,7 +380,7 @@ const CartPage = () => {
 
   const collapseRightColumn = () => {
     if (rightColRef.current) {
-      rightColRef.current.classList.remove("xl:w-[400px]");
+      rightColRef.current.classList.remove("w-[400px]");
       rightColRef.current.classList.add("w-0");
       rightColRef.current.classList.remove("p-8");
     }
@@ -443,6 +443,7 @@ const CartPage = () => {
     });
     setSubtotal(tempSubtotal);
   }, [selectedCardIds, cartData, foodData]);
+  console.log("cartData", cartData);
 
   return (
     <div className="w-full h-screen font-sans flex xl:flex-row xl:justify-between max-xl:flex-col max-xl:overflow-y-scroll">
@@ -519,10 +520,14 @@ const CartPage = () => {
                     (food) => food.id === cart.food.id
                   );
                   if (!food) return null;
+                  console.log("food", food);
                   const foodSize = food.foodSizes.find(
                     (size) => size.id === cart.foodSize.id
                   );
+                  console.log("foodSize", foodSize);
+                  console.log("cart", cart);
                   if (!foodSize) return null;
+
                   return (
                     <CartItem
                       key={cart.id}
@@ -589,12 +594,7 @@ const CartPage = () => {
               </div>
               <div className="w-full flex flex-col gap-2">
                 <Separate classname="h-[1.5px]" />
-                <Input
-                  id="discount"
-                  label="Discount code"
-                  placeholder="Your discount code here"
-                  labelColor="text-primaryWord"
-                />
+
                 <TextArea
                   id="note"
                   label="Note"
@@ -663,13 +663,13 @@ const CartPage = () => {
               <div className="md:w-1/2 max-md:w-full flex flex-row items-center justify-between gap-4 mt-8">
                 <TextButton
                   className="w-1/2 bg-gray-50 text-secondaryWord hover:bg-gray-100 hover:text-primaryWord whitespace-nowrap"
-                  onClick={() => router.push("/")}
+                  onClick={() => router.push("/history")}
                 >
                   View order
                 </TextButton>
                 <TextButton
                   className="w-1/2 whitespace-nowrap"
-                  onClick={() => router.push("/browse")}
+                  onClick={() => router.push("/")}
                 >
                   Continue shopping
                 </TextButton>
@@ -681,8 +681,7 @@ const CartPage = () => {
       <div
         ref={rightColRef}
         className={cn(
-          "xl:w-[400px] max-xl:w-full min-h-screen bg-primary p-8 ease-linear duration-200",
-          selectedTab === "Order Complete" ? "hidden" : ""
+          "w-[400px] max-xl:w-full min-h-screen bg-primary p-8 ease-linear duration-200 max-lg:hidden"
         )}
       >
         <TabContent
@@ -696,9 +695,9 @@ const CartPage = () => {
               </h1>
               <div className="flex flex-col gap-4">
                 <SummaryItem title="Subtotal" total={subtotal} />
-                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
+                <SummaryItem title="V.A.T" total={0} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
+                <SummaryItem title="Total" total={subtotal} />
               </div>
               <TextButton
                 className="absolute bottom-0 w-full bg-third hover:bg-third/90"
@@ -745,9 +744,9 @@ const CartPage = () => {
               <div className="flex flex-col gap-4">
                 <Separate classname="h-[1.5px]" />
                 <SummaryItem title="Subtotal" total={subtotal} />
-                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
+                <SummaryItem title="V.A.T" total={0} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
+                <SummaryItem title="Total" total={subtotal} />
               </div>
               <TextButton
                 iconBefore={isOrdering ? <LoadingIcon /> : null}
@@ -769,8 +768,15 @@ const CartPage = () => {
                   const cartList = cartData.filter((cart) =>
                     selectedCardIds.includes(cart.id)
                   );
+                  //detect any item in cart has quantity = 0
+                  if (cartList.some((cart) => cart.quantity === 0)) {
+                    showDefaultToast(
+                      "Please check the quantity of each item in your cart"
+                    );
+                    return;
+                  }
                   setIsOrdering(true);
-                  const totalPrice = subtotal + subtotal * 0.1;
+                  // const totalPrice = subtotal + subtotal * 0.1;
 
                   // await MomoService.MakePayment(
                   //   CreateDataForPayment(totalPrice)
@@ -790,11 +796,11 @@ const CartPage = () => {
                     .then(() => {
                       handleSelectedTabChange("Order Complete");
                       setHasCompletedOrder(true);
-                      setCartData(
-                        cartData.filter(
-                          (cart) => !selectedCardIds.includes(cart.id)
-                        )
+                      const newCartData = cartData.filter(
+                        (cart) => !selectedCardIds.includes(cart.id)
                       );
+                      setCartData(newCartData);
+                      dispatch(setCartItems(newCartData));
                       setSelectedCartIds([]);
                     })
                     .catch((err) =>

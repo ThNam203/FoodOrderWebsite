@@ -1,7 +1,7 @@
 import { Food, FoodStatus } from "@/models/Food";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-const getActiveFood = (food: Food[] | undefined) => {
+export const getActiveFood = (food: Food[] | undefined) => {
   if (!food) return [];
   return food.filter((f) => f.status === FoodStatus.ACTIVE);
 };

@@ -45,13 +45,17 @@ public class CartServiceImpl implements CartService {
         cart.setUser(user);
         cart.setOrdered(false);
 
-        //check if there is a cart with the same food and food size
+//        check if there is a cart with the same food and food size -> just increase the quantity
         List<Cart> cartList = cartRepository.findByUserId(user.getId());
+        for (Cart c : cartList) {
+            if (c.getFood().getId() == cartDTO.getFood().getId() && c.getFoodSize().getId() == cartDTO.getFoodSize().getId() && !c.isOrdered()) {
+                c.setQuantity(c.getQuantity() + cart.getQuantity());
+                cartRepository.save(c);
+                return CartMapper.toCartDTO(c);
+            }
+        }
 
-        List<CartDTO> cartDTOList = new ArrayList<>();
-        for (Cart c : cartList)
-            if (!cart.isOrdered()) cartDTOList.add(CartMapper.toCartDTO(cart));
-
+        //if there is no cart with the same food and food size -> create a new cart
         if (cartDTO.getFood() != null) {
             Food food = foodRepository.findById(cartDTO.getFood().getId())
                     .orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
@@ -80,6 +84,7 @@ public class CartServiceImpl implements CartService {
     public void updateCart(int cartId, CartDTO cartDTO) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CustomException("Cart not found", HttpStatus.NOT_FOUND));
+        if(cart.isOrdered()) throw new CustomException("Cart is ordered", HttpStatus.BAD_REQUEST);
         cart.setQuantity(cartDTO.getQuantity());
         cart.setNote(cartDTO.getNote());
         cartRepository.save(cart);

@@ -71,6 +71,25 @@ function categoryColumn(accessorKey: string, title: string): ColumnDef<Food> {
   return col;
 }
 
+function descriptionColumn(
+  accessorKey: string,
+  title: string
+): ColumnDef<Food> {
+  const col: ColumnDef<Food> = {
+    accessorKey: accessorKey,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={title} />
+    ),
+    cell: ({ row }) => {
+      const value: string = row.getValue(accessorKey);
+
+      return <p className="px-2 max-w-[200px] truncate">{value}</p>;
+    },
+    enableSorting: true,
+  };
+  return col;
+}
+
 export const menuTableColumns = (): ColumnDef<Food>[] => {
   const columns: ColumnDef<Food>[] = [
     defaultSelectColumn<Food>(),
@@ -82,6 +101,8 @@ export const menuTableColumns = (): ColumnDef<Food>[] => {
     if (key === "images") col = imageColumn(key, menuColumnTitles[key]);
     else if (key === "category")
       col = categoryColumn(key, menuColumnTitles[key]);
+    else if (key === "description")
+      col = descriptionColumn(key, menuColumnTitles[key]);
     else col = defaultColumn<Food>(key, menuColumnTitles);
     columns.push(col);
   }

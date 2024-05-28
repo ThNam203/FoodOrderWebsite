@@ -19,6 +19,7 @@ public class OrderDTO {
     private String paymentMethod;
     private List<CartDTO> items;
     private LocalDateTime createdAt;
+    private String note;
     private UserDTO user;
     private FeedbackDTO feedback;
 }
