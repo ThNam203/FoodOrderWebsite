@@ -133,22 +133,37 @@ public class FoodServiceImpl implements FoodService {
             }
         }
 
-        if (food.getFoodSizes() != null) {
-            for (FoodSize foodSize : food.getFoodSizes()) {
+        for (FoodSize foodSize : food.getFoodSizes()) {
+            if (foodSize.isDeleted()) continue;
+            if (foodDTO.getFoodSizes().stream().noneMatch(foodSizeDTO -> foodSizeDTO.getId() == foodSize.getId())) {
                 foodSize.setDeleted(true);
             }
+            foodDTO.getFoodSizes().stream()
+                    .filter(foodSizeDTO -> foodSizeDTO.getId() == foodSize.getId())
+                    .findFirst()
+                    .ifPresent(foodSizeDTO -> {
+                        if (!foodSize.getName().equals(foodSizeDTO.getName()) ||
+                            !foodSize.getPrice().equals(foodSizeDTO.getPrice()) ||
+                            !foodSize.getWeight().equals(foodSizeDTO.getWeight()) ||
+                            !foodSize.getNote().equals(foodSizeDTO.getNote())) {
+                                foodSize.setDeleted(true);
+                                FoodSize newFoodSize = FoodSizeMapper.toFoodSize(foodSizeDTO);
+                                newFoodSize.setFood(food);
+                                food.getFoodSizes().add(newFoodSize);
+                            }
+                    });
         }
 
-        if (foodDTO.getFoodSizes() != null) {
-            food.getFoodSizes().addAll(foodDTO.getFoodSizes()
-                    .stream()
-                    .map(foodSizeDTO -> {
-                        FoodSize foodSize = FoodSizeMapper.toFoodSize(foodSizeDTO);
-                        foodSize.setFood(food);
-                        return foodSize;
-                    })
-                    .toList());
-        }
+//        if (foodDTO.getFoodSizes() != null) {
+//            food.getFoodSizes().addAll(foodDTO.getFoodSizes()
+//                    .stream()
+//                    .map(foodSizeDTO -> {
+//                        FoodSize foodSize = FoodSizeMapper.toFoodSize(foodSizeDTO);
+//                        foodSize.setFood(food);
+//                        return foodSize;
+//                    })
+//                    .toList());
+//        }
         System.out.println(foodDTO.getFoodSizes());
         Food newFood = foodRepository.save(food);
         return FoodMapper.toFoodDTO(newFood);
