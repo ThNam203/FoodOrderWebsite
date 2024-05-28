@@ -143,7 +143,12 @@ export const FoodDetail = ({
                       <div className="font-normal text-base">
                         {selectedSize.note}
                       </div>
-                      <div className="flex flex-row items-center">
+                      <div
+                        className={cn(
+                          "flex flex-row items-center",
+                          food.rating === 0 ? "opacity-0" : ""
+                        )}
+                      >
                         <FoodRating rating={food.rating} />
                         {food.tags.map((tag) => {
                           return <Tag key={tag} name={tag} />;

@@ -63,9 +63,15 @@ export default function MainPageItem({
         <FoodPrice
           currency="$"
           defaultPrice={sortedPriceList[0]}
-          secondPrice={sortedPriceList[sortedPriceList.length - 1]}
+          secondPrice={
+            sortedPriceList.length > 1
+              ? sortedPriceList[sortedPriceList.length - 1]
+              : undefined
+          }
         />
-        <div className="flex items-center">
+        <div
+          className={cn("flex items-center", food.rating === 0 && "opacity-0")}
+        >
           <FoodRating rating={food.rating} className="mt-2" />
           {food.tags.map((tag) => {
             return <Tag key={tag} name={tag} />;

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 import { FoodDetail } from "@/components/food_detail";
 import { showDefaultToast, showErrorToast } from "@/components/toast";
-import { fakeFoodItems } from "@/fakedata/foodData";
 import { cn } from "@/utils/cn";
 import FoodService from "@/services/foodService";
 import { FoodToReceive } from "@/convertor/foodConvertor";

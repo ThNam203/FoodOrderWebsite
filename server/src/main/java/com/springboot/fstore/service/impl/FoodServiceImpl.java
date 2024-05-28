@@ -5,6 +5,7 @@ import com.springboot.fstore.exception.CustomException;
 import com.springboot.fstore.mapper.FoodMapper;
 import com.springboot.fstore.mapper.FoodSizeMapper;
 import com.springboot.fstore.payload.FoodDTO;
+import com.springboot.fstore.payload.FoodSizeDTO;
 import com.springboot.fstore.repository.*;
 import com.springboot.fstore.service.FileService;
 import com.springboot.fstore.service.FoodService;
@@ -133,7 +134,9 @@ public class FoodServiceImpl implements FoodService {
             }
         }
 
-        for (FoodSize foodSize : food.getFoodSizes()) {
+        List<FoodSize> foodSizes = new ArrayList<>(food.getFoodSizes());
+
+        for (FoodSize foodSize : foodSizes) {
             if (foodSize.isDeleted()) continue;
             if (foodDTO.getFoodSizes().stream().noneMatch(foodSizeDTO -> foodSizeDTO.getId() == foodSize.getId())) {
                 foodSize.setDeleted(true);
@@ -153,7 +156,13 @@ public class FoodServiceImpl implements FoodService {
                             }
                     });
         }
-
+        for (FoodSizeDTO foodSizeDTO : foodDTO.getFoodSizes()) {
+            if (foodSizeDTO.getId() == 0) {
+                FoodSize foodSize = FoodSizeMapper.toFoodSize(foodSizeDTO);
+                foodSize.setFood(food);
+                food.getFoodSizes().add(foodSize);
+            }
+        }
 //        if (foodDTO.getFoodSizes() != null) {
 //            food.getFoodSizes().addAll(foodDTO.getFoodSizes()
 //                    .stream()

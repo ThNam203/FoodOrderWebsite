@@ -6,6 +6,8 @@ import { Input } from "@/components/input";
 import { Separate } from "@/components/separate";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
 import Background from "@/public/images/bg-login-page.jpg";
+import { useAppDispatch } from "@/redux/hooks";
+import { setProfile } from "@/redux/slices/profile";
 import AuthService from "@/services/authService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { setCookie } from "cookies-next";
@@ -26,6 +28,7 @@ const loginSchema: ZodType<LoginFormData> = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -40,7 +43,7 @@ export default function LoginPage() {
     setIsLoggingIn(true);
     await AuthService.login(data)
       .then((res) => {
-        console.log(res);
+        dispatch(setProfile(res.data));
         showSuccessToast("Login Successfully");
         if (data.email === "admin@gmail.com") router.push("/dashboard");
         else router.push("/intro");

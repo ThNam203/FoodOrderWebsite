@@ -1,7 +1,7 @@
 "use client";
 
 import Logo from "@/public/images/logo.png";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import AuthService from "@/services/authService";
 import style from "@/styles/sidebar.module.css";
 import { cn } from "@/utils/cn";
@@ -30,6 +30,7 @@ import {
 import { showErrorToast, showSuccessToast } from "./toast";
 import default_user_image from "@/public/images/default_user.png";
 import { Separate } from "./separate";
+import { setProfile } from "@/redux/slices/profile";
 
 const CustomLink = ({
   className,
@@ -121,6 +122,7 @@ export default function Sidebar({
   onSidebarToggle: () => void;
 }) {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const isLogin = useAppSelector((state) => state.profile.isLogin);
   const thisUser = useAppSelector((state) => state.profile.value);
   const cart = useAppSelector((state) => state.cart.cartItems);
@@ -131,6 +133,7 @@ export default function Sidebar({
     setIsLoggingOut(true);
     await AuthService.logOut()
       .then(() => {
+        dispatch(setProfile(null));
         showSuccessToast("Logout successfully");
         router.push("/login");
       })

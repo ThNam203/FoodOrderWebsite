@@ -4,6 +4,8 @@ import { TextButton } from "@/components/buttons";
 import { LoadingIcon } from "@/components/icons";
 import { Input } from "@/components/input";
 import { showErrorToast, showSuccessToast } from "@/components/toast";
+import { useAppDispatch } from "@/redux/hooks";
+import { setProfile } from "@/redux/slices/profile";
 import AuthService from "@/services/authService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { setCookie } from "cookies-next";
@@ -32,6 +34,7 @@ const registerSchema: ZodType<RegisterFormData> = z
 
 export default function RegisterPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [isSigningUp, setIsSigningUp] = useState(false);
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -46,7 +49,7 @@ export default function RegisterPage() {
     setIsSigningUp(true);
     await AuthService.register(data)
       .then((res) => {
-        console.log(res);
+        dispatch(setProfile(res.data));
         showSuccessToast("Sign Up Success");
         router.push("/");
       })

@@ -8,7 +8,7 @@ export const profileSlice = createSlice({
     isLogin: false,
   },
   reducers: {
-    setProfile: (state, action: PayloadAction<User>) => {
+    setProfile: (state, action: PayloadAction<User | null>) => {
       state.value = action.payload;
       state.isLogin = action.payload != null;
     },

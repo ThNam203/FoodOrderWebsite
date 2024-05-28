@@ -41,11 +41,12 @@ const FoodFormDataToFood = (formData: FoodFormData, category: FoodCategory) => {
     isDeleted: false,
     foodSizes: formData.sizes.map((size) => {
       return {
-        id: 0,
+        id: size.id ? size.id : 0,
         name: size.sizeName,
         price: size.price,
         weight: size.weight,
         note: size.note,
+        deleted: false,
       };
     }),
     category: category,

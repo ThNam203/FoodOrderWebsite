@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
 import { ClassValue } from "clsx";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { AddIcon, SearchIcon, SubtractIcon } from "./icons";
+import { Minus, Plus } from "lucide-react";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -160,14 +161,24 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       onChange,
       onDecrease,
       onIncrease,
+      disabled,
       ...props
     },
     ref
   ) => {
     return (
       <div className="w-full flex flex-row items-center justify-between gap-2">
-        <span className="cursor-pointer" onClick={onDecrease}>
-          <SubtractIcon />
+        <span
+          className={cn(
+            "cursor-pointer text-primary hover:text-secondary",
+            disabled ? "opacity-0" : ""
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onDecrease) onDecrease();
+          }}
+        >
+          <Minus />
         </span>
         <input
           ref={ref}
@@ -176,6 +187,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           name={name}
           value={value}
           onChange={onChange}
+          disabled={disabled}
           className={cn(
             "w-[60px] border-0 outline outline-1 outline-borderColor rounded py-1 px-3 focus:outline-primary disabled:outline-disableColor font-normal text-center text-primaryWord",
             errorMessages ? "outline-red-500" : "",
@@ -183,8 +195,17 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           )}
           {...props}
         />
-        <span className="cursor-pointer" onClick={onIncrease}>
-          <AddIcon />
+        <span
+          className={cn(
+            "cursor-pointer text-primary hover:text-secondary",
+            disabled ? "opacity-0" : ""
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onIncrease) onIncrease();
+          }}
+        >
+          <Plus />
         </span>
       </div>
     );

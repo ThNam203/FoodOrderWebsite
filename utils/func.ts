@@ -526,7 +526,7 @@ const displayNumber = (
   unit: "%" | string = "",
   spaceBetweenNumAndUnit: boolean = false
 ) => {
-  if (!number) return "";
+  if (number === undefined) return "";
   if (unit === "%") {
     if (number < 1000) {
       return (

@@ -4,6 +4,7 @@ export type FoodSize = {
   price: number;
   weight: number;
   note: string;
+  deleted: boolean;
 };
 
 export type FoodCategory = {

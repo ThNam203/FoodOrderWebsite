@@ -31,6 +31,7 @@ export type FoodFormData = {
   category: string;
   images: (string | null)[];
   sizes: {
+    id?: number;
     sizeName: string;
     price: number;
     weight: number;
@@ -55,6 +56,7 @@ const foodSchema: z.ZodType<FoodFormData> = z.object({
   sizes: z
     .array(
       z.object({
+        id: z.number().optional(),
         sizeName: z
           .string({ required_error: "Missing size name" })
           .min(1, { message: "Missing size name" })
@@ -115,6 +117,7 @@ export const FoodForm = ({
       images: [],
       sizes: [
         {
+          id: 0,
           sizeName: "",
           price: 0,
           weight: 0,
@@ -138,6 +141,7 @@ export const FoodForm = ({
         "sizes",
         food.foodSizes.map((size) => {
           return {
+            id: size.id,
             sizeName: size.name,
             price: size.price,
             weight: size.weight,
