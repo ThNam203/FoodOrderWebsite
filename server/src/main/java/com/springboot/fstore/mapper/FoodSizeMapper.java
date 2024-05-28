@@ -11,6 +11,7 @@ public class FoodSizeMapper {
                 .price(foodSize.getPrice())
                 .weight(foodSize.getWeight())
                 .note(foodSize.getNote())
+                .deleted(foodSize.isDeleted())
                 .build();
     }
 
@@ -20,6 +21,7 @@ public class FoodSizeMapper {
                 .price(foodSizeDTO.getPrice())
                 .weight(foodSizeDTO.getWeight())
                 .note(foodSizeDTO.getNote())
+                .deleted(foodSizeDTO.isDeleted())
                 .build();
     }
 }
