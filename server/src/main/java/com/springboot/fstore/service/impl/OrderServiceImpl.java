@@ -14,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +62,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDTO> getOrders() {
         User user = userService.getAuthorizedUser();
-        List<Order> orders = orderRepository.findAllByUserId(user.getId());
+        List<Order> orders = new ArrayList<>();
+
+        if(user.getEmail().equals("admin@gmail.com")){
+            orders = orderRepository.findAll();
+        }
+        else {
+            orders = orderRepository.findAllByUserId(user.getId());
+        }
+        Collections.reverse(orders);
         return orders.stream().map(OrderMapper::toOrderDTO).toList();
     }
 

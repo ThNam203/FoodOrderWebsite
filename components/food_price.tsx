@@ -12,7 +12,9 @@ export const FoodPrice = ({
   return (
     <span className="font-semibold">
       {displayNumber(defaultPrice, currency)}{" "}
-      {secondPrice ? " - " + displayNumber(secondPrice, currency) : null}
+      {secondPrice && secondPrice !== defaultPrice
+        ? " - " + displayNumber(secondPrice, currency)
+        : null}
     </span>
   );
 };

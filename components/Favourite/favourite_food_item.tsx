@@ -57,7 +57,7 @@ export default function FavouriteFood({
         <FoodPrice
           currency="$"
           defaultPrice={sortedPriceList[0]}
-          secondPrice={sortedPriceList[1]}
+          secondPrice={sortedPriceList[sortedPriceList.length - 1]}
         />
 
         <div

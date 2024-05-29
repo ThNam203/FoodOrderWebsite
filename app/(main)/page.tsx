@@ -31,7 +31,7 @@ export default function Home() {
   const categoriesContainerRef = useRef<HTMLDivElement>(null);
   const [selectedCategory, setSelectedCategory] = useState<number>(-1);
   const router = useRouter();
-  const food = useAppSelector((state) => state.food.activeFood);
+  const foods = useAppSelector((state) => state.food.activeFood);
   const categories = useAppSelector((state) => state.foodCategory.value);
   const thisUser = useAppSelector((state) => state.profile.value);
   const [topFoods, setTopFoods] = useState<Food[]>([]);
@@ -40,6 +40,11 @@ export default function Home() {
   const [bestRatedFoods, setBestRatedFoods] = useState<Food[]>([]);
   const [favoriteFoodIds, setFavoriteFoodIds] = useState<number[]>([]);
   const [favoriteFoodList, setFavoriteFoodList] = useState<Food[]>([]);
+
+  const [isOpen, setOpen] = useState(false);
+  const [selectedFood, setSelectedFood] = useState<Food>();
+  const [selectedSize, setSelectedSize] = useState<FoodSize>();
+  const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
 
   const onCategoriesScrollButtonClick = (scrollValue: number) => {
     if (categoriesContainerRef.current) {
@@ -85,17 +90,17 @@ export default function Home() {
   }, [thisUser]);
 
   useEffect(() => {
-    const sorted = food.toSorted((a, b) => a.rating - b.rating);
+    const sorted = foods.toSorted((a, b) => a.rating - b.rating);
     setBestRatedFoods(sorted.slice(0, sorted.length > 4 ? 4 : sorted.length));
-  }, [food]);
+  }, [foods]);
 
   useEffect(() => {
     if (!favoriteFoodIds || favoriteFoodIds.length === 0) return;
-    const newFavoriteFoodList = food.filter((f) =>
+    const newFavoriteFoodList = foods.filter((f) =>
       favoriteFoodIds.includes(f.id)
     );
     setFavoriteFoodList(newFavoriteFoodList);
-  }, [favoriteFoodIds, food]);
+  }, [favoriteFoodIds, foods]);
 
   useEffect(() => {
     console.log("top foods", topFoods);
@@ -120,6 +125,37 @@ export default function Home() {
     } else {
       setFavoriteFoodIds([...favoriteFoodIds, id]);
     }
+  };
+
+  const handleAddToCart = async (food: Food) => {
+    if (!selectedSize) return;
+    const newCartItem: Cart = {
+      id: -1,
+      quantity: selectedFoodQuantity,
+      price: selectedFoodQuantity * selectedSize.price,
+      food: food,
+      foodSize: selectedSize,
+      note: "",
+    };
+    await CartService.AddCart(newCartItem)
+      .then((res) => {
+        console.log(res);
+        dispatch(addCartItem(res.data));
+        showSuccessToast("Added to cart successfully");
+        setOpen(!isOpen);
+      })
+      .catch((err) => {
+        console.log(err);
+        showErrorToast("Failed to add to cart");
+      });
+  };
+  const handleFoodSizeChange = (foodSize: FoodSize) => {
+    if (selectedSize !== foodSize) setSelectedSize(foodSize);
+  };
+  const handleFoodClick = (food: Food) => {
+    setSelectedFood(food);
+    if (selectedFood !== food) setSelectedSize(food.foodSizes[0]);
+    setOpen(!isOpen);
   };
 
   return (
@@ -157,13 +193,18 @@ export default function Home() {
               />
             </div>
             {searchFocus && searchInput.length > 0 ? (
-              <div className="absolute bg-slate-700 top-full left-0 w-2/3 mt-1 rounded-md">
-                {food
+              <div className="absolute bg-slate-700 top-full left-0 w-2/3 mt-1 rounded-md overflow-hidden">
+                {foods
                   .filter((f) =>
                     f.name.toLowerCase().includes(searchInput.toLowerCase())
                   )
                   .map((f) => (
-                    <FoodItemSearch food={f} key={f.name} />
+                    <FoodItemSearch
+                      food={f}
+                      key={f.id}
+                      searchInput={searchInput}
+                      onMouseDown={() => handleFoodClick(f)}
+                    />
                   ))}
               </div>
             ) : null}
@@ -226,16 +267,16 @@ export default function Home() {
               setSelectedCategory={setSelectedCategory}
               carouselItems={categories.map((item) => ({
                 ...item,
-                quantity: food.filter((f) => f.category.id === item.id).length,
+                quantity: foods.filter((f) => f.category.id === item.id).length,
               }))}
             />
 
             <FoodListComponent
-              foods={food.filter(
+              foods={foods.filter(
                 (f) =>
                   selectedCategory === -1 || f.category.id === selectedCategory
               )}
-              favoriteFoodIds={food
+              favoriteFoodIds={foods
                 .filter(
                   (f) =>
                     selectedCategory === -1 ||
@@ -245,6 +286,27 @@ export default function Home() {
               onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
             />
           </section>
+          {selectedFood && selectedSize && (
+            <FoodDetail
+              isOpen={isOpen}
+              onOpenChange={() => setOpen(!isOpen)}
+              food={selectedFood}
+              foodQuantity={selectedFoodQuantity}
+              onFoodQuantityChange={(quantity: number) =>
+                setSelectedFoodQuantity(quantity)
+              }
+              selectedSize={selectedSize}
+              onFoodSizeChange={(foodSize: any) =>
+                handleFoodSizeChange(foodSize)
+              }
+              isFavorite={favoriteFoodIds.includes(selectedFood.id)}
+              onFavoriteChange={(isFavorite: boolean) =>
+                onFavoriteFoodIdsChange &&
+                onFavoriteFoodIdsChange(selectedFood.id)
+              }
+              onAddToCart={() => handleAddToCart(selectedFood)}
+            />
+          )}
         </div>
       </section>
     </>
@@ -339,16 +401,34 @@ const FoodListComponent = ({
   );
 };
 
-const FoodItemSearch = ({ food }: { food: Food }) => {
+const FoodItemSearch = ({
+  food,
+  onMouseDown,
+  searchInput,
+}: {
+  food: Food;
+  onMouseDown?: () => void;
+  searchInput?: string;
+}) => {
   const imageSrc =
     food.images && food.images.length > 0 ? food.images[0] : default_food_image;
   const foodPriceRange = food.foodSizes.toSorted((a, b) => a.price - b.price);
 
+  const highlightMatch = (text: string, query: string | undefined) => {
+    if (!query) return text;
+
+    const regex = new RegExp(`(${query})`, "gi");
+    return text.replace(
+      regex,
+      '<mark style="background-color: yellow;">$1</mark>'
+    );
+  };
+
+  const highlightedName = highlightMatch(food.name, searchInput);
+
   return (
     <div
-      onMouseDown={() => {
-        console.log("please show food detail");
-      }}
+      onMouseDown={onMouseDown}
       className="px-4 py-2 text-sm flex flex-row items-center hover:bg-slate-600 hover:cursor-pointer"
     >
       <div className="rounded-md overflow-hidden">
@@ -362,8 +442,14 @@ const FoodItemSearch = ({ food }: { food: Food }) => {
       </div>
       <div className="flex flex-col m-2 gap-2">
         <div className="flex flex-row items-center gap-4">
-          <p className="font-semibold">{food.name}</p>
-          <FoodRating rating={food.rating} />
+          <p
+            className="font-semibold"
+            dangerouslySetInnerHTML={{ __html: highlightedName }}
+          />
+          <FoodRating
+            className={cn(food.rating === 0 ? "hidden" : "")}
+            rating={food.rating}
+          />
         </div>
         <FoodPrice
           currency="$"

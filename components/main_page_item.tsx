@@ -63,11 +63,7 @@ export default function MainPageItem({
         <FoodPrice
           currency="$"
           defaultPrice={sortedPriceList[0]}
-          secondPrice={
-            sortedPriceList.length > 1
-              ? sortedPriceList[sortedPriceList.length - 1]
-              : undefined
-          }
+          secondPrice={sortedPriceList[sortedPriceList.length - 1]}
         />
         <div
           className={cn("flex items-center", food.rating === 0 && "opacity-0")}
