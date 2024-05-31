@@ -5,7 +5,7 @@ import { ClassValue } from "clsx";
 
 const Preloader = ({ className }: { className?: ClassValue }) => {
   return (
-    <div className={cn(preloaderStyle["preloader"], className)}>
+    <div className={cn(preloaderStyle["preloader"], "z-[999]", className)}>
       <svg
         viewBox="0 0 102 102"
         fill="none"
