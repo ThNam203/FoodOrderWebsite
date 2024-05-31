@@ -7,6 +7,8 @@ import { IconButton } from "./buttons";
 import { cn } from "@/utils/cn";
 import { HeartIcon, OutlineHeartIcon } from "./icons";
 import { useEffect, useState } from "react";
+import { useAppSelector } from "@/redux/hooks";
+import { showDefaultToast } from "./toast";
 
 export default function MainPageItem({
   food,
@@ -22,6 +24,7 @@ export default function MainPageItem({
   onFavoriteChange?: (isFavorite: boolean) => void;
 }) {
   const [sortedPriceList, setSortedPriceList] = useState<number[]>([]);
+  const isLogin = useAppSelector((state) => state.profile.isLogin);
 
   useEffect(() => {
     const tempSortedPriceList = food.foodSizes
@@ -56,6 +59,10 @@ export default function MainPageItem({
             className={cn("rounded-full ease-linear duration-100")}
             icon={isFavorite ? <HeartIcon /> : <OutlineHeartIcon />}
             onClick={() => {
+              if (!isLogin) {
+                showDefaultToast("Please login to add your favorite food");
+                return;
+              }
               if (onFavoriteChange) onFavoriteChange(!isFavorite);
             }}
           />

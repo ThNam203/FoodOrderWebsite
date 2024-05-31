@@ -58,10 +58,9 @@ export default function Home() {
         .then((res) => {
           const data = res.data.map((food) => FoodToReceive(food));
           dispatch(setFoods(data));
+          console.log(data);
         })
-        .catch((err) => {
-          showErrorToast("Failed to fetch data");
-        });
+        .catch((err) => {});
 
       await FoodService.getTopFoodInMonthRange()
         .then((res) => {
@@ -69,17 +68,13 @@ export default function Home() {
           data.slice(0, data.length > 4 ? 4 : data.length - 1);
           setTopFoods(data);
         })
-        .catch((err) => {
-          showErrorToast("Failed to get top foods");
-        });
+        .catch((err) => {});
 
       await FoodService.getCategories()
         .then((res) => {
           dispatch(setFoodCategories(res.data));
         })
-        .catch((err) => {
-          showErrorToast("Failed to fetch categories");
-        });
+        .catch((err) => {});
     };
     fetchData();
   }, []);
@@ -101,7 +96,6 @@ export default function Home() {
     );
     setFavoriteFoodList(newFavoriteFoodList);
   }, [favoriteFoodIds, foods]);
-
 
   const handleFavoriteFoodIdsChange = async (id: number) => {
     await FoodService.addFavouriteFood(id)
@@ -325,6 +319,7 @@ const FoodListComponent = ({
   const [selectedFood, setSelectedFood] = useState<Food>();
   const [selectedSize, setSelectedSize] = useState<FoodSize>();
   const [selectedFoodQuantity, setSelectedFoodQuantity] = useState(1);
+  const isLogin = useAppSelector((state) => state.profile.isLogin);
 
   const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
@@ -334,6 +329,10 @@ const FoodListComponent = ({
 
   const handleAddToCart = async (food: Food) => {
     if (!selectedSize) return;
+    if (!isLogin) {
+      showErrorToast("Please login to add to cart");
+      return;
+    }
     const newCartItem: Cart = {
       id: -1,
       quantity: selectedFoodQuantity,

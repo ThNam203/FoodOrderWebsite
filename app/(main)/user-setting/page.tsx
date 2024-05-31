@@ -24,6 +24,7 @@ import {
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import { ZodType, z } from "zod";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 
 export type UserSettingFormData = {
   name: string;
@@ -187,6 +188,7 @@ export default function UserSettingPage() {
 
   useEffect(() => {
     const fetchAllProvinces = async () => {
+      dispatch(showPreloader());
       await AddressService.getAllProvinces()
         .then((object) => {
           setProvincesData(object.data.results);
@@ -198,7 +200,9 @@ export default function UserSettingPage() {
           showErrorToast(error.message);
         });
     };
-    fetchAllProvinces();
+    fetchAllProvinces().finally(() => {
+      dispatch(disablePreloader());
+    });
     setInitialValues();
   }, []);
 

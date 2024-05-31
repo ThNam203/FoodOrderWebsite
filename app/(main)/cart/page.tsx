@@ -414,17 +414,13 @@ const CartPage = () => {
           setCartData(convertedData);
           dispatch(setCartItems(convertedData));
         })
-        .catch((err) => {
-          showErrorToast("Error while fetching cart data");
-        });
+        .catch((err) => {});
       await FoodService.getAllFood()
         .then((res) => {
           setFoodData(res.data);
           dispatch(setFoods(res.data));
         })
-        .catch((err) => {
-          showErrorToast("Failed to fetch data");
-        });
+        .catch((err) => {});
     };
     fetchData().finally(() => {
       dispatch(disablePreloader());
@@ -453,7 +449,6 @@ const CartPage = () => {
     });
     setSubtotal(tempSubtotal);
   }, [selectedCardIds, cartData, foodData]);
-  console.log("cartData", cartData);
 
   return (
     <div className="w-full h-screen font-sans flex xl:flex-row xl:justify-between max-xl:flex-col max-xl:overflow-y-scroll">
@@ -466,19 +461,6 @@ const CartPage = () => {
             hasCompletedOrder={hasCompletedOrder}
           />
         </div>
-        <RadioGroup
-          label="Select your favorite city"
-          color="primary"
-          value="buenos-aires"
-        >
-          <Radio value="hh" className="outline-red-100">
-            Buenos Aires
-          </Radio>
-          <Radio value="sydney">Sydney</Radio>
-          <Radio value="san-francisco">San Francisco</Radio>
-          <Radio value="london">London</Radio>
-          <Radio value="tokyo">Tokyo</Radio>
-        </RadioGroup>
 
         <CartContent
           contentFor="Shopping Cart"

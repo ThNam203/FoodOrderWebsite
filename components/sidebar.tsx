@@ -216,7 +216,7 @@ export default function Sidebar({
               isSidebarOpen={isSidebarOpen}
               notification={cart.length}
               className={cn(
-                thisUser && thisUser.isAdmin === false ? "" : "hidden"
+                thisUser && thisUser.isAdmin === true ? "hidden" : ""
               )}
             />
 
@@ -227,7 +227,7 @@ export default function Sidebar({
               selectedLink={selectedLink}
               isSidebarOpen={isSidebarOpen}
               className={cn(
-                thisUser && thisUser.isAdmin === false ? "" : "hidden"
+                thisUser && thisUser.isAdmin === true ? "hidden" : ""
               )}
             />
             <CustomLink
@@ -247,81 +247,95 @@ export default function Sidebar({
               selectedLink={selectedLink}
               isSidebarOpen={isSidebarOpen}
               className={cn(
-                thisUser && thisUser.isAdmin === false ? "" : "hidden"
+                thisUser && thisUser.isAdmin === true ? "hidden" : ""
               )}
             />
           </div>
         </div>
         <div className="space-y-2">
-          <Popover
-            isOpen={showPopover}
-            onOpenChange={setShowPopover}
-            placement="right-end"
-          >
-            <PopoverTrigger>
-              <div className="flex flex-row gap-2 items-center hover:bg-white/10 rounded-lg py-3 pl-2 cursor-pointer shrink-0">
-                <Image
-                  width={400}
-                  height={400}
-                  src={
-                    thisUser && thisUser.profileImage
-                      ? thisUser.profileImage
-                      : default_user_image
-                  }
-                  alt="image"
-                  className="w-[30px] h-[30px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer select-none"
-                />
-                <span className="font-semibold">
-                  {thisUser ? thisUser.name : ""}
-                </span>
-              </div>
-            </PopoverTrigger>
-            <PopoverContent className="font-sans text-primaryWord select-none">
-              <div className="w-[200px] py-2 rounded-md flex flex-col">
-                <div className="flex flex-row gap-2 items-center">
+          {isLogin && (
+            <Popover
+              isOpen={showPopover}
+              onOpenChange={setShowPopover}
+              placement="right-end"
+            >
+              <PopoverTrigger>
+                <div className="flex flex-row gap-2 items-center hover:bg-white/10 rounded-lg py-3 pl-2 cursor-pointer shrink-0">
                   <Image
                     width={400}
                     height={400}
-                    sizes="100vw"
                     src={
                       thisUser && thisUser.profileImage
                         ? thisUser.profileImage
                         : default_user_image
                     }
                     alt="image"
-                    className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden"
+                    className="w-[30px] h-[30px] flex-shrink-0 rounded-full object-cover overflow-hidden cursor-pointer select-none"
                   />
                   <span className="font-semibold">
                     {thisUser ? thisUser.name : ""}
                   </span>
                 </div>
+              </PopoverTrigger>
+              <PopoverContent className="font-sans text-primaryWord select-none">
+                <div className="w-[200px] py-2 rounded-md flex flex-col">
+                  <div className="flex flex-row gap-2 items-center">
+                    <Image
+                      width={400}
+                      height={400}
+                      sizes="100vw"
+                      src={
+                        thisUser && thisUser.profileImage
+                          ? thisUser.profileImage
+                          : default_user_image
+                      }
+                      alt="image"
+                      className="w-[50px] h-[50px] flex-shrink-0 rounded-full object-cover overflow-hidden"
+                    />
+                    <span className="font-semibold">
+                      {thisUser ? thisUser.name : ""}
+                    </span>
+                  </div>
 
-                <Separate classname="my-2" />
-                <div
-                  className="flex flex-row gap-2 items-center cursor-pointer hover:bg-gray-100 rounded-lg p-2"
-                  onClick={() => {
-                    router.push("/user-setting");
-                    setShowPopover(false);
-                  }}
-                >
-                  <SettingIcon />
-                  <span>Setting</span>
-                </div>
+                  <Separate classname="my-2" />
+                  <div
+                    className="flex flex-row gap-2 items-center cursor-pointer hover:bg-gray-100 rounded-lg p-2"
+                    onClick={() => {
+                      router.push("/user-setting");
+                      setShowPopover(false);
+                    }}
+                  >
+                    <SettingIcon />
+                    <span>Setting</span>
+                  </div>
 
-                <Separate classname="my-2" />
-                <div
-                  className="flex flex-row gap-2 items-center text-red-500 cursor-pointer hover:bg-gray-100 rounded-lg p-2"
-                  onClick={() => {
-                    handleLogout();
-                    setShowPopover(false);
-                  }}
-                >
-                  <LogoutIcon />
-                  <span>Log Out</span>
+                  <Separate classname="my-2" />
+                  <div
+                    className="flex flex-row gap-2 items-center text-red-500 cursor-pointer hover:bg-gray-100 rounded-lg p-2"
+                    onClick={() => {
+                      handleLogout();
+                      setShowPopover(false);
+                    }}
+                  >
+                    <LogoutIcon />
+                    <span>Log Out</span>
+                  </div>
                 </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+              </PopoverContent>
+            </Popover>
+          )}
+
+          {!isLogin && (
+            <div className={style["nav__list"]}>
+              <CustomLink
+                href="/login"
+                content="Login"
+                icon={<LoginIcon />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+              />
+            </div>
+          )}
 
           <Tooltip
             content={
@@ -355,18 +369,6 @@ export default function Sidebar({
               />
             </svg>
           </Tooltip>
-
-          {!isLogin && (
-            <div className={style["nav__list"]}>
-              <CustomLink
-                href="/login"
-                content="Login"
-                icon={<LoginIcon />}
-                selectedLink={selectedLink}
-                isSidebarOpen={isSidebarOpen}
-              />
-            </div>
-          )}
         </div>
       </nav>
     </div>

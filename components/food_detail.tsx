@@ -21,6 +21,8 @@ import { displayNumber } from "@/utils/func";
 import CommentSection from "./comment_section";
 import ImageCarousel from "./CustomCarousel/image_carousel";
 import { useDotButton } from "./CustomCarousel/carousel_dot_button";
+import { useAppSelector } from "@/redux/hooks";
+import { showDefaultToast } from "./toast";
 
 enum TabTitle {
   Info = "Info",
@@ -58,6 +60,7 @@ export const FoodDetail = ({
   });
   const { selectedIndex, scrollSnaps, onDotButtonClick } =
     useDotButton(emplaApi);
+  const isLogin = useAppSelector((state) => state.profile.isLogin);
 
   return (
     <Modal
@@ -97,6 +100,14 @@ export const FoodDetail = ({
                               isFavorite ? <HeartIcon /> : <OutlineHeartIcon />
                             }
                             onClick={() => {
+                              if (!isLogin) {
+                                {
+                                  showDefaultToast(
+                                    "Please login to add your favourite food"
+                                  );
+                                  return;
+                                }
+                              }
                               if (onFavoriteChange)
                                 onFavoriteChange(!isFavorite);
                             }}

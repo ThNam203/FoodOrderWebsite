@@ -1,22 +1,21 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { setProfile } from "@/redux/slices/profile";
-import UserService from "@/services/userService";
-import { useEffect, useState } from "react";
-import Preloader from "./preloader";
-import { showErrorToast } from "./toast";
-import { disablePreloader } from "@/redux/slices/preloader";
-import { usePathname, useRouter } from "next/navigation";
-import CartService from "@/services/cartService";
 import { CartToReceive } from "@/convertor/cartConvertor";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setCartItems } from "@/redux/slices/cart";
+import { disablePreloader } from "@/redux/slices/preloader";
+import { setProfile } from "@/redux/slices/profile";
+import CartService from "@/services/cartService";
+import UserService from "@/services/userService";
+import { cn } from "@/utils/cn";
+import { useEffect } from "react";
+import { showErrorToast } from "./toast";
+import Preloader from "./preloader";
 
 const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
-  const [searchedForUser, setSearchedForUser] = useState(false);
   const dispatch = useAppDispatch();
-  const router = useRouter();
-  const pathName = usePathname();
+  const thisUser = useAppSelector((state) => state.profile.value);
+  const preloaderVisibility = useAppSelector((state) => state.preloader.value);
   useEffect(() => {
     const getGlobalData = async () => {
       await UserService.getProfile().then((res) => {
@@ -28,30 +27,27 @@ const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
       });
     };
 
-    getGlobalData()
-      .catch((e) => {
-        showErrorToast(e);
-      })
-      .finally(() => {
-        {
-          setSearchedForUser(true);
+    if (!thisUser)
+      getGlobalData()
+        .catch((e) => {
+          showErrorToast(e);
+        })
+        .finally(() => {
           dispatch(disablePreloader());
-        }
-      });
-  }, []);
+        });
+  }, [thisUser]);
 
-  if (!searchedForUser) return <GlobalPreloader />;
   return (
     <>
-      <GlobalPreloader />
+      <Preloader
+        className={cn(
+          "ease-linear duration-100",
+          !preloaderVisibility ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
+      />
       {children}
     </>
   );
-};
-
-const GlobalPreloader = () => {
-  const preloaderVisibility = useAppSelector((state) => state.preloader.value);
-  return preloaderVisibility ? <Preloader /> : null;
 };
 
 export default LayoutLoader;

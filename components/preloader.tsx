@@ -1,9 +1,11 @@
+"use client";
 import preloaderStyle from "@/styles/preloader.module.css";
 import { cn } from "@/utils/cn";
+import { ClassValue } from "clsx";
 
-const Preloader = () => {
+const Preloader = ({ className }: { className?: ClassValue }) => {
   return (
-    <div className={cn(preloaderStyle["preloader"])}>
+    <div className={cn(preloaderStyle["preloader"], className)}>
       <svg
         viewBox="0 0 102 102"
         fill="none"

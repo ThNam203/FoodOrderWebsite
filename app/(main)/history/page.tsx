@@ -54,9 +54,7 @@ export default function HistoryPage() {
           );
           dispatch(setOrders(data));
         })
-        .catch((err) => {
-          showErrorToast(err.message);
-        });
+        .catch((err) => {});
       dispatch(disablePreloader());
     };
     fetchData();
@@ -144,9 +142,7 @@ export default function HistoryPage() {
         );
         dispatch(setOrders(newData));
       })
-      .catch((err) => {
-        showErrorToast(err.message);
-      })
+      .catch((err) => {})
       .finally(() => {
         setRowUpdating(rowUpdating.filter((rowId) => rowId !== id));
       });

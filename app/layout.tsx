@@ -1,10 +1,11 @@
 import LayoutLoader from "@/components/layout_loader";
-import { ScrollArea } from "@/components/scroll-area";
 import { Toast } from "@/components/toast";
+import { useAppSelector } from "@/redux/hooks";
 import ReduxProvider from "@/redux/provider";
 import "@/styles/globals.css";
 import { cn } from "@/utils/cn";
 import { Metadata } from "next";
+
 import { Lato } from "next/font/google";
 
 const lato = Lato({
