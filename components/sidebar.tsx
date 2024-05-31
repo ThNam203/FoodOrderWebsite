@@ -175,7 +175,7 @@ export default function Sidebar({
             </a>
           )}
 
-          {thisUser && thisUser.isAdmin === true && (
+          {thisUser && thisUser.isAdmin ? (
             <div className={style["nav__list"]}>
               <CustomLink
                 href="/dashboard"
@@ -203,9 +203,7 @@ export default function Sidebar({
                 )}
               />
             </div>
-          )}
-
-          {thisUser && thisUser.isAdmin === false && (
+          ) : (
             <div className={style["nav__list"]}>
               <CustomLink
                 href="/cart"

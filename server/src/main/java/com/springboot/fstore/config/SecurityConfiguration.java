@@ -63,7 +63,7 @@ public class SecurityConfiguration {
         cors.setAllowCredentials(true);
         cors.addAllowedOrigin("http://localhost:3000");
         cors.addAllowedOrigin("https://food-ordering-website-coral.vercel.app/");
-        cors.addAllowedOrigin("https://food-ordering-website-fugmuks91-ptdat4823s-projects.vercel.app");
+        cors.addAllowedOrigin("https://food-ordering-website-fim9gpd6x-ptdat4823s-projects.vercel.app/");
         cors.addAllowedHeader("*");
         cors.addAllowedMethod("*");
         cors.setMaxAge(3600L);
