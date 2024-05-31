@@ -19,6 +19,8 @@ import {
   TotalCompletedOrderReport,
   TotalOrderReport,
 } from "@/models/Report";
+import { useAppDispatch } from "@/redux/hooks";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import ReportService from "@/services/reportService";
 import {
   CircleCheckBig,
@@ -29,6 +31,7 @@ import {
 import { useEffect, useState } from "react";
 
 const ReportPage = () => {
+  const dispatch = useAppDispatch();
   const [orderReport, setOrderReport] = useState<TotalOrderReport>();
   const [completedOrderReport, setCompletedOrderReport] =
     useState<TotalCompletedOrderReport>();
@@ -46,7 +49,9 @@ const ReportPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      dispatch(showPreloader());
       const currentMonth = new Date().getMonth(); //start from 0
+      dispatch;
       await ReportService.getOrderByMonth(
         currentMonth === 0
           ? new Date(new Date().setMonth(currentMonth - 12))
@@ -110,12 +115,12 @@ const ReportPage = () => {
         );
       setFoodByRevenueReport(foodByRevenueReportPromise);
     };
-    fetchData().catch((err) => showErrorToast(err));
+    fetchData()
+      .catch((err) => showErrorToast(err))
+      .finally(() => {
+        dispatch(disablePreloader());
+      });
   }, []);
-
-  useEffect(() => {
-    console.log("Cancellation rate report", cancellationRateReport);
-  }, [cancellationRateReport]);
 
   return (
     <div className="w-full h-screen bg-white p-10 overflow-y-scroll scrollbar-none space-y-6">

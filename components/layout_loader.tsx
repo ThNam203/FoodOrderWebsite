@@ -41,7 +41,7 @@ const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
     <>
       <Preloader
         className={cn(
-          "ease-linear duration-100",
+          "ease-linear duration-100 z-[99999]",
           !preloaderVisibility ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
       />

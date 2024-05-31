@@ -148,6 +148,7 @@ export default function Home() {
     if (selectedFood !== food) setSelectedSize(food.foodSizes[0]);
     setOpen(!isOpen);
   };
+  console.log("thisUser", thisUser);
 
   return (
     <>
@@ -219,8 +220,8 @@ export default function Home() {
             />
           </div>
           {topFoods && topFoods.length > 0 && (
-            <section>
-              <h3 className="text-4xl font-semibold my-8">Best sellers</h3>
+            <section className="my-4">
+              <h3 className="text-4xl font-semibold mb-4">Best sellers</h3>
               <FoodListComponent
                 foods={topFoods}
                 favoriteFoodIds={favoriteFoodIds}
@@ -230,8 +231,8 @@ export default function Home() {
           )}
 
           {bestRatedFoods && bestRatedFoods.length > 0 && (
-            <section>
-              <h3 className="text-4xl font-semibold my-8">Best rated</h3>
+            <section className="my-4">
+              <h3 className="text-4xl font-semibold mb-4">Best rated</h3>
 
               <FoodListComponent
                 foods={bestRatedFoods}
@@ -252,7 +253,7 @@ export default function Home() {
             </section>
           )} */}
 
-          <section>
+          <section className="my-4">
             <CategoryCarousel
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}

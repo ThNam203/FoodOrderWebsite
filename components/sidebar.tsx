@@ -175,71 +175,64 @@ export default function Sidebar({
             </a>
           )}
 
-          <div className={style["nav__list"]}>
-            <CustomLink
-              href="/dashboard"
-              content="Dashboard"
-              icon={<LayoutDashboard />}
-              selectedLink={usePathname()}
-              isSidebarOpen={isSidebarOpen}
-              className={cn(
-                thisUser && thisUser.isAdmin === true ? "" : "hidden"
-              )}
-            />
-            <CustomLink
-              href="/inventory/menu"
-              content="Inventory"
-              icon={<LayoutList />}
-              selectedLink={usePathname()}
-              isSidebarOpen={isSidebarOpen}
-              className={cn(
-                thisUser && thisUser.isAdmin === true ? "" : "hidden"
-              )}
-            />
+          {thisUser && thisUser.isAdmin === true && (
+            <div className={style["nav__list"]}>
+              <CustomLink
+                href="/dashboard"
+                content="Dashboard"
+                icon={<LayoutDashboard />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+              />
+              <CustomLink
+                href="/inventory/menu"
+                content="Inventory"
+                icon={<LayoutList />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+              />
 
-            <CustomLink
-              href="/cart"
-              content="Your cart"
-              icon={<CartIcon />}
-              selectedLink={selectedLink}
-              isSidebarOpen={isSidebarOpen}
-              notification={cart.length}
-              className={cn(
-                thisUser && thisUser.isAdmin === true ? "hidden" : ""
-              )}
-            />
+              <CustomLink
+                href="/order-management"
+                content="Orders"
+                icon={<OrderIcon />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+                className={cn(
+                  thisUser && thisUser.isAdmin === true ? "" : "hidden"
+                )}
+              />
+            </div>
+          )}
 
-            <CustomLink
-              href="/favourite"
-              content="Favourites"
-              icon={<FavouriteIcon />}
-              selectedLink={selectedLink}
-              isSidebarOpen={isSidebarOpen}
-              className={cn(
-                thisUser && thisUser.isAdmin === true ? "hidden" : ""
-              )}
-            />
-            <CustomLink
-              href="/order-management"
-              content="Orders"
-              icon={<OrderIcon />}
-              selectedLink={selectedLink}
-              isSidebarOpen={isSidebarOpen}
-              className={cn(
-                thisUser && thisUser.isAdmin === true ? "" : "hidden"
-              )}
-            />
-            <CustomLink
-              href="/history"
-              content="History"
-              icon={<HistoryIcon />}
-              selectedLink={selectedLink}
-              isSidebarOpen={isSidebarOpen}
-              className={cn(
-                thisUser && thisUser.isAdmin === true ? "hidden" : ""
-              )}
-            />
-          </div>
+          {thisUser && thisUser.isAdmin === false && (
+            <div className={style["nav__list"]}>
+              <CustomLink
+                href="/cart"
+                content="Your cart"
+                icon={<CartIcon />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+                notification={cart.length}
+              />
+
+              <CustomLink
+                href="/favourite"
+                content="Favourites"
+                icon={<FavouriteIcon />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+              />
+
+              <CustomLink
+                href="/history"
+                content="History"
+                icon={<HistoryIcon />}
+                selectedLink={selectedLink}
+                isSidebarOpen={isSidebarOpen}
+              />
+            </div>
+          )}
         </div>
         <div className="space-y-2">
           {isLogin && (
