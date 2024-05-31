@@ -770,7 +770,7 @@ const CartPage = () => {
                 className="absolute bottom-0 w-full bg-[#12192c] hover:bg-[#12192c]/90"
                 onClick={async () => {
                   if (!thisUser) {
-                    router.push("/login");
+                    showDefaultToast("Please login to make order");
                     return;
                   }
                   if (selectedCardIds.length === 0) {
