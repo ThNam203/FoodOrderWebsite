@@ -177,17 +177,6 @@ export default function Sidebar({
 
           <div className={style["nav__list"]}>
             <CustomLink
-              href="/"
-              content=""
-              icon={<Home size={20} />}
-              selectedLink={usePathname()}
-              isSidebarOpen={isSidebarOpen}
-              className={cn(
-                "sm:hidden",
-                thisUser && thisUser.isAdmin === false ? "" : "hidden"
-              )}
-            />
-            <CustomLink
               href="/dashboard"
               content="Dashboard"
               icon={<LayoutDashboard />}
