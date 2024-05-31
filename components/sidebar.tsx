@@ -343,7 +343,6 @@ export default function Sidebar({
               id="nav-toggle"
               className={cn(
                 style["nav__toggle"],
-                "max-sm:hidden",
                 "flex flex-row items-center ease-linear duration-100 rounded-lg cursor-pointer"
               )}
               onClick={() => {
