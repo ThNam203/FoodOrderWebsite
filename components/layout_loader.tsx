@@ -31,8 +31,6 @@ const LayoutLoader = ({ children }: { children: React.ReactNode }) => {
     getGlobalData()
       .catch((e) => {
         showErrorToast(e);
-        if (pathName !== "/register" && pathName !== "/login")
-          router.push("/login");
       })
       .finally(() => {
         {
