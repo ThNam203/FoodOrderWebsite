@@ -22,7 +22,7 @@ import FoodService from "@/services/foodService";
 import OrderService from "@/services/orderService";
 import { cn } from "@/utils/cn";
 import { displayNumber, isValidInfomation } from "@/utils/func";
-import { Checkbox, Tooltip } from "@nextui-org/react";
+import { Checkbox, Radio, RadioGroup, Tooltip } from "@nextui-org/react";
 import { ClassValue } from "clsx";
 import { getCookie, setCookie } from "cookies-next";
 import {
@@ -78,7 +78,9 @@ const TitleBar = ({
     >
       <Checkbox
         className="mr-2"
-        isSelected={selectedItems.length === activeCarts.length}
+        isSelected={
+          selectedItems.length === activeCarts.length && activeCarts.length > 0
+        }
         onClick={() => {
           if (selectedItems.length === activeCarts.length) setSelectedItems([]);
           else setSelectedItems(activeCarts.map((item) => item.id));
@@ -156,7 +158,8 @@ const CartItem = ({
     <div
       ref={cartRef}
       className={cn(
-        "w-full group text-primaryWord rounded-md bg-slate-50 flex flex-row items-center justify-end p-2 cursor-pointer"
+        "w-full group text-primaryWord rounded-md bg-slate-50 flex flex-row items-center justify-end p-2",
+        isOutOfStock ? "" : "cursor-pointer"
       )}
       onClick={() => {
         if (isOutOfStock) return;
@@ -463,6 +466,19 @@ const CartPage = () => {
             hasCompletedOrder={hasCompletedOrder}
           />
         </div>
+        <RadioGroup
+          label="Select your favorite city"
+          color="primary"
+          value="buenos-aires"
+        >
+          <Radio value="hh" className="outline-red-100">
+            Buenos Aires
+          </Radio>
+          <Radio value="sydney">Sydney</Radio>
+          <Radio value="san-francisco">San Francisco</Radio>
+          <Radio value="london">London</Radio>
+          <Radio value="tokyo">Tokyo</Radio>
+        </RadioGroup>
 
         <CartContent
           contentFor="Shopping Cart"

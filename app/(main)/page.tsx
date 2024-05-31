@@ -102,9 +102,6 @@ export default function Home() {
     setFavoriteFoodList(newFavoriteFoodList);
   }, [favoriteFoodIds, foods]);
 
-  useEffect(() => {
-    console.log("top foods", topFoods);
-  }, [topFoods]);
 
   const handleFavoriteFoodIdsChange = async (id: number) => {
     await FoodService.addFavouriteFood(id)

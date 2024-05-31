@@ -16,16 +16,19 @@ export type CarouselItem = {
 export default function ImageCarousel({
   carouselItems,
   className,
-  loop = true,
+  loop = false,
+  autoPlay = false,
 }: {
   carouselItems: CarouselItem[];
   className?: ClassValue;
   loop?: boolean;
   active?: boolean;
+  autoPlay?: boolean;
 }) {
-  const [emblaRef, emplaApi] = useEmblaCarousel({ loop: loop }, [
-    Autoplay({ delay: 3000 }),
-  ]);
+  const [emblaRef, emplaApi] = useEmblaCarousel(
+    { loop: loop, watchDrag: false },
+    autoPlay ? [Autoplay({ delay: 3000 })] : []
+  );
   const { selectedIndex, scrollSnaps, onDotButtonClick } =
     useDotButton(emplaApi);
 
@@ -35,8 +38,8 @@ export default function ImageCarousel({
         iconBefore={<ChevronLeft className="text-white" />}
         className={cn(
           "absolute h-full left-0 top-0 opacity-0 group-hover:opacity-100 bg-transparent hover:bg-gray-50/20 hover:opacity-100 rounded-none z-50",
-
-          carouselItems.length === 1 ? "hidden" : ""
+          carouselItems.length === 1 ? "hidden" : "",
+          selectedIndex === 0 && "hidden"
         )}
         onClick={() => {
           if (emplaApi) emplaApi.scrollPrev();
@@ -46,7 +49,8 @@ export default function ImageCarousel({
         iconBefore={<ChevronRight className="text-white" />}
         className={cn(
           "absolute h-full right-0 top-0 opacity-0 group-hover:opacity-100 bg-transparent hover:bg-gray-50/20 hover:opacity-100 rounded-none z-50",
-          carouselItems.length === 1 ? "hidden" : ""
+          carouselItems.length === 1 ? "hidden" : "",
+          selectedIndex === scrollSnaps.length - 1 && "hidden"
         )}
         onClick={() => {
           if (emplaApi) emplaApi.scrollNext();
@@ -67,15 +71,22 @@ export default function ImageCarousel({
                 }}
                 className={cn(
                   "flex-0_0_100",
-                  "h-48 bg-center bg-cover bg-no-repeat relative"
+                  "h-48 bg-center bg-cover bg-no-repeat relative hover:scale-125 ease-linear duration-200"
                 )}
               />
             );
           })}
         </div>
       </div>
-      <div className="absolute w-full top-[105%] flex flex-row items-center justify-center gap-1 z-50">
+      <div
+        className={cn(
+          "absolute w-full top-[105%] flex flex-row items-center justify-center gap-1 z-50",
+          scrollSnaps.length <= 1 && "hidden"
+        )}
+      >
         {scrollSnaps.map((snap, index) => {
+          console.log("index", index);
+          console.log("scrollnaps", scrollSnaps.length);
           return (
             <div
               key={index}

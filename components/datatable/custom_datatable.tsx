@@ -123,7 +123,8 @@ export function CustomDatatable<TData>({
 
   const handleFilterChange = (filterInput: string, col: string) => {
     setSelectedFilterKey(col);
-    if (config.onFilterChange) config.onFilterChange(filterInput, col);
+    if (config && config.onFilterChange)
+      config.onFilterChange(filterInput, col);
   };
 
   return (

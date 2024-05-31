@@ -16,7 +16,7 @@ import { Home, LayoutDashboard, LayoutList } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   CartIcon,
   FavouriteIcon,
@@ -31,6 +31,7 @@ import { showErrorToast, showSuccessToast } from "./toast";
 import default_user_image from "@/public/images/default_user.png";
 import { Separate } from "./separate";
 import { setProfile } from "@/redux/slices/profile";
+import UserService from "@/services/userService";
 
 const CustomLink = ({
   className,

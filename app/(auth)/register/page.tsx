@@ -51,7 +51,7 @@ export default function RegisterPage() {
       .then((res) => {
         dispatch(setProfile(res.data));
         showSuccessToast("Sign Up Success");
-        router.push("/");
+        router.push("/intro");
       })
       .catch((err) => {
         showErrorToast(err.message);
