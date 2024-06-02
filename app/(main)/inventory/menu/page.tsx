@@ -29,10 +29,12 @@ import {
   menuDefaultVisibilityState,
   menuTableColumns,
 } from "./table_columns";
+import { notFound } from "next/navigation";
 // import CustomCarousel, { CarouselItem } from "@/components/custom_carousel";
 
 export default function DashboardMenu() {
   const dispatch = useAppDispatch();
+  const thisUser = useAppSelector((state) => state.profile.value);
   const data = useAppSelector((state) => state.food.allFood);
   const [filteredData, setFilteredData] = useState<Food[]>(data);
   const categories = useAppSelector((state: any) => state.foodCategory.value);
@@ -120,6 +122,8 @@ export default function DashboardMenu() {
         showErrorToast(err.message);
       });
   };
+
+  if (thisUser && thisUser.isAdmin === false) return notFound();
 
   return (
     <div className="h-screen flex flex-col p-8 text-primaryWord overflow-y-scroll">

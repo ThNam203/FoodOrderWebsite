@@ -28,11 +28,11 @@ import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 
 export type UserSettingFormData = {
   name: string;
-  phonenumber: string;
-  houseNumber: string;
-  street: string;
-  district: string;
-  province: string;
+  phonenumber?: string;
+  houseNumber?: string;
+  street?: string;
+  district?: string;
+  province?: string;
   email: string;
   currentPassword?: string;
   newPassword?: string;
@@ -52,11 +52,14 @@ const schema: ZodType<UserSettingFormData> = z
       .optional(),
     confirmPassword: z.string().optional(),
     email: z.string().email(),
-    phonenumber: z.string().min(10, "Phone number must have 10 characters"),
-    houseNumber: z.string().min(1, "House number is empty"),
-    street: z.string().min(1, "Street is empty"),
-    district: z.string().min(1, "District is empty"),
-    province: z.string().min(1, "Province is empty"),
+    phonenumber: z
+      .string()
+      .min(10, "Phone number must have 10 characters")
+      .optional(),
+    houseNumber: z.string().optional(),
+    street: z.string().optional(),
+    district: z.string().optional(),
+    province: z.string().optional(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
@@ -65,7 +68,12 @@ const schema: ZodType<UserSettingFormData> = z
 
 const splitAddress = (address: string) => {
   if (address === null || address === undefined)
-    return { houseNumber: "", street: "", district: "", province: "" };
+    return {
+      houseNumber: undefined,
+      street: undefined,
+      district: undefined,
+      province: undefined,
+    };
   const [houseNumber, street, district, province] = address.split(", ");
   return { houseNumber, street, district, province };
 };
@@ -83,6 +91,18 @@ export default function UserSettingPage() {
 
   const form = useForm<UserSettingFormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      name: undefined,
+      phonenumber: undefined,
+      houseNumber: undefined,
+      street: undefined,
+      district: undefined,
+      province: undefined,
+      email: undefined,
+      currentPassword: undefined,
+      newPassword: undefined,
+      confirmPassword: undefined,
+    },
   });
   const {
     register,
@@ -92,17 +112,25 @@ export default function UserSettingPage() {
     formState: { errors },
   } = form;
   const thisUser = useAppSelector((state) => state.profile.value);
+  console.log("thisUser", thisUser);
 
   const setInitialValues = () => {
+    console.log("thisUser", thisUser);
     if (!thisUser) return;
     setChosenImageUrl(thisUser.profileImage);
     form.setValue("name", thisUser.name);
-    form.setValue("phonenumber", thisUser.phoneNumber);
+    form.setValue(
+      "phonenumber",
+      thisUser.phoneNumber ? thisUser.phoneNumber : undefined
+    );
+    console.log("phone number init", thisUser.phoneNumber);
+    console.log("address init", thisUser.address);
 
     const address = thisUser.address;
-    if (address !== null && address !== undefined) {
+    if (address !== null) {
       const { houseNumber, street, district, province } = splitAddress(address);
       form.setValue("houseNumber", houseNumber);
+      console.log("house number init", houseNumber);
       form.setValue("street", street);
       form.setValue("district", district);
       form.setValue("province", province);
@@ -166,7 +194,6 @@ export default function UserSettingPage() {
 
       await UserService.changePassword(changePassFormData)
         .then(() => {
-          showSuccessToast("Change password successfully");
           resetField("currentPassword");
           resetField("newPassword");
           resetField("confirmPassword");
@@ -177,7 +204,7 @@ export default function UserSettingPage() {
     await UserService.updateProfile(dataForm)
       .then(() => {
         dispatch(setProfile(updatedProfile));
-        showSuccessToast("Change your profile successfully");
+        showSuccessToast("Updated successfully");
         resetPasswordFields();
       })
       .catch((e) => showErrorToast(e.message))
@@ -203,8 +230,16 @@ export default function UserSettingPage() {
     fetchAllProvinces().finally(() => {
       dispatch(disablePreloader());
     });
-    setInitialValues();
   }, []);
+
+  useEffect(() => {
+    if (thisUser) {
+      setInitialValues();
+    }
+  }, [thisUser]);
+  useEffect(() => {
+    console.log("watch houseNumber", watch("houseNumber"));
+  }, [watch("houseNumber")]);
 
   const handleImageChosen = (newFileUrl: File | null) => {
     setChosenImage(newFileUrl);
@@ -296,6 +331,7 @@ export default function UserSettingPage() {
                           errorMessages={
                             errors.province ? errors.province.message : ""
                           }
+                          value={watch("province")}
                           {...register("province")}
                         />
                       </DropdownTrigger>
@@ -319,6 +355,7 @@ export default function UserSettingPage() {
                           label="District"
                           labelColor="text-secondaryWord"
                           className="text-secondaryWord text-left cursor-pointer"
+                          value={watch("district")}
                           {...register("district")}
                           errorMessages={
                             errors.district ? errors.district.message : ""
@@ -353,6 +390,7 @@ export default function UserSettingPage() {
                       labelColor="text-secondaryWord"
                       className="text-secondaryWord"
                       errorMessages={errors.street ? errors.street.message : ""}
+                      value={watch("street")}
                       {...register("street")}
                     />
                     <Input
@@ -363,6 +401,7 @@ export default function UserSettingPage() {
                       errorMessages={
                         errors.houseNumber ? errors.houseNumber.message : ""
                       }
+                      value={watch("houseNumber")}
                       {...register("houseNumber")}
                     />
                   </div>
@@ -448,8 +487,7 @@ export default function UserSettingPage() {
                 iconAfter={isSaving ? <LoadingIcon /> : null}
                 disabled={isSaving}
                 onClick={() => {
-                  console.log("chosen image", chosenImage);
-                  console.log("chosen image url", chosenImageUrl);
+                  console.log(form.getValues());
                 }}
               >
                 {isSaving ? "" : "Save"}

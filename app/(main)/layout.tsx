@@ -36,7 +36,7 @@ export default function RootLayout({
           "max-sm:w-[calc(100%-92px)]"
         )}
       >
-        {children}
+        <div className="w-full">{children}</div>
       </div>
     </div>
   );

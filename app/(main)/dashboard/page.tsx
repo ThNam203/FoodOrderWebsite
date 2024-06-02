@@ -19,7 +19,7 @@ import {
   TotalCompletedOrderReport,
   TotalOrderReport,
 } from "@/models/Report";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 import ReportService from "@/services/reportService";
 import {
@@ -28,10 +28,12 @@ import {
   CircleOff,
   Percent,
 } from "lucide-react";
+import { notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const ReportPage = () => {
   const dispatch = useAppDispatch();
+  const thisUser = useAppSelector((state) => state.profile.value);
   const [orderReport, setOrderReport] = useState<TotalOrderReport>();
   const [completedOrderReport, setCompletedOrderReport] =
     useState<TotalCompletedOrderReport>();
@@ -121,6 +123,8 @@ const ReportPage = () => {
         dispatch(disablePreloader());
       });
   }, []);
+
+  if (thisUser && thisUser.isAdmin === false) return notFound();
 
   return (
     <div className="w-full h-screen bg-white p-10 overflow-y-scroll scrollbar-none space-y-6">

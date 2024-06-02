@@ -49,7 +49,7 @@ const NewCategoryModal = ({
   } = form;
 
   const handleFormSubmit = async (data: NewCategoryFormData) => {
-    console.log("submit");
+    console.log("submit", data);
     setIsLoading(true);
     await onAddClick(data.name, image)
       .then(() => {

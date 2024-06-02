@@ -16,6 +16,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ZodType, z } from "zod";
+import Logo from "@/public/images/logo.png";
+import style from "@/styles/sidebar.module.css";
+import { cn } from "@/utils/cn";
 export type LoginFormData = {
   email: string;
   password: string;
@@ -68,13 +71,14 @@ export default function LoginPage() {
             className="h-[35vw] max-xl:hidden rounded-md"
           />
           <div className="xl:w-1/3 max-xl:w-1/2 max-md:w-5/6 h-[560px] flex flex-col items-center justify-start pt-8 gap-4">
-            <div className="font-extrabold text-xl text-center">
-              Create an Account
+            <div className="font-extrabold text-xl select-none flex items-center gap-2">
+              <Image src={Logo} alt="logo" width={40} height={40} />
+              <span className={cn("text-nowrap text-primary")}>Fresh Mart</span>
             </div>
             <div className="w-2/3 flex flex-row items-center justify-between gap-4">
               <Separate classname="h-[2px]" />
               <span className="text-nowrap text-sm text-secondaryWord">
-                Sign Up
+                Sign In
               </span>
               <Separate classname="h-[2px]" />
             </div>

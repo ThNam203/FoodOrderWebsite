@@ -134,7 +134,7 @@ export const FoodForm = ({
     if (food) {
       console.log("food: ", food);
       setValue("name", food.name);
-      setValue("status", food.status ? "true" : "false");
+      setValue("status", food.status === FoodStatus.ACTIVE ? "true" : "false");
       setValue("category", food.category.name);
       setValue("images", food.images);
       setValue(

@@ -45,7 +45,6 @@ public class CategoryServiceImpl implements CategoryService {
             String url = fileService.uploadFile(files[0]);
             category.setImage(url);
         }
-        category.setImage("https://cdnphoto.dantri.com.vn/lod4Tx8WqZ2WBLsoEmwjyuA6ZU4=/thumb_w/960/2021/03/27/thuytrang-2731-1616857929781.jpg");
         Category newCategory = categoryRepository.save(category);
         return CategoryMapper.toCategoryDTO(newCategory);
     }

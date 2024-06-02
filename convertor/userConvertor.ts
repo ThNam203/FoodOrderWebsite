@@ -17,16 +17,16 @@ const UserToUpdate = (
   imageFile: string
 ) => {
   const address = joinAddress(
-    data.houseNumber,
-    data.street,
-    data.district,
-    data.province
+    data.houseNumber ? data.houseNumber : "",
+    data.street ? data.street : "",
+    data.district ? data.district : "",
+    data.province ? data.province : ""
   );
   const updatedProfile = {
     ...currentUser,
     name: data.name,
     email: data.email,
-    phoneNumber: data.phonenumber,
+    phoneNumber: data.phonenumber ? data.phonenumber : "",
     address: address,
     profileImage: imageFile,
     preferences: "Movie, music",

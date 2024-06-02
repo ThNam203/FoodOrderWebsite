@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDTO updateOrder(int orderId, OrderDTO orderDTO) {
         User user = userService.getAuthorizedUser();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
-        if (order.getUser().getId() != user.getId()) {
+        if (order.getUser().getId() != user.getId() && !user.getIsAdmin()) {
             throw new CustomException("You are not authorized to update this order", HttpStatus.UNAUTHORIZED);
         }
         order.setStatus(orderDTO.getStatus());

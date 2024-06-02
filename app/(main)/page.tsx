@@ -74,6 +74,7 @@ export default function Home() {
 
       await FoodService.getCategories()
         .then((res) => {
+          console.log("res categories", res.data);
           dispatch(setFoodCategories(res.data));
         })
         .catch((err) => {});
@@ -155,98 +156,97 @@ export default function Home() {
   console.log("thisUser", thisUser);
 
   return (
-    <>
-      <section
-        className="relative h-screen flex overflow-y-scroll"
-        style={{
-          background:
-            "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8) ), url('/images/bg-main-page.jpg')",
-          backgroundAttachment: "fixed",
-        }}
-      >
-        <div className="w-full h-fit px-8 border-gray-200 pb-8">
-          <div className="h-12 mt-8 flex items-center justify-between relative">
-            <div className="flex items-center rounded-md bg-gray-100 self-stretch px-4 w-2/3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20px"
-                height="20px"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  fill="black"
-                  d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"
-                />
-              </svg>
-              <input
-                type="text"
-                className="px-4 self-stretch bg-transparent flex-grow text-black outline-none"
-                placeholder="Search"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onFocus={() => setSearchFocus(true)}
-                onBlur={() => setSearchFocus(false)}
+    <section
+      className="relative w-full h-screen overflow-y-scroll"
+      style={{
+        background:
+          "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8) ), url('/images/bg-main-page.jpg')",
+        backgroundAttachment: "fixed",
+        backgroundSize: "cover",
+      }}
+    >
+      <div className="w-full h-fit px-4 pb-8 overflow-x-hidden">
+        {/* <div className="h-12 mt-8 flex items-center justify-between relative">
+          <div className="flex items-center rounded-md bg-gray-100 self-stretch px-4 w-2/3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20px"
+              height="20px"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill="black"
+                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 0 1 11 0"
               />
+            </svg>
+            <input
+              type="text"
+              className="px-4 self-stretch bg-transparent flex-grow text-black outline-none"
+              placeholder="Search"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onFocus={() => setSearchFocus(true)}
+              onBlur={() => setSearchFocus(false)}
+            />
+          </div>
+          {searchFocus && searchInput.length > 0 ? (
+            <div className="absolute bg-slate-700 top-full left-0 w-2/3 mt-1 rounded-md overflow-hidden">
+              {foods
+                .filter((f) =>
+                  f.name.toLowerCase().includes(searchInput.toLowerCase())
+                )
+                .map((f) => (
+                  <FoodItemSearch
+                    food={f}
+                    key={f.id}
+                    searchInput={searchInput}
+                    onMouseDown={() => handleFoodClick(f)}
+                  />
+                ))}
             </div>
-            {searchFocus && searchInput.length > 0 ? (
-              <div className="absolute bg-slate-700 top-full left-0 w-2/3 mt-1 rounded-md overflow-hidden">
-                {foods
-                  .filter((f) =>
-                    f.name.toLowerCase().includes(searchInput.toLowerCase())
-                  )
-                  .map((f) => (
-                    <FoodItemSearch
-                      food={f}
-                      key={f.id}
-                      searchInput={searchInput}
-                      onMouseDown={() => handleFoodClick(f)}
-                    />
-                  ))}
-              </div>
-            ) : null}
-          </div>
-          {/* <ImageCarousel carouselItems={data.adImages} className="mt-12" /> */}
-          <div className="grid grid-cols-6 lg:grid-rows-2 max-lg:grid-rows-3 mt-12 rounded-lg gap-1">
-            <img
-              src="https://cf.shopee.vn/file/vn-50009109-93074cd7272fcd06fc514ef80e8aa20f_xxhdpi"
-              alt="banner 1"
-              className="lg:col-span-4 max-lg:col-span-6 row-span-2 h-full object-cover rounded-md"
+          ) : null}
+        </div>
+        <div className="grid grid-cols-6 lg:grid-rows-2 max-lg:grid-rows-3 mt-12 rounded-lg gap-1">
+          <img
+            src="https://cf.shopee.vn/file/vn-50009109-93074cd7272fcd06fc514ef80e8aa20f_xxhdpi"
+            alt="banner 1"
+            className="lg:col-span-4 max-lg:col-span-6 row-span-2 h-full object-cover rounded-md"
+          />
+          <img
+            src="https://cf.shopee.vn/file/vn-50009109-ed6696a2bea64ffee99377b73c44d5e8_xhdpi"
+            alt="banner 2"
+            className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
+          />
+          <img
+            src="https://cf.shopee.vn/file/vn-50009109-c5335039e1b1aab390cc29f3446908fc_xhdpi"
+            alt="banner 2"
+            className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
+          />
+        </div>
+        {topFoods && topFoods.length > 0 && (
+          <section className="my-4">
+            <h3 className="text-4xl font-semibold mb-4">Best sellers</h3>
+            <FoodListComponent
+              foods={topFoods}
+              favoriteFoodIds={favoriteFoodIds}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
             />
-            <img
-              src="https://cf.shopee.vn/file/vn-50009109-ed6696a2bea64ffee99377b73c44d5e8_xhdpi"
-              alt="banner 2"
-              className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
+          </section>
+        )}
+
+        {bestRatedFoods && bestRatedFoods.length > 0 && (
+          <section className="my-4">
+            <h3 className="text-4xl font-semibold mb-4">Best rated</h3>
+
+            <FoodListComponent
+              foods={bestRatedFoods}
+              favoriteFoodIds={favoriteFoodIds}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
             />
-            <img
-              src="https://cf.shopee.vn/file/vn-50009109-c5335039e1b1aab390cc29f3446908fc_xhdpi"
-              alt="banner 2"
-              className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
-            />
-          </div>
-          {topFoods && topFoods.length > 0 && (
-            <section className="my-4">
-              <h3 className="text-4xl font-semibold mb-4">Best sellers</h3>
-              <FoodListComponent
-                foods={topFoods}
-                favoriteFoodIds={favoriteFoodIds}
-                onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-              />
-            </section>
-          )}
+          </section>
+        )} */}
 
-          {bestRatedFoods && bestRatedFoods.length > 0 && (
-            <section className="my-4">
-              <h3 className="text-4xl font-semibold mb-4">Best rated</h3>
-
-              <FoodListComponent
-                foods={bestRatedFoods}
-                favoriteFoodIds={favoriteFoodIds}
-                onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-              />
-            </section>
-          )}
-
-          {/* {favoriteFoodList && favoriteFoodList.length > 0 && (
+        {/* {favoriteFoodList && favoriteFoodList.length > 0 && (
             <section>
               <h3 className="text-4xl font-semibold mb-8">Favorite</h3>
               <FoodListComponent
@@ -257,55 +257,52 @@ export default function Home() {
             </section>
           )} */}
 
-          <section className="my-4">
-            <CategoryCarousel
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              carouselItems={categories.map((item) => ({
-                ...item,
-                quantity: foods.filter((f) => f.category.id === item.id).length,
-              }))}
-            />
+        <section className="w-full my-4">
+          <h3 className="text-4xl font-semibold mb-4">Categories</h3>
+          <CategoryCarousel
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            carouselItems={categories.map((item) => ({
+              ...item,
+              quantity: foods.filter((f) => f.category.id === item.id).length,
+            }))}
+          />
 
-            <FoodListComponent
-              foods={foods.filter(
+          <FoodListComponent
+            foods={foods.filter(
+              (f) =>
+                selectedCategory === -1 || f.category.id === selectedCategory
+            )}
+            favoriteFoodIds={foods
+              .filter(
                 (f) =>
                   selectedCategory === -1 || f.category.id === selectedCategory
-              )}
-              favoriteFoodIds={foods
-                .filter(
-                  (f) =>
-                    selectedCategory === -1 ||
-                    f.category.id === selectedCategory
-                )
-                .map((f) => f.id)}
-              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-            />
-          </section>
-          {selectedFood && selectedSize && (
-            <FoodDetail
-              isOpen={isOpen}
-              onOpenChange={() => setOpen(!isOpen)}
-              food={selectedFood}
-              foodQuantity={selectedFoodQuantity}
-              onFoodQuantityChange={(quantity: number) =>
-                setSelectedFoodQuantity(quantity)
-              }
-              selectedSize={selectedSize}
-              onFoodSizeChange={(foodSize: any) =>
-                handleFoodSizeChange(foodSize)
-              }
-              isFavorite={favoriteFoodIds.includes(selectedFood.id)}
-              onFavoriteChange={(isFavorite: boolean) =>
-                onFavoriteFoodIdsChange &&
-                onFavoriteFoodIdsChange(selectedFood.id)
-              }
-              onAddToCart={() => handleAddToCart(selectedFood)}
-            />
-          )}
-        </div>
-      </section>
-    </>
+              )
+              .map((f) => f.id)}
+            onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+          />
+        </section>
+        {selectedFood && selectedSize && (
+          <FoodDetail
+            isOpen={isOpen}
+            onOpenChange={() => setOpen(!isOpen)}
+            food={selectedFood}
+            foodQuantity={selectedFoodQuantity}
+            onFoodQuantityChange={(quantity: number) =>
+              setSelectedFoodQuantity(quantity)
+            }
+            selectedSize={selectedSize}
+            onFoodSizeChange={(foodSize: any) => handleFoodSizeChange(foodSize)}
+            isFavorite={favoriteFoodIds.includes(selectedFood.id)}
+            onFavoriteChange={(isFavorite: boolean) =>
+              onFavoriteFoodIdsChange &&
+              onFavoriteFoodIdsChange(selectedFood.id)
+            }
+            onAddToCart={() => handleAddToCart(selectedFood)}
+          />
+        )}
+      </div>
+    </section>
   );
 }
 

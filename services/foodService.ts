@@ -9,6 +9,7 @@ const dateToUrlPath = (date: Date) => {
 };
 
 const createNewCategory = (data: any) => {
+  console.log(data);
   return AxiosService.post<FoodCategory>("/api/categories", data, {
     headers: { "Content-Type": "multipart/form-data" },
   });

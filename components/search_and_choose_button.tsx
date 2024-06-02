@@ -85,12 +85,14 @@ export default function SearchAndChooseButton({
           <div className="flex flex-col w-full">
             <input
               className={cn(
-                "!m-0 pl-2 h-10 w-full !rounded-none border-0 placeholder:text-xs outline-none",
-                results.length === 0 ? "hidden" : ""
+                "!m-0 pl-2 h-10 w-full !rounded-none border-0 placeholder:text-xs outline-none"
               )}
               value={searchInput}
               placeholder={searchPlaceholder}
               onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.preventDefault();
+              }}
             />
             <ul>
               {results.length > 0 ? (

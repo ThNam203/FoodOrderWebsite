@@ -24,9 +24,11 @@ import {
   orderTableColumns,
 } from "./table_columns";
 import ImageCarousel from "@/components/CustomCarousel/image_carousel";
+import { notFound } from "next/navigation";
 
 export default function HistoryPage() {
   const dispatch = useAppDispatch();
+  const thisUser = useAppSelector((state) => state.profile.value);
   const data: Order[] = useAppSelector((state) => state.order.orders);
   const [rowUpdating, setRowUpdating] = useState<number[]>([]);
   const [filteredData, setFilteredData] = useState<Order[]>(data);
@@ -132,6 +134,8 @@ export default function HistoryPage() {
         setRowUpdating(rowUpdating.filter((rowId) => rowId !== id));
       });
   };
+
+  if (thisUser && thisUser.isAdmin === false) return notFound();
 
   return (
     <div className="h-screen flex flex-col p-8 text-primaryWord overflow-y-scroll">

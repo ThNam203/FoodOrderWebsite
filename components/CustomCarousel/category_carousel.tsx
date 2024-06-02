@@ -19,7 +19,7 @@ export default function CategoryCarousel({
   carouselItems,
   className,
   selectedCategory,
-  setSelectedCategory
+  setSelectedCategory,
 }: {
   selectedCategory: number;
   setSelectedCategory: (num: number) => any;
