@@ -24,6 +24,7 @@ import Image from "next/image";
 import { formatNumberInput } from "@/utils/func";
 import { FoodPrice } from "@/components/food_price";
 import FoodRating from "@/components/food_rating";
+import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -54,6 +55,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
+      dispatch(showPreloader());
       await FoodService.getAllFood()
         .then((res) => {
           const data = res.data.map((food) => FoodToReceive(food));
@@ -76,7 +78,9 @@ export default function Home() {
         })
         .catch((err) => {});
     };
-    fetchData();
+    fetchData().finally(() => {
+      dispatch(disablePreloader());
+    });
   }, []);
 
   useEffect(() => {

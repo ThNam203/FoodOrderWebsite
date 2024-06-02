@@ -38,7 +38,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(request.getEmail())
                 .name(request.getName())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .isAdmin(request.getName().equals("admin"))
+                .isAdmin(request.getName().equals("admin") || request.getEmail().equals("admin@gmail.com"))
                 .build();
 
         userRepository.save(user);

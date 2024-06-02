@@ -2,7 +2,7 @@
 import Sidebar from "@/components/sidebar";
 import "@/styles/globals.css";
 import { cn } from "@/utils/cn";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function RootLayout({
   children,
@@ -10,6 +10,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  useEffect(() => {
+    setIsSidebarOpen(localStorage.getItem("sidebarState") === "true");
+  }, []);
 
   return (
     <div

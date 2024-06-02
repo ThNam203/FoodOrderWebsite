@@ -219,26 +219,32 @@ const CartItem = ({
             if (!isEdittingNote) setIsTooltipOpen(isOpen);
           }}
           content={
-            isEdittingNote ? (
-              <div className="flex flex-row items-center font-sans">
-                <TextArea
-                  className="outline-0 rounded-lg resize-none"
-                  value={tempCartNote}
-                  onChange={(e) => setTempCartNote(e.currentTarget.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      if (onNoteChange) onNoteChange(tempCartNote);
-                      setIsTooltipOpen(false);
-                      setIsEdittingNote(false);
-                    }
-                  }}
-                />
-              </div>
-            ) : (
-              <span className="px-2">
-                {cartNote && cartNote.length > 0 ? cartNote : "Add note"}
-              </span>
-            )
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              {isEdittingNote ? (
+                <div className="flex flex-row items-center font-sans">
+                  <TextArea
+                    className="outline-0 rounded-lg resize-none"
+                    value={tempCartNote}
+                    onChange={(e) => setTempCartNote(e.currentTarget.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        if (onNoteChange) onNoteChange(tempCartNote);
+                        setIsTooltipOpen(false);
+                        setIsEdittingNote(false);
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <span className="px-2">
+                  {cartNote && cartNote.length > 0 ? cartNote : "Add note"}
+                </span>
+              )}
+            </div>
           }
           closeDelay={0}
           classNames={{
@@ -258,7 +264,8 @@ const CartItem = ({
               isEdittingNote ? "opacity-100" : "",
               cartNote && cartNote.length > 0 ? "opacity-100" : ""
             )}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setIsTooltipOpen(!isTooltipOpen);
               setIsEdittingNote(!isEdittingNote);
             }}
@@ -286,7 +293,7 @@ const CartItem = ({
   );
 };
 
-const PaymenBar = ({
+const PaymentBar = ({
   className,
   selectedTab,
   setSelectedTab,
@@ -405,7 +412,7 @@ const CartPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(showPreloader());
+      // dispatch(showPreloader());
       await CartService.GetCart()
         .then((res) => {
           const convertedData = res.data.map((cart: any) =>
@@ -423,7 +430,7 @@ const CartPage = () => {
         .catch((err) => {});
     };
     fetchData().finally(() => {
-      dispatch(disablePreloader());
+      // dispatch(disablePreloader());
     });
     setCookie("redirect", "");
   }, []);
@@ -455,7 +462,7 @@ const CartPage = () => {
       <div className="w-full lg:min-h-screen max-lg:h-fit flex flex-col p-8 text-primaryWord">
         <div className="bg-white flex flex-col gap-8 items-start mb-4">
           <h1 className="text-primary text-3xl font-bold">Your cart</h1>
-          <PaymenBar
+          <PaymentBar
             selectedTab={selectedTab}
             setSelectedTab={handleSelectedTabChange}
             hasCompletedOrder={hasCompletedOrder}
