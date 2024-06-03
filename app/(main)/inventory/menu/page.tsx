@@ -42,6 +42,8 @@ export default function DashboardMenu() {
     .filter((key) => key !== "images")
     .map((key) => key);
   const [selectedFood, setSelectedFood] = useState<Food | undefined>();
+  const { isOpen, setOpen } = useConfirmDialog();
+  const [foodToDelete, setFoodToDelete] = useState<Food[]>();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,6 +125,19 @@ export default function DashboardMenu() {
       });
   };
 
+  const handleDeleteRowsButtonClick = (foods: Food[]) => {
+    setFoodToDelete(foods);
+    setOpen(true);
+  };
+
+  const handleDeleteSelectedFoods = async (foods: Food[]) => {
+    const promises = foods.map((food) => FoodService.deleteFood(food.id));
+    await Promise.allSettled(promises).then(() => {
+      const newData = data.filter((f) => !foods.includes(f));
+      dispatch(setFoods(newData));
+    });
+  };
+
   if (thisUser && thisUser.isAdmin === false) return notFound();
 
   return (
@@ -169,6 +184,7 @@ export default function DashboardMenu() {
           filterOptionKeys: filterOptionKeys,
           showDataTableViewOptions: true,
           onFilterChange: handleFilterChange,
+          onDeleteRowsBtnClick: handleDeleteSelectedFoods,
         }}
       />
       {openNewFoodForm && (
@@ -181,6 +197,16 @@ export default function DashboardMenu() {
           }}
         />
       )}
+      <ConfirmDialog
+        isOpen={isOpen}
+        onOpenChange={setOpen}
+        title="Delete foods"
+        content="Are you sure you want to these foods ?"
+        onAccept={() => {
+          if (foodToDelete) handleDeleteRowsButtonClick(foodToDelete);
+        }}
+        onCancel={() => setOpen(false)}
+      />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
   FilterWeek,
   FilterYear,
 } from "@/components/filter";
-import { isBefore } from "date-fns";
+import { isBefore, max } from "date-fns";
 import { format } from "date-fns";
 
 const formatPrice = (price: number) => {
@@ -37,9 +37,28 @@ const formatNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
   return num;
 };
 
-function removeCharNAN(str: string): number {
-  const numbersOnly = str.replace(/\D/g, "");
-  return parseInt(numbersOnly, 10);
+function removeCharNAN(str: string): string {
+  const regex = /[^0-9.]/g;
+  return str.replace(regex, "");
+}
+
+function addCommatoStringNumber(strNum: string): string {
+  // Split the value into integer and fractional parts
+  let parts = strNum.split(".");
+  let integerPart = parts[0];
+  let fractionalPart = parts.length > 1 ? parts[1] : "";
+
+  // Add commas to the integer part
+  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Combine the integer and fractional parts
+  if (fractionalPart) return `${integerPart}.${fractionalPart}`;
+  else return integerPart;
+}
+
+function isValidPhoneNumberInput(phoneNumber: string): boolean {
+  const regex = /^[0-9]{0,10}$/;
+  return regex.test(phoneNumber);
 }
 
 function handleFilterColumn<T>(
@@ -524,9 +543,10 @@ const mapRange = (
 const displayNumber = (
   number: number,
   unit: "%" | string = "",
-  spaceBetweenNumAndUnit: boolean = false
+  spaceBetweenNumAndUnit: boolean = false,
+  maximumFractionDigits: number = 2
 ) => {
-  if (number === undefined) return "";
+  if (isNaN(number)) return "$0.00";
   if (unit === "%") {
     if (number < 1000) {
       return (
@@ -537,11 +557,28 @@ const displayNumber = (
         (spaceBetweenNumAndUnit ? " " : "") +
         unit
       );
+    } else {
+      return (
+        number.toLocaleString("en-US", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }) +
+        (spaceBetweenNumAndUnit ? " " : "") +
+        unit
+      );
     }
   }
 
+  if (unit === "$") {
+    return number.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: maximumFractionDigits,
+    });
+  }
+
   return (
-    number.toLocaleString("vi-VN", {
+    number.toLocaleString("en-US", {
       maximumFractionDigits: 2,
     }) +
     (spaceBetweenNumAndUnit ? " " : "") +
@@ -575,4 +612,6 @@ export {
   mapRange,
   displayNumber,
   removeCharNAN,
+  isValidPhoneNumberInput,
+  addCommatoStringNumber,
 };

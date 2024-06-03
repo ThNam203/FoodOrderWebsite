@@ -17,6 +17,7 @@ import {
 import { showSuccessToast } from "@/components/toast";
 import { Order, OrderStatus } from "@/models/Order";
 import { cn } from "@/utils/cn";
+import { displayNumber } from "@/utils/func";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 
@@ -130,7 +131,7 @@ const totalColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
     cell: ({ row }) => {
       let value: number = row.getValue(accessorKey);
 
-      return <p className="px-2">{value + "$"}</p>;
+      return <p className="px-2">{displayNumber(value, "$", false, 2)}</p>;
     },
     enableSorting: true,
   };
@@ -141,7 +142,7 @@ export const orderTableColumns = (
   rowUpdating: number[],
   onStatusChange: (id: number, status: OrderStatus) => void
 ): ColumnDef<Order>[] => {
-  const columns: ColumnDef<Order>[] = [defaultSelectColumn<Order>()];
+  const columns: ColumnDef<Order>[] = [];
 
   for (let key in orderColumnTitles) {
     let col: ColumnDef<Order>;

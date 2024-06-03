@@ -23,7 +23,11 @@ import NewCategoryModal from "../new_category_modal";
 import SearchAndChooseButton from "../search_and_choose_button";
 import { showDefaultToast, showErrorToast, showSuccessToast } from "../toast";
 import { ChooseImageButton } from "./choose_image_button";
-import { displayNumber, removeCharNAN } from "@/utils/func";
+import {
+  addCommatoStringNumber,
+  displayNumber,
+  removeCharNAN,
+} from "@/utils/func";
 
 export type FoodFormData = {
   name: string;
@@ -314,14 +318,14 @@ export const FoodForm = ({
                             shouldValidate: true,
                           });
                         }}
-                        onPriceChanged={(val: number) => {
-                          fieldValue[index].price = val;
+                        onPriceChanged={(val: string) => {
+                          fieldValue[index].price = parseFloat(val);
                           setValue("sizes", [...fieldValue], {
                             shouldValidate: true,
                           });
                         }}
-                        onWeightChanged={(val: number) => {
-                          fieldValue[index].weight = val;
+                        onWeightChanged={(val: string) => {
+                          fieldValue[index].weight = parseFloat(val);
                           setValue("sizes", [...fieldValue], {
                             shouldValidate: true,
                           });
@@ -656,8 +660,8 @@ const FoodVariantView = ({
   weight: number;
   note: string;
   onSizeNameChanged: (val: string) => void;
-  onWeightChanged: (val: number) => void;
-  onPriceChanged: (val: number) => void;
+  onWeightChanged: (val: string) => void;
+  onPriceChanged: (val: string) => void;
   onNoteChanged: (val: string) => void;
   onRemoveClick: () => void;
   errors?: any;
@@ -704,12 +708,42 @@ const FoodVariantView = ({
             </p>
             <input
               type="text"
-              value={price > 0 ? displayNumber(price) : ""}
               placeholder="0"
-              onChange={(e) => onPriceChanged(removeCharNAN(e.target.value))}
-              className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
+              defaultValue={price > 0 ? displayNumber(price) : ""}
+              onChange={(e) => {
+                const strNum = removeCharNAN(e.target.value);
+
+                //detect stranger character
+                if (strNum.length === 0) {
+                  e.target.value = "";
+                  return;
+                }
+
+                //if the number is valid, send to the parent
+                if (strNum.charAt(strNum.length - 1) !== ".") {
+                  onPriceChanged(strNum);
+                }
+
+                //detect second "."
+                if (strNum.charAt(strNum.length - 1) === ".") {
+                  if (strNum.split(".").length > 2) {
+                    e.target.value = strNum.slice(0, -1);
+                    return;
+                  }
+                }
+
+                //format the input
+                if (strNum.charAt(strNum.length - 1) === ".") {
+                  if (strNum.split(".").length <= 2) e.target.value = strNum;
+                } else {
+                  e.target.value = addCommatoStringNumber(strNum);
+                }
+              }}
+              className="border-b border-slate-400 outline-none p-1 pb-0 pr-2 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
-            <span className="absolute -right-1 pb-[1px]">$</span>
+            <span className="absolute right-0 pb-[1px] pointer-events-none">
+              $
+            </span>
             <span className="absolute top-full w-full text-red-500 text-end text-xs">
               {errors && errors["price"] && isFormSubmitted
                 ? errors["price"].message
@@ -733,9 +767,11 @@ const FoodVariantView = ({
               type="text"
               placeholder="0"
               onChange={(e) => onWeightChanged(removeCharNAN(e.target.value))}
-              className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
+              className="border-b border-slate-400 outline-none p-1 pb-0 pr-2 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
-            <span className="absolute -right-3 pb-[1px]">kg</span>
+            <span className="absolute right-0 pb-[1px] pointer-events-none">
+              g
+            </span>
             <span className="absolute top-full w-full text-red-500 text-end text-xs">
               {errors && errors["weight"] && isFormSubmitted
                 ? errors["weight"].message

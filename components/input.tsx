@@ -167,16 +167,16 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
     ref
   ) => {
     return (
-      <div className="w-full flex flex-row items-center justify-between gap-2">
+      <div
+        className="w-full flex flex-row items-center justify-between gap-2"
+        onClick={(e) => e.stopPropagation()}
+      >
         <span
           className={cn(
             "cursor-pointer text-primary hover:text-secondary",
             disabled ? "opacity-0" : ""
           )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onDecrease) onDecrease();
-          }}
+          onClick={onDecrease}
         >
           <Minus />
         </span>
@@ -200,10 +200,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
             "cursor-pointer text-primary hover:text-secondary",
             disabled ? "opacity-0" : ""
           )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onIncrease) onIncrease();
-          }}
+          onClick={onIncrease}
         >
           <Plus />
         </span>

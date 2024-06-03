@@ -25,6 +25,7 @@ import {
 import { useForm } from "react-hook-form";
 import { ZodType, z } from "zod";
 import { disablePreloader, showPreloader } from "@/redux/slices/preloader";
+import { isValidPhoneNumberInput, removeCharNAN } from "@/utils/func";
 
 export type UserSettingFormData = {
   name: string;
@@ -308,10 +309,16 @@ export default function UserSettingPage() {
                       labelColor="text-secondaryWord"
                       className="text-secondaryWord"
                       type="tel"
+                      maxLength={10}
+                      value={watch("phonenumber")}
+                      onChange={(e) => {
+                        if (!isValidPhoneNumberInput(e.target.value)) return;
+
+                        form.setValue("phonenumber", e.target.value);
+                      }}
                       errorMessages={
                         errors.phonenumber ? errors.phonenumber.message : ""
                       }
-                      {...register("phonenumber")}
                     />
                   </div>
                 </div>
@@ -475,7 +482,8 @@ export default function UserSettingPage() {
                 type="button"
                 className="w-[100px] self-end text-sm font-extrabold text-white bg-gray-400 hover:bg-gray-300/80 disabled:bg-gray-300/60"
                 onClick={() => {
-                  if (thisUser) setChosenImageUrl(thisUser.profileImage);
+                  if (thisUser) setInitialValues();
+                  resetPasswordFields();
                 }}
                 disabled={isSaving}
               >

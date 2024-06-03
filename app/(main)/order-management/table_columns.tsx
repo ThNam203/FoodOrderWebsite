@@ -26,6 +26,7 @@ import { LoadingIcon } from "@/components/icons";
 import { useForceUpdate } from "framer-motion";
 import { setOrders } from "@/redux/slices/order";
 import { User } from "@/models/User";
+import { displayNumber } from "@/utils/func";
 
 export const orderColumnTitles = {
   id: "Order ID",
@@ -239,7 +240,7 @@ const totalColumn = (accessorKey: string, title: string): ColumnDef<Order> => {
     cell: ({ row }) => {
       let value: number = row.getValue(accessorKey);
 
-      return <p className="px-2">{value + "$"}</p>;
+      return <p className="px-2">{displayNumber(value, "$")}</p>;
     },
     enableSorting: true,
   };
@@ -250,7 +251,7 @@ export const orderTableColumns = (
   rowUpdating: number[],
   onStatusChange: (id: number, status: OrderStatus) => Promise<void>
 ): ColumnDef<Order>[] => {
-  const columns: ColumnDef<Order>[] = [defaultSelectColumn<Order>()];
+  const columns: ColumnDef<Order>[] = [];
 
   for (let key in orderColumnTitles) {
     let col: ColumnDef<Order>;

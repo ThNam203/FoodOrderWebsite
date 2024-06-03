@@ -109,10 +109,12 @@ const SummaryItem = ({
     <div className="flex flex-row items-center justify-between text-nowrap">
       <div className="w-2/3 flex flex-row items-center gap-2">
         {title}
-        <X className={cn("inline-block", quantity ? "" : "hidden")} size={16} />
-        {quantity}
+        <span className={cn("text-nowrap", quantity ? "" : "hidden")}>
+          <X size={16} className="inline-block" />
+          {quantity ? quantity : 0}
+        </span>
       </div>
-      <span>{total.toFixed(0) + "$"}</span>
+      <span>{displayNumber(total, "$")}</span>
     </div>
   );
 };
@@ -632,7 +634,7 @@ const CartPage = () => {
                     selectedButton={selectedPayMethod}
                     onClick={() => handlePayMethodChange(PaymentMethod.CASH)}
                   />
-                  <PayMethodButton
+                  {/* <PayMethodButton
                     content={PaymentMethod.MOMO}
                     icon={
                       <Image
@@ -645,7 +647,7 @@ const CartPage = () => {
                     }
                     selectedButton={selectedPayMethod}
                     onClick={() => handlePayMethodChange(PaymentMethod.MOMO)}
-                  />
+                  /> */}
                 </div>
               </div>
             </div>
@@ -703,7 +705,7 @@ const CartPage = () => {
                   .filter((cart) => selectedCardIds.includes(cart.id))
                   .sort()
                   .map((cart) => {
-                    if (cart.quantity === 0) return null;
+                    if (!cart.quantity || cart.quantity === 0) return null;
                     const food = foodData.find(
                       (food) => food.id === cart.food.id
                     );
@@ -797,7 +799,11 @@ const CartPage = () => {
                   );
 
                   //detect any item in cart has quantity = 0
-                  if (cartList.some((cart) => cart.quantity === 0)) {
+                  if (
+                    cartList.some(
+                      (cart) => cart.quantity === 0 || !cart.quantity
+                    )
+                  ) {
                     showDefaultToast(
                       "Please check the quantity of each item in your cart"
                     );
