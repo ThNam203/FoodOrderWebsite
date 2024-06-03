@@ -187,27 +187,24 @@ const OrderDetailTab = ({
   setShowTabs: (value: boolean) => any;
 }) => {
   const order = row.original;
-  const [selectFoodItemTab, setSelectFoodItemTab] = useState<number>(-1); //use food name as tab name
-  const [selectedFood, setSelectedFood] = useState<Food | undefined>();
+  console.log("order", order);
+  const [selectFoodItemTab, setSelectFoodItemTab] = useState<number>(-1); //use food size as id
   const [selectedCart, setSelectedCart] = useState<Cart | undefined>();
 
-  const handleSelectedFoodItemTabChange = (id: number) => {
-    setSelectFoodItemTab(id);
-    if (id === -1) {
-      setSelectedFood(undefined);
+  const handleSelectedFoodItemTabChange = (foodSizeId: number) => {
+    setSelectFoodItemTab(foodSizeId);
+    if (foodSizeId === -1) {
       setSelectedCart(undefined);
     } else {
-      const cart = order.items.find((cart) => cart.food.id === id);
+      const cart = order.items.find((cart) => cart.foodSize.id === foodSizeId);
       if (cart) {
         setSelectedCart(cart);
-        setSelectedFood(cart.food);
       }
     }
   };
   useEffect(() => {
     if (order.items.length > 0) {
-      setSelectFoodItemTab(order.items[0].food.id);
-      setSelectedFood(order.items[0].food);
+      setSelectFoodItemTab(order.items[0].foodSize.id);
       setSelectedCart(order.items[0]);
     }
   }, []);
@@ -244,7 +241,7 @@ const OrderDetailTab = ({
           <div className="flex flex-row gap-4">
             {order.items.map((cart) => (
               <FoodItemTab
-                key={cart.food.id}
+                key={cart.foodSize.id}
                 cart={cart}
                 selectedTab={selectFoodItemTab}
                 setSelectedTab={handleSelectedFoodItemTabChange}
@@ -252,7 +249,7 @@ const OrderDetailTab = ({
             ))}
           </div>
         </div>
-        <FoodItemContent food={selectedFood} cart={selectedCart} />
+        <FoodItemContent cart={selectedCart} />
       </div>
     </div>
   );
@@ -320,10 +317,10 @@ const FoodItemTab = ({
     <TextButton
       className={cn(
         "text-sm rounded-md py-1",
-        selectedTab === cart.food.id ? selectedStyle : defaultStyle
+        selectedTab === cart.foodSize.id ? selectedStyle : defaultStyle
       )}
       onClick={() => {
-        setSelectedTab(cart.food.id);
+        setSelectedTab(cart.foodSize.id);
         if (onClick) onClick();
       }}
     >
@@ -332,16 +329,10 @@ const FoodItemTab = ({
   );
 };
 
-const FoodItemContent = ({
-  food,
-  cart,
-}: {
-  food: Food | undefined;
-  cart: Cart | undefined;
-}) => {
-  if (!food || !cart) return null;
+const FoodItemContent = ({ cart }: { cart: Cart | undefined }) => {
+  if (!cart) return null;
 
-  const carouselItems: CarouselItem[] = food.images.map((image) => {
+  const carouselItems: CarouselItem[] = cart.food.images.map((image) => {
     return {
       image: image,
     };
@@ -354,8 +345,8 @@ const FoodItemContent = ({
       </div>
       <div className="flex shrink-[5] grow-[5] flex-row gap-2 text-[0.8rem]">
         <div className="flex flex-1 flex-col">
-          <RowInfo label="Food ID:" value={food.id.toString()} />
-          <RowInfo label="Food name:" value={food.name} />
+          <RowInfo label="Food ID:" value={cart.food.id.toString()} />
+          <RowInfo label="Food name:" value={cart.food.name} />
           <RowInfo label="Size:" value={cart.foodSize.name} />
           <RowInfo label="Price:" value={displayNumber(cart.price, "$")} />
         </div>

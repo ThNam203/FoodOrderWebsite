@@ -170,10 +170,7 @@ export const FoodDetail = ({
 
                   <ModalBody className="font-sans">
                     <span className="font-semibold">Desciption</span>
-                    <p>
-                      {food.description}
-                      {food.description}
-                    </p>
+                    <p>{food.description}</p>
                   </ModalBody>
                 </div>
                 <div className="flex-[0_0_100%] overflow-y-scroll font-sans pt-4">

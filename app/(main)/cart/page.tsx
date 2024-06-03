@@ -154,6 +154,11 @@ const CartItem = ({
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [tempCartNote, setTempCartNote] = useState(cartNote);
 
+  window.addEventListener("click", (e) => {
+    setIsTooltipOpen(false);
+    setIsEdittingNote(false);
+  });
+
   return (
     <div
       ref={cartRef}
@@ -176,7 +181,7 @@ const CartItem = ({
         <img
           src={foodImageUrl}
           alt="food image"
-          className="h-20 rounded justify-seft-start object-cover"
+          className="h-20 w-20 rounded justify-seft-start object-cover"
         />
         <div className="w-full flex flex-col items-end justify-start">
           <p className="w-full text-start truncate">{foodName}</p>
@@ -657,13 +662,7 @@ const CartPage = () => {
                 Thank you for your ordering!
               </span>
               <span className="text-center">
-                Your order has been placed successfully.{" "}
-                <a
-                  href=""
-                  className="hover:underline text-primary text-sm underline-offset-2 underline-primary"
-                >
-                  Download your bill here.
-                </a>
+                Your order has been placed successfully.
               </span>
 
               <div className="md:w-1/2 max-md:w-full flex flex-row items-center justify-between gap-4 mt-8">
@@ -699,11 +698,36 @@ const CartPage = () => {
               <h1 className="text-3xl font-bold whitespace-nowrap">
                 Order Summary
               </h1>
+              <div className="w-full h-3/5 max-h-3/5 flex flex-col gap-4 overflow-y-scroll">
+                {cartData
+                  .filter((cart) => selectedCardIds.includes(cart.id))
+                  .sort()
+                  .map((cart) => {
+                    if (cart.quantity === 0) return null;
+                    const food = foodData.find(
+                      (food) => food.id === cart.food.id
+                    );
+                    if (!food) return null;
+                    const foodSize = food.foodSizes.find(
+                      (size) => size.id === cart.foodSize.id
+                    );
+                    if (!foodSize) return null;
+                    return (
+                      <SummaryItem
+                        key={cart.id}
+                        title={food.name}
+                        total={foodSize.price * cart.quantity}
+                        quantity={cart.quantity}
+                      />
+                    );
+                  })}
+              </div>
               <div className="flex flex-col gap-4">
-                <SummaryItem title="Subtotal" total={subtotal} />
-                <SummaryItem title="V.A.T" total={0} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem title="Total" total={subtotal} />
+                <SummaryItem title="Subtotal" total={subtotal} />
+                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
+                <Separate classname="h-[1.5px]" />
+                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
                 className="absolute bottom-0 w-full bg-third hover:bg-third/90"
@@ -750,9 +774,9 @@ const CartPage = () => {
               <div className="flex flex-col gap-4">
                 <Separate classname="h-[1.5px]" />
                 <SummaryItem title="Subtotal" total={subtotal} />
-                <SummaryItem title="V.A.T" total={0} />
+                <SummaryItem title="V.A.T" total={subtotal * 0.1} />
                 <Separate classname="h-[1.5px]" />
-                <SummaryItem title="Total" total={subtotal} />
+                <SummaryItem title="Total" total={subtotal + subtotal * 0.1} />
               </div>
               <TextButton
                 iconBefore={isOrdering ? <LoadingIcon /> : null}

@@ -542,7 +542,7 @@ const displayNumber = (
 
   return (
     number.toLocaleString("vi-VN", {
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 2,
     }) +
     (spaceBetweenNumAndUnit ? " " : "") +
     unit

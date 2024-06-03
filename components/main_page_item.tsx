@@ -72,10 +72,11 @@ export default function MainPageItem({
           defaultPrice={sortedPriceList[0]}
           secondPrice={sortedPriceList[sortedPriceList.length - 1]}
         />
-        <div
-          className={cn("flex items-center", food.rating === 0 && "opacity-0")}
-        >
-          <FoodRating rating={food.rating} className="mt-2" />
+        <div className={cn("flex items-center")}>
+          <FoodRating
+            rating={food.rating}
+            className={cn("mt-2", food.rating === 0 && "hidden")}
+          />
           {food.tags.map((tag) => {
             return <Tag key={tag} name={tag} />;
           })}
@@ -86,7 +87,7 @@ export default function MainPageItem({
 }
 
 export const Tag = ({ name }: { name: string }) => (
-  <span className="hover:cursor-pointer hover:bg-blue-500 text-white rounded-md font-medium bg-blue-300 px-2 py-1  font-hairline text-xs ml-1">
+  <span className="hover:cursor-pointer bg-blue-500 text-white rounded-md font-medium hover:bg-blue-400 px-2 py-1  font-hairline text-xs ml-1">
     {name}
   </span>
 );

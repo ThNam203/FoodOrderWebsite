@@ -227,28 +227,24 @@ const DetailTab = ({
   setShowTabs: (value: boolean) => any;
 }) => {
   const order = row.original;
-  const [selectFoodItemTab, setSelectFoodItemTab] = useState<number>(-1);
-  const [selectedFood, setSelectedFood] = useState<Food | undefined>();
+  const [selectFoodItemTab, setSelectFoodItemTab] = useState<number>(-1); //use foodSize as id
   const [selectedCart, setSelectedCart] = useState<Cart | undefined>();
   const [emblaRef, emplaApi] = useEmblaCarousel({ loop: false });
 
   const handleSelectedFoodItemTabChange = (id: number) => {
     setSelectFoodItemTab(id);
     if (id === -1) {
-      setSelectedFood(undefined);
       setSelectedCart(undefined);
     } else {
-      const cart = order.items.find((cart) => cart.food.id === id);
+      const cart = order.items.find((cart) => cart.foodSize.id === id);
       if (cart) {
         setSelectedCart(cart);
-        setSelectedFood(cart.food);
       }
     }
   };
   useEffect(() => {
     if (order.items.length > 0) {
-      setSelectFoodItemTab(order.items[0].food.id);
-      setSelectedFood(order.items[0].food);
+      setSelectFoodItemTab(order.items[0].foodSize.id);
       setSelectedCart(order.items[0]);
     }
   }, []);
@@ -280,8 +276,20 @@ const DetailTab = ({
               {order.feedback ? "Rated" : "Rate this order"}
             </TextButton>
           )}
+          <span className="text-secondaryWord italic">
+            VAT:{" "}
+            <span className="w-fit text-primary font-normal">
+              {displayNumber(order.total - order.total / 1.1, "$")}
+            </span>
+          </span>
+          <span className="text-secondaryWord italic">
+            Total:{" "}
+            <span className="w-fit text-primary font-normal">
+              {displayNumber(order.total, "$")}
+            </span>
+          </span>
         </div>
-        <FoodItemContent food={selectedFood} cart={selectedCart} />
+        <FoodItemContent cart={selectedCart} />
       </div>
     </div>
   );
@@ -315,10 +323,10 @@ const FoodItemTab = ({
     <TextButton
       className={cn(
         "text-sm rounded-[999px] py-1 space-x-1 whitespace-nowrap",
-        selectedTab === cart.food.id ? selectedStyle : defaultStyle
+        selectedTab === cart.foodSize.id ? selectedStyle : defaultStyle
       )}
       onClick={() => {
-        setSelectedTab(cart.food.id);
+        setSelectedTab(cart.foodSize.id);
         if (onClick) onClick();
       }}
     >
@@ -329,16 +337,14 @@ const FoodItemTab = ({
 };
 
 const FoodItemContent = ({
-  food,
   cart,
 }: {
-  food: Food | undefined;
   cart: Cart | undefined;
   onRateFood?: () => void;
 }) => {
-  if (!food || !cart) return null;
+  if (!cart) return null;
 
-  const carouselItems: CarouselItem[] = food.images.map((image) => {
+  const carouselItems: CarouselItem[] = cart.food.images.map((image) => {
     return {
       image: image,
     };
@@ -357,16 +363,19 @@ const FoodItemContent = ({
         <div className="relative flex-1">
           <div className="w-auto flex flex-col gap-2 justify-start">
             <div className="w-[60vw] text-primaryWord text-2xl font-semibold capitalize truncate">
-              {food.name}
+              {cart.food.name}
             </div>
             <div className="w-[40vw] text-secondaryWord text-lg capitalize truncate">
-              {food.description}
+              {cart.food.description}
             </div>
             <div className="flex flex-row gap-2 justify-between">
               <FoodProperty name={cart.foodSize.name} isSelected={true} />
 
-              <span className="w-fit text-primary text-lg">
-                {displayNumber(cart.price, "$")}
+              <span className="text-secondaryWord italic">
+                Price:{" "}
+                <span className="w-fit text-primary font-normal">
+                  {displayNumber(cart.price, "$")}
+                </span>
               </span>
             </div>
             <div

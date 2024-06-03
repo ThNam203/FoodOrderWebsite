@@ -150,6 +150,7 @@ export default function Home() {
   };
   const handleFoodClick = (food: Food) => {
     setSelectedFood(food);
+    setSelectedFoodQuantity(1);
     if (selectedFood !== food) setSelectedSize(food.foodSizes[0]);
     setOpen(!isOpen);
   };
@@ -165,8 +166,8 @@ export default function Home() {
         backgroundSize: "cover",
       }}
     >
-      <div className="w-full h-fit px-4 pb-8 overflow-x-hidden">
-        {/* <div className="h-12 mt-8 flex items-center justify-between relative">
+      <div className="w-full h-fit px-4 pb-8 space-y-4 overflow-x-hidden">
+        <div className="h-12 mt-8 flex items-center justify-between relative">
           <div className="flex items-center rounded-md bg-gray-100 self-stretch px-4 w-2/3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -224,7 +225,7 @@ export default function Home() {
           />
         </div>
         {topFoods && topFoods.length > 0 && (
-          <section className="my-4">
+          <section>
             <h3 className="text-4xl font-semibold mb-4">Best sellers</h3>
             <FoodListComponent
               foods={topFoods}
@@ -235,7 +236,7 @@ export default function Home() {
         )}
 
         {bestRatedFoods && bestRatedFoods.length > 0 && (
-          <section className="my-4">
+          <section>
             <h3 className="text-4xl font-semibold mb-4">Best rated</h3>
 
             <FoodListComponent
@@ -244,44 +245,38 @@ export default function Home() {
               onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
             />
           </section>
-        )} */}
+        )}
 
-        {/* {favoriteFoodList && favoriteFoodList.length > 0 && (
-            <section>
-              <h3 className="text-4xl font-semibold mb-8">Favorite</h3>
-              <FoodListComponent
-                foods={favoriteFoodList}
-                favoriteFoodIds={favoriteFoodIds}
-                onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
-              />
-            </section>
-          )} */}
-
-        <section className="w-full my-4">
+        <section className="w-full">
           <h3 className="text-4xl font-semibold mb-4">Categories</h3>
-          <CategoryCarousel
+          {/* <CategoryCarousel
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             carouselItems={categories.map((item) => ({
               ...item,
               quantity: foods.filter((f) => f.category.id === item.id).length,
             }))}
-          />
+          /> */}
 
           <FoodListComponent
             foods={foods.filter(
               (f) =>
                 selectedCategory === -1 || f.category.id === selectedCategory
             )}
-            favoriteFoodIds={foods
-              .filter(
-                (f) =>
-                  selectedCategory === -1 || f.category.id === selectedCategory
-              )
-              .map((f) => f.id)}
+            favoriteFoodIds={favoriteFoodIds}
             onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
           />
         </section>
+        {favoriteFoodList && favoriteFoodList.length > 0 && (
+          <section>
+            <h3 className="text-4xl font-semibold mb-8">Favorite</h3>
+            <FoodListComponent
+              foods={favoriteFoodList}
+              favoriteFoodIds={favoriteFoodIds}
+              onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
+            />
+          </section>
+        )}
         {selectedFood && selectedSize && (
           <FoodDetail
             isOpen={isOpen}

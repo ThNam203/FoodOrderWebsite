@@ -60,10 +60,11 @@ export default function FavouriteFood({
           secondPrice={sortedPriceList[sortedPriceList.length - 1]}
         />
 
-        <div
-          className={cn("flex items-center", food.rating === 0 && "opacity-0")}
-        >
-          <FoodRating rating={food.rating} className="mt-2" />
+        <div className={cn("flex items-center")}>
+          <FoodRating
+            rating={food.rating}
+            className={cn("mt-2", food.rating === 0 && "hidden")}
+          />
           {food.tags.map((tag) => {
             return <Tag key={tag} name={tag} />;
           })}

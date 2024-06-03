@@ -9,13 +9,13 @@ const CartsToOrder = (
   paymentMethod: PaymentMethod,
   user: User
 ) => {
-  const total = cartList.reduce((acc, cart) => {
+  let total = cartList.reduce((acc, cart) => {
     return acc + cart.price;
   }, 0);
 
   const order: Order = {
     id: 0,
-    total: total,
+    total: total + total * 0.1,
     status: OrderStatus.PENDING,
     items: cartList,
     createdAt: new Date(),

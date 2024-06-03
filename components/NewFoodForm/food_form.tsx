@@ -103,14 +103,7 @@ export const FoodForm = ({
   const [isUploadingFood, setIsUploadingFood] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    resetField,
-    watch,
-  } = useForm<z.infer<typeof foodSchema>>({
+  const form = useForm<z.infer<typeof foodSchema>>({
     resolver: zodResolver(foodSchema),
     defaultValues: {
       status: "true",
@@ -129,6 +122,14 @@ export const FoodForm = ({
       tags: [],
     },
   });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    resetField,
+    watch,
+  } = form;
 
   const setInitialValues = () => {
     if (food) {
@@ -160,25 +161,18 @@ export const FoodForm = ({
 
   // if newFileUrl == null, it means the user removed image
   const handleImageChosen = (newFileUrl: File | null, index: number) => {
-    if (newFileUrl === null) chosenImageFiles.splice(index, 1);
-    else chosenImageFiles.push(newFileUrl);
-    setChosenImageFiles(chosenImageFiles);
+    const newChosenImageFiles = [...chosenImageFiles];
+    if (newFileUrl === null) newChosenImageFiles.splice(index, 1);
+    else newChosenImageFiles.push(newFileUrl);
+    setChosenImageFiles(newChosenImageFiles);
 
     const newImages = [...watch("images")];
-    console.log("before", newImages);
-    if (newFileUrl) newImages[index] = URL.createObjectURL(newFileUrl);
+    if (newFileUrl) newImages.push(URL.createObjectURL(newFileUrl));
     else newImages.splice(index, 1);
-    console.log("after", newImages);
-
     setValue("images", newImages);
   };
 
-  useEffect(() => {
-    console.log("images changed: ", watch("images"));
-  }, [watch("images")]);
-
   const onSubmit = async (values: FoodFormData) => {
-    console.log(values);
     const selectedCategory = categories.find(
       (cat: any) => cat.name === values.category
     );
@@ -375,7 +369,11 @@ export const FoodForm = ({
               type="submit"
               className="w-[100px] px-4 text-white"
               disabled={isUploadingFood}
-              onClick={() => setIsFormSubmitted(true)}
+              onClick={() => {
+                console.log("submitting", form.getValues());
+                console.log("submitting error", errors);
+                setIsFormSubmitted(true);
+              }}
             >
               {food ? "Update" : "Add"}
             </TextButton>
@@ -630,7 +628,6 @@ const ImagesInput = ({
             key={index}
             fileUrl={fileUrl}
             onImageChanged={(imageFile) => {
-              console.log(imageFile, " ", index);
               onImageChanged(imageFile, index);
             }}
             className="rounded-md"
@@ -668,7 +665,7 @@ const FoodVariantView = ({
 }) => {
   return (
     <div className="relative px-2 text-[0.85rem] py-4 pb-6 rounded-md bg-white shadow-lg">
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-row gap-6">
         <div className="flex flex-col gap-4 justify-between">
           <div className="relative flex flex-row items-baseline">
             <p
@@ -694,7 +691,7 @@ const FoodVariantView = ({
                 : null}
             </span>
           </div>
-          <div className="relative flex flex-row items-baseline">
+          <div className="relative flex flex-row items-end">
             <p
               className={cn(
                 "w-[80px] font-semibold",
@@ -707,11 +704,12 @@ const FoodVariantView = ({
             </p>
             <input
               type="text"
-              value={price > 0 ? displayNumber(price) : undefined}
+              value={price > 0 ? displayNumber(price) : ""}
               placeholder="0"
               onChange={(e) => onPriceChanged(removeCharNAN(e.target.value))}
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
+            <span className="absolute -right-1 pb-[1px]">$</span>
             <span className="absolute top-full w-full text-red-500 text-end text-xs">
               {errors && errors["price"] && isFormSubmitted
                 ? errors["price"].message
@@ -719,7 +717,7 @@ const FoodVariantView = ({
             </span>
           </div>
 
-          <div className="relative flex flex-row items-baseline">
+          <div className="relative flex flex-row items-end">
             <p
               className={cn(
                 "w-[80px] font-semibold",
@@ -731,12 +729,13 @@ const FoodVariantView = ({
               Weight
             </p>
             <input
-              value={weight > 0 ? displayNumber(weight) : undefined}
+              value={weight > 0 ? displayNumber(weight) : ""}
               type="text"
               placeholder="0"
               onChange={(e) => onWeightChanged(removeCharNAN(e.target.value))}
               className="border-b border-slate-400 outline-none p-1 pb-0 text-end max-w-44 bg-inherit flex-1 focus:border-primary"
             />
+            <span className="absolute -right-3 pb-[1px]">kg</span>
             <span className="absolute top-full w-full text-red-500 text-end text-xs">
               {errors && errors["weight"] && isFormSubmitted
                 ? errors["weight"].message
