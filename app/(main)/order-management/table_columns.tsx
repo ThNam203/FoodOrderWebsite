@@ -1,32 +1,18 @@
 "use client";
-import { DataTableColumnHeader } from "@/components/datatable/my_table_column_header";
-import {
-  defaultColumn,
-  defaultIndexColumn,
-  defaultSelectColumn,
-} from "@/components/datatable/my_table_default_column";
-import { Food, FoodCategory } from "@/models/Food";
-import { ColumnDef } from "@tanstack/react-table";
-import Image from "next/image";
-import default_food_image from "@/public/images/default_food.jpg";
-import { Order, OrderStatus } from "@/models/Order";
-import { Cart } from "@/models/Cart";
 import { TextButton } from "@/components/buttons";
-import { cn } from "@/utils/cn";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/datatable/dropdown-menu";
-import OrderService from "@/services/orderService";
-import { showErrorToast } from "@/components/toast";
-import { LoadingIcon } from "@/components/icons";
-import { useForceUpdate } from "framer-motion";
-import { setOrders } from "@/redux/slices/order";
+import { DataTableColumnHeader } from "@/components/datatable/my_table_column_header";
+import { defaultColumn } from "@/components/datatable/my_table_default_column";
+import { Order, OrderStatus } from "@/models/Order";
 import { User } from "@/models/User";
+import { cn } from "@/utils/cn";
 import { displayNumber } from "@/utils/func";
+import { ColumnDef } from "@tanstack/react-table";
 
 export const orderColumnTitles = {
   id: "Order ID",
@@ -52,33 +38,6 @@ export const orderDefaultVisibilityState = {
   status: true,
 };
 
-// function imageColumn(accessorKey: string, title: string): ColumnDef<Food> {
-//   const col: ColumnDef<Food> = {
-//     accessorKey: accessorKey,
-//     header: ({ column }) => (
-//       <DataTableColumnHeader column={column} title={title} />
-//     ),
-//     cell: ({ row }) => {
-//       const values: string[] = row.getValue(accessorKey);
-//       let imageSrc = values.length > 0 ? values[0] : default_food_image;
-
-//       return (
-//         <div className="w-fit px-2">
-//           <Image
-//             alt="food image"
-//             width={30}
-//             height={30}
-//             src={imageSrc}
-//             className="mx-auto object-contain"
-//           />
-//         </div>
-//       );
-//     },
-//     enableSorting: false,
-//   };
-//   return col;
-// }
-
 const statusColumn = (
   accessorKey: string,
   title: string,
@@ -102,7 +61,7 @@ const statusColumn = (
           "text-green-400 bg-green-50 hover:bg-green-100 outline-green-300";
       if (value === OrderStatus.CANCELLED)
         styleButton =
-          "text-red-500 bg-red-50 hover:bg-red-100 focus:outline-red-300";
+          "text-red-500 bg-red-50 hover:bg-red-50 focus:outline-red-300";
       if (value === OrderStatus.DELIVERED)
         styleButton =
           "text-blue-500 bg-blue-50 hover:bg-blue-100 focus:outline-blue-300";
@@ -113,7 +72,10 @@ const statusColumn = (
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger
+            asChild
+            disabled={(value as OrderStatus) === OrderStatus.CANCELLED}
+          >
             <TextButton
               className={cn(
                 "w-[100px] gap-2 whitespace-nowrap ease-linear duration-100 py-1 rounded-md cursor-pointer outline outline-offset-0 outline-1",
