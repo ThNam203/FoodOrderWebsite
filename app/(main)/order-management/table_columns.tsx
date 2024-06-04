@@ -64,7 +64,7 @@ const statusColumn = (
           "text-red-500 bg-red-50 hover:bg-red-50 focus:outline-red-300";
       if (value === OrderStatus.DELIVERED)
         styleButton =
-          "text-blue-500 bg-blue-50 hover:bg-blue-100 focus:outline-blue-300";
+          "text-blue-500 bg-blue-50 hover:bg-blue-50 focus:outline-blue-300";
       const handleStatusChange = async (status: OrderStatus) => {
         const id = row.original.id;
         onStatusChange(id, status);
@@ -74,7 +74,10 @@ const statusColumn = (
         <DropdownMenu>
           <DropdownMenuTrigger
             asChild
-            disabled={(value as OrderStatus) === OrderStatus.CANCELLED}
+            disabled={
+              (value as OrderStatus) === OrderStatus.CANCELLED ||
+              (value as OrderStatus) === OrderStatus.DELIVERED
+            }
           >
             <TextButton
               className={cn(

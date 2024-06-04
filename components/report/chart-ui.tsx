@@ -18,6 +18,7 @@ const ChartUI = ({
 
   useEffect(() => {
     if (chartRef.current && data) {
+      console.log("data chart", data);
       const chart = new Chart(chartRef.current, {
         type: type,
         data: data,
@@ -28,8 +29,10 @@ const ChartUI = ({
             xAxisKey: "month",
             yAxisKey: "value",
           },
+          ...data.options,
         },
       });
+      console.log("chart", chart);
       return () => {
         chart.destroy();
       };

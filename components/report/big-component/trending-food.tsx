@@ -41,7 +41,7 @@ const HeaderRow = () => {
 const FoodRow = ({ food, count }: { food: Food; count: number }) => {
   let formattedPrice;
   if (food.foodSizes.length === 1) {
-    formattedPrice = food.foodSizes[0].price;
+    formattedPrice = displayNumber(food.foodSizes[0].price, "$");
   } else if (food.foodSizes.length > 1) {
     //find min and max price
     let minPrice = food.foodSizes[0].price;

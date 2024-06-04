@@ -6,7 +6,10 @@ interface LineChartDataConfigProps {
   data: number[];
   otherOptions?: any;
 }
-const LineChartConfig = (datasets: LineChartDataConfigProps[]) => {
+const LineChartConfig = (
+  datasets: LineChartDataConfigProps[],
+  options?: any
+) => {
   const currentMonth = new Date().getMonth() + 1;
   const monthList = getAllMonthLabels(
     currentMonth - datasets[0].data.length + 1,
@@ -46,6 +49,30 @@ const LineChartConfig = (datasets: LineChartDataConfigProps[]) => {
         ...dataset.otherOptions,
       };
     }),
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context: any) {
+              let label = context.dataset.label || "";
+
+              if (label) {
+                label += ": ";
+              }
+              if (context.parsed.y !== null) {
+                if (options && options?.currency === "$")
+                  label += new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(context.parsed.y);
+                else label += context.parsed.y;
+              }
+              return label;
+            },
+          },
+        },
+      },
+    },
   };
 };
 
@@ -120,6 +147,15 @@ const CircleChartConfig = (
         ...dataset.otherOptions,
       };
     }),
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ttItem: any) => `${ttItem.label}: $${ttItem.parsed}`,
+          },
+        },
+      },
+    },
   };
 };
 

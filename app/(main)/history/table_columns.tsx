@@ -80,6 +80,7 @@ const actionColumn = (
   const col: ColumnDef<Order> = {
     id: "Action",
     cell: ({ row }) => {
+      let status: OrderStatus = row.getValue("status");
       const handleStatusChange = (status: OrderStatus) => {
         const id = row.original.id;
         onStatusChange(id, status);
@@ -108,7 +109,10 @@ const actionColumn = (
               Copy order ID
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="text-red-500 hover:bg-gray-100 cursor-pointer ease-linear duration-100"
+              className={cn(
+                "text-red-500 hover:bg-gray-100 cursor-pointer ease-linear duration-100",
+                (status as OrderStatus) === OrderStatus.PENDING ? "" : "hidden"
+              )}
               onClick={() => handleStatusChange(OrderStatus.CANCELLED)}
             >
               Cancel this order

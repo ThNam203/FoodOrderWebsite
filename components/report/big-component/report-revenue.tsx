@@ -11,12 +11,17 @@ const ReportRevenue = ({ report }: { report: RevenueReport }) => {
   const [chartData, setChartData] = useState<any>({});
 
   useEffect(() => {
-    const res = LineChartConfig([
+    const res = LineChartConfig(
+      [
+        {
+          label: "Total revenue",
+          data: report ? report.data.map((item) => Math.floor(item.value)) : [],
+        },
+      ],
       {
-        label: "Total revenue",
-        data: report ? report.data.map((item) => Math.floor(item.value)) : [],
-      },
-    ]);
+        currency: "$",
+      }
+    );
     setChartData(res);
   }, [report]);
 
