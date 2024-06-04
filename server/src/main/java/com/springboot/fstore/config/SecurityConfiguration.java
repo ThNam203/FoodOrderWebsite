@@ -29,7 +29,8 @@ public class SecurityConfiguration {
             "/store-websocket/**",
             "/v3/api-docs/**",
             "/api/foods/**",
-            "api/comments/**",
+            "/api/comments/**",
+            "/api/categories/**",
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
