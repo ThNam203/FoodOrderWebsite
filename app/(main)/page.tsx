@@ -35,6 +35,7 @@ export default function Home() {
   const foods = useAppSelector((state) => state.food.activeFood);
   const categories = useAppSelector((state) => state.foodCategory.value);
   const thisUser = useAppSelector((state) => state.profile.value);
+
   const [topFoods, setTopFoods] = useState<Food[]>([]);
   const [searchFocus, setSearchFocus] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -224,6 +225,7 @@ export default function Home() {
             className="lg:col-span-2 max-lg:col-span-3 max-lg:row-span-1 max-lg:row-start-3 rounded-md"
           />
         </div>
+
         {topFoods && topFoods.length > 0 && (
           <section>
             <h3 className="text-4xl font-semibold mb-4">Best sellers</h3>
@@ -234,7 +236,7 @@ export default function Home() {
             />
           </section>
         )}
-
+        
         {bestRatedFoods && bestRatedFoods.length > 0 && (
           <section>
             <h3 className="text-4xl font-semibold mb-4">Best rated</h3>
@@ -249,14 +251,14 @@ export default function Home() {
 
         <section className="w-full">
           <h3 className="text-4xl font-semibold mb-4">Categories</h3>
-          {/* <CategoryCarousel
+          <CategoryCarousel
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             carouselItems={categories.map((item) => ({
               ...item,
               quantity: foods.filter((f) => f.category.id === item.id).length,
             }))}
-          /> */}
+          />
 
           <FoodListComponent
             foods={foods.filter(
@@ -267,6 +269,7 @@ export default function Home() {
             onFavoriteFoodIdsChange={handleFavoriteFoodIdsChange}
           />
         </section>
+
         {favoriteFoodList && favoriteFoodList.length > 0 && (
           <section>
             <h3 className="text-4xl font-semibold mb-8">Favorite</h3>
@@ -277,6 +280,7 @@ export default function Home() {
             />
           </section>
         )}
+        
         {selectedFood && selectedSize && (
           <FoodDetail
             isOpen={isOpen}
