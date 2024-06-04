@@ -55,7 +55,7 @@ const FoodComment = ({
                         </h4>
                         {<StarsIcon rating={comment.rating} />}
                     </div>
-                    <p className="text-xs text-gray-600">{comment.createdAt}</p>
+                    <p className="text-xs text-gray-600">{new Date(comment.createdAt).toLocaleString()}</p>
                     <h5 className="text-md font-semibold text-gray-800 mt-1">
                         {comment.title}
                     </h5>

@@ -30,4 +30,5 @@ export type Food = {
   tags: string[];
   status: FoodStatus;
   createdAt: Date;
+  purchased: boolean;
 };
