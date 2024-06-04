@@ -54,6 +54,7 @@ const FoodFormDataToFood = (formData: FoodFormData, category: FoodCategory) => {
     tags: formData.tags,
     status: formData.status as FoodStatus,
     createdAt: new Date(),
+    purchased: false
   };
   return food;
 };
@@ -71,6 +72,7 @@ const FoodToReceive = (data: any): Food => {
     tags: data.tags,
     status: data.status === "true" ? FoodStatus.ACTIVE : FoodStatus.DISABLE,
     createdAt: new Date(data.createdAt),
+    purchased: data.purchased,
   };
   return foodReceived;
 };

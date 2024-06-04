@@ -174,7 +174,7 @@ export const FoodDetail = ({
                   </ModalBody>
                 </div>
                 <div className="flex-[0_0_100%] overflow-y-scroll font-sans pt-4">
-                  <CommentSection foodId={food.id} />
+                  <CommentSection foodId={food.id} hasPurchased={food.purchased} />
                 </div>
               </div>
             </div>
