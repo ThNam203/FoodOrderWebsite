@@ -199,15 +199,15 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public List<FoodDTO> getFoods() {
-//        User user = userService.getAuthorizedUser();
+        User user = userService.getAuthorizedUser();
         List<Food> foods = foodRepository.findAll();
-//        List<Order> orders = orderRepository.findAllByUserId(user.getId());
+        List<Order> orders = orderRepository.findAllByUserId(user.getId());
 
         return foods.stream()
                 .map(food -> {
-//                    boolean isPurchased = orders.stream().anyMatch(order -> order.getItems().stream().anyMatch(cart -> cart.getFood().getId() == food.getId()));
+                    boolean isPurchased = orders.stream().anyMatch(order -> order.getItems().stream().anyMatch(cart -> cart.getFood().getId() == food.getId()));
                     FoodDTO foodDTO = FoodMapper.toFoodDTO(food);
-//                    foodDTO.setPurchased(isPurchased);
+                    foodDTO.setPurchased(isPurchased);
                     return foodDTO;
                 })
                 .toList();
