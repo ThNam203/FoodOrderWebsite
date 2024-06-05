@@ -218,15 +218,19 @@ const OrderDetailTab = ({
             <RowInfo label="Contact:" value={order.user.phoneNumber} />
             <RowInfo label="Email:" value={order.user.email} />
             <RowInfo label="Address:" value={order.user.address} />
+            <RowInfo label="Total:" value={displayNumber(order.total, "$")} />
           </div>
           <div className="flex flex-1 flex-col">
-            <RowInfo label="Total:" value={order.total.toString() + "$"} />
             <RowInfo
               label="Order date:"
               value={formatDate(order.createdAt, "datetime")}
             />
             <RowInfo label="Payment method:" value={order.paymentMethod} />
-            <RowInfo label="Status:" value={order.status} />
+            <RowInfo
+              label="Order note:"
+              value={order.note}
+              showTextArea={true}
+            />
           </div>
         </div>
       </div>
@@ -274,15 +278,17 @@ const RowInfo = ({
               value && value.length > 0 ? "bg-yellow-100" : "bg-gray-200 "
             )}
           >
-            <b>Note: </b>
+            <b>{label}</b>
             <br />
-            <span
+            <div
               className={cn(
                 value && value.length > 0 ? "" : "italic text-secondaryWord"
               )}
             >
-              {value && value.length > 0 ? value : "Empty"}
-            </span>
+              {value && value.length > 0
+                ? value.split("\n").map((str, i) => <p key={i}>{str}</p>)
+                : "Empty"}
+            </div>
           </div>
         </div>
       ) : (
@@ -351,7 +357,7 @@ const FoodItemContent = ({ cart }: { cart: Cart | undefined }) => {
           <RowInfo label="Price:" value={displayNumber(cart.price, "$")} />
         </div>
         <div className="flex flex-1 flex-col">
-          <RowInfo label="Note:" value={cart.note} showTextArea={true} />
+          <RowInfo label="Item note:" value={cart.note} showTextArea={true} />
         </div>
       </div>
     </div>

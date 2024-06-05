@@ -11,6 +11,7 @@ export type Order = {
   paymentMethod: PaymentMethod;
   user: User;
   feedback?: Feedback;
+  note: string;
 };
 
 export enum PaymentMethod {

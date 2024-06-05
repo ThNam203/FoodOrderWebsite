@@ -1,12 +1,11 @@
 import { Cart } from "@/models/Cart";
 import { Order, OrderStatus, PaymentMethod } from "@/models/Order";
-import { CartToSend } from "./cartConvertor";
-import { useAppSelector } from "@/redux/hooks";
 import { User } from "@/models/User";
 
 const CartsToOrder = (
   cartList: Cart[],
   paymentMethod: PaymentMethod,
+  note: string,
   user: User
 ) => {
   let total = cartList.reduce((acc, cart) => {
@@ -21,6 +20,7 @@ const CartsToOrder = (
     createdAt: new Date(),
     paymentMethod: paymentMethod,
     user: user,
+    note: note,
   };
   return order;
 };
@@ -47,8 +47,9 @@ const OrderToReceive = (data: any): Order => {
     paymentMethod: data.paymentMethod,
     user: data.user,
     feedback: data.feedback,
+    note: data.note,
   };
   return orderReceived;
 };
 
-export { CartsToOrder, OrderToSend, OrderToReceive };
+export { CartsToOrder, OrderToReceive, OrderToSend };

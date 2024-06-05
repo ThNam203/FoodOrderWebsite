@@ -1,14 +1,12 @@
 import axios from "axios";
-import AxiosService from "./axiosService";
+import data from "@/public/province/db.json";
 
 const getAllProvinces = () => {
-  return axios.get("https://vapi.vnappmob.com/api/province");
+  return Promise.all(data.province);
 };
 
-const getDistrictsByProvinceId = (provinceId: number) => {
-  return axios.get(
-    `https://vapi.vnappmob.com/api/province/district/${provinceId}`
-  );
+const getDistrictsByProvinceId = (provinceId: string) => {
+  return Promise.all(data.district.filter((d) => d.idProvince === provinceId));
 };
 
 const AddressService = {

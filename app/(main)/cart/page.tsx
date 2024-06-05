@@ -375,6 +375,7 @@ const CartPage = () => {
   const [isOrdering, setIsOrdering] = useState(false);
   const [hasCompletedOrder, setHasCompletedOrder] = useState(false);
   const thisUser = useAppSelector((state) => state.profile.value);
+  const [orderNote, setOrderNote] = useState("");
 
   const handleSelectedCardIdsChange = (id: number) => {
     if (selectedCardIds.includes(id)) {
@@ -614,6 +615,7 @@ const CartPage = () => {
                   placeholder="Your note here"
                   labelColor="text-primaryWord"
                   className="resize-none h-24"
+                  onChange={(e) => setOrderNote(e.currentTarget.value)}
                 />
               </div>
               <div className="w-full flex flex-col gap-2">
@@ -839,6 +841,7 @@ const CartPage = () => {
                     cartList,
                     OrderStatus.PENDING,
                     selectedPayMethod,
+                    orderNote,
                     thisUser
                   )
                     .then(() => {

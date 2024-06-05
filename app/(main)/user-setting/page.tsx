@@ -82,7 +82,7 @@ const splitAddress = (address: string) => {
 export default function UserSettingPage() {
   const dispatch = useAppDispatch();
   const [provincesData, setProvincesData] = useState<
-    { province_id: number; province_name: string; province_type: string }[]
+    { idProvince: string; name: string }[]
   >([]);
   const [provinceNameList, setProvinceNameList] = useState<string[]>([]);
   const [districtNameList, setDistrictNameList] = useState<string[]>([]);
@@ -130,11 +130,11 @@ export default function UserSettingPage() {
     const address = thisUser.address;
     if (address !== null) {
       const { houseNumber, street, district, province } = splitAddress(address);
+      if (province) handleProvinceChange(province);
+      form.setValue("province", province);
       form.setValue("houseNumber", houseNumber);
-      console.log("house number init", houseNumber);
       form.setValue("street", street);
       form.setValue("district", district);
-      form.setValue("province", province);
     }
 
     form.setValue("email", thisUser.email);
@@ -218,11 +218,9 @@ export default function UserSettingPage() {
     const fetchAllProvinces = async () => {
       dispatch(showPreloader());
       await AddressService.getAllProvinces()
-        .then((object) => {
-          setProvincesData(object.data.results);
-          setProvinceNameList(
-            object.data.results.map((province: any) => province.province_name)
-          );
+        .then((provinces) => {
+          setProvincesData(provinces);
+          setProvinceNameList(provinces.map((province: any) => province.name));
         })
         .catch((error) => {
           showErrorToast(error.message);
@@ -238,9 +236,6 @@ export default function UserSettingPage() {
       setInitialValues();
     }
   }, [thisUser]);
-  useEffect(() => {
-    console.log("watch houseNumber", watch("houseNumber"));
-  }, [watch("houseNumber")]);
 
   const handleImageChosen = (newFileUrl: File | null) => {
     setChosenImage(newFileUrl);
@@ -252,14 +247,12 @@ export default function UserSettingPage() {
     form.setValue("province", provinceName);
     form.setValue("district", "");
     const province = provincesData.find(
-      (province) => province.province_name === provinceName
+      (province) => province.name === provinceName
     );
     if (province) {
-      await AddressService.getDistrictsByProvinceId(province.province_id)
-        .then((object) => {
-          setDistrictNameList(
-            object.data.results.map((district: any) => district.district_name)
-          );
+      await AddressService.getDistrictsByProvinceId(province.idProvince)
+        .then((districts) => {
+          setDistrictNameList(districts.map((district: any) => district.name));
         })
         .catch((error) => {
           showErrorToast(error.message);
