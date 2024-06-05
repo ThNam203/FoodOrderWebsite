@@ -173,7 +173,6 @@ public class FoodServiceImpl implements FoodService {
 //                    })
 //                    .toList());
 //        }
-        System.out.println(foodDTO.getFoodSizes());
         Food newFood = foodRepository.save(food);
         return FoodMapper.toFoodDTO(newFood);
     }
