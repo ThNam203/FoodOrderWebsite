@@ -9,10 +9,11 @@ const AddOrder = (
   data: Cart[],
   status: OrderStatus,
   paymentMethod: PaymentMethod,
+  note: string,
   user: User
 ) => {
   const orderToSend = OrderToSend(
-    CartsToOrder(data, paymentMethod, user),
+    CartsToOrder(data, paymentMethod, note, user),
     status
   );
   return AxiosService.post("/api/orders", orderToSend, {
